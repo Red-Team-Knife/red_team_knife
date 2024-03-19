@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sections</title>
+</head>
+<body>
+    <div id="sections">
+        <h2>Sections</h2>
+        <ul>
+            <li id="section-1">
+                Section 1
+                <ul>
+                    <li id="section-1-1" class="subsection-link">Section 1.1</li>
+                    <li id="section-1-2" class="subsection-link">Section 1.2</li>
+                </ul>
+            </li>
+            <li id="section-2">
+                Section 2
+                <ul>
+                    <li id="section-2-1" class="subsection-link">Section 2.1</li>
+                    <li id="section-2-2" class="subsection-link">Section 2.2</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div id="selected-subsection-info">
+        Selected Subsection Info
+    </div>
+
+    <!-- Script to handle subsection click events -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const subsectionLinks = document.querySelectorAll('.subsection-link');
+            const infoSection = document.getElementById('selected-subsection-info');
+
+            subsectionLinks.forEach(function(link) {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    if (this.id === 'section-1-1') {
+                        window.location.href = '/nmap_interface';
+                    } else {
+                        infoSection.textContent = 'Info for ' + this.textContent;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
