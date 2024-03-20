@@ -4,11 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    sections = {
-        'Section 1': ['1.1', '1.2'],
-        'Section 2': ['2.1', '2.2'],
-    }
-    return render_template('index.html', sections=sections)
+    return render_template('base.html')
 
 @app.route('/nmap_interface', methods=['GET', 'POST'])
 def nmap_interface():
