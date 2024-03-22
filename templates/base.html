@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}Base Title{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <style>
+        body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
+        body {font-size:16px;}
+        .w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
+        .w3-half img:hover{opacity:1}
+        /* Subitems style settings */
+        .sidebar-item {
+            margin-left: 20px;
+            font-size: 14px;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            max-height: 0;
+        }
+        .sidebar-item.collapsed {
+            max-height: 0;
+        }
+        .sidebar-item.expanded {
+            max-height: 1000px;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Sidebar/menu -->
+    <nav class="w3-sidebar w3-red w3-collapse w3-top w3-large w3-padding" style="z-index:3;width:300px;font-weight:bold;" id="mySidebar">
+        <a href="javascript:void(0)" onclick="index_close()" class="w3-button w3-hide-large w3-display-topleft" style="width:100%;font-size:22px">Tools Index</a>
+        <div class="w3-container">
+            <h3 class="w3-padding-64"><b></b></h3>
+        </div>
+        <div class="w3-bar-block">
+            <a href="#reconnaisance" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">Reconnaissance</a> 
+            <div class="sidebar-item collapsed">
+                <p>Elemento sotto Reconnaissance</p>
+            </div>
+            <a href="#weaponization" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">Weaponization</a> 
+            <div class="sidebar-item collapsed">
+                <p>Elemento sotto Weaponization</p>
+            </div>
+            <a href="#delivery" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">Delivery</a> 
+            <div class="sidebar-item collapsed">
+                <p>Elemento sotto Delivery</p>
+            </div>
+        </div>
+        <a href="#exploitation" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">Exploitation</a> 
+        <div class="sidebar-item collapsed">
+            <p>Elemento sotto Exploitation</p>
+        </div>
+        <a href="#installation" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">Installation</a> 
+        <div class="sidebar-item collapsed">
+            <p>Elemento sotto Installation</p>
+        </div>
+        <a href="#commandandcontrol" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">Command and Control</a> 
+        <div class="sidebar-item collapsed">
+            <p>Elemento sotto Command and Control</p>
+        </div>
+        <a href="#action" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">Action</a> 
+        <div class="sidebar-item collapsed">
+            <p>Elemento sotto Action</p>
+        </div>
+    </div>
+</nav>
+
+<!-- Top menu on small screens -->
+<header class="w3-container w3-top w3-red w3-xlarge w3-padding" style="display: flex; align-items: center; justify-content: space-between; text-align: center;">
+    <!-- Il pulsante del menù a tendina verrà mostrato solo su schermi piccoli e sarà posizionato a sinistra -->
+    <a href="javascript:void(0)" class="w3-button w3-red w3-hide-large w3-left" style="margin-right: auto;" onclick="index_open()">☰</a>
+    <span style="margin: 0 auto;">Swiss Army Knife</span>
+</header>
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="index_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="content" style="margin-left:340px;margin-right:40px">
+    {% block content %}
+    {% endblock %}
+    <!-- End page content -->
+</div>
+
+<script>
+    // Script to open and close sidebar
+    function index_open() {
+        document.getElementById("mySidebar").style.display = "block";
+        document.getElementById("myOverlay").style.display = "block";
+    }
+    
+    function index_close() {
+        document.getElementById("mySidebar").style.display = "none";
+        document.getElementById("myOverlay").style.display = "none";
+    }
+    
+    // Funzione per mostrare l'elemento sotto il pulsante della sidebar con transizione
+    function showItem(element) {
+        var item = element.nextElementSibling;
+        if (item.classList.contains("collapsed")) {
+            item.classList.remove("collapsed");
+            // Aggiungi una pausa prima di aggiungere la classe "expanded"
+            item.classList.add("expanded");
+        } else {
+            item.classList.remove("expanded");
+            item.classList.add("collapsed");
+        }
+    }
+</script>
+
+</body>
+</html>
