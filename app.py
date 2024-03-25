@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, jsonify
 import threading
 import time
 import nmap3
-import controllers.nmap as nmap_controller
+from controllers.nmap import NmapController
 
 app = Flask(__name__)
+nmap_controller = NmapController()
 
 @app.route('/')
 def index():
@@ -23,8 +24,8 @@ def nmap_interface():
         print(target)
         print(options)
         return render_template('nmap_results.html', target=target, options=options)
-
-    return render_template('nmap_interface.html')
+    
+    return render_template('nmap_interface.html', status='not scanning')
 
 @app.route('/nmap_results', methods=['POST'])
 def nmap_results():

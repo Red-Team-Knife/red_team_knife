@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
         body {font-size:16px;}
@@ -24,6 +25,21 @@
         }
         .sidebar-item.expanded {
             max-height: 1000px;
+        }
+        table {
+        border-collapse: collapse;
+        width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .open {
+            background-color: #ffff0087; /* Highlight color for open ports */
         }
     </style>
 </head>
@@ -78,9 +94,11 @@
 <div class="w3-overlay w3-hide-large" onclick="index_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
 
 <!-- !PAGE CONTENT! -->
-<div class="content" style="margin-left:340px;margin-right:40px">
+<div class="content" style="margin-left:340px;margin-right:40px;margin-top:70px;">
+    <section>
     {% block content %}
     {% endblock %}
+    </section>
     <!-- End page content -->
 </div>
 

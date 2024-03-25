@@ -1,19 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nmap Interface</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
+{% extends "base.html" %}
+{%block content%}
     <h1>Nmap Results</h1>
 
     <div id="nmap_results">
-        <p>results loading...</p>
+        <p>Results are loading, please don't close or refresh the window, otherwhise the scan will be lost!</p>
     </div>
 
     <script>
+        //window.addEventListener('beforeunload', (event) => {
+        // Cancel the event as stated by the standard.
+        //event.preventDefault();
+        // Chrome requires returnValue to be set.
+        //event.returnValue = '';
+        //});
+
         $(document).ready(function() {
             // Get target and options values passed from Python
             var target = "{{ target }}";
@@ -30,7 +30,7 @@
                     $('#nmap_results').empty();
     
                     // Append the entire data as HTML content
-                    $('#nmap_results').append('<p>' + JSON.stringify(data) +'</p>');
+                    $('#nmap_results').html(data);
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching Nmap results:', error);
@@ -38,7 +38,4 @@
             });
         });
     </script>
-    
-    
-</body>
-</html>
+{%endblock%}
