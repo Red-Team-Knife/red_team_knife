@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from controllers.nmap import NmapController
 from dataStorage import DataStorage
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 nmap_controller = NmapController()
 data_storage = DataStorage('test.json')
 
