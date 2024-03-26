@@ -9,9 +9,16 @@
 <form method="post">
     <label for="target">Target:</label>
     <input type="text" id="target" name="target" required><br>
-    <label for="options">Options:</label>
-    <input type="text" id="options" name="options"><br>
+
+    <label>Options:</label><br>
+        {% for option in options_list %}
+            {% for key in option.keys() %}
+                <input type="radio" id="{{key}}" name="options" value="{{key}}">
+                <label for="option">{{option[key]}}</label><br>
+            {% endfor %}        
+        {% endfor %}
     <button type="submit">Scan</button>
 </form>
+
 {% endblock %}
 

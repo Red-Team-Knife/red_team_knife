@@ -18,13 +18,11 @@ def index():
 def nmap_interface():
     if request.method == 'POST':
         target = request.form.get('target')
-        options = request.form.get('options')
-
-        print(target)
-        print(options)
-        return render_template('nmap_results.html', target=target, options=options, sections=sections)
+        option = request.form.get('options')
+        #TODO aggiungere loadin per assicurarsi che non si sia chiantato        
+        return render_template('nmap_results.html', target=target, options=option, sections=sections)
     
-    return render_template('nmap_interface.html', sections=sections)
+    return render_template('nmap_interface.html', sections=sections, options_list=nmap_controller.options)
 
 @app.route(sections_provider.LINK_NMAP_RESULTS, methods=['POST'])
 def nmap_results():

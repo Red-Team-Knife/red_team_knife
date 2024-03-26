@@ -4,6 +4,8 @@ import json
 class NmapController():
     def __init__(self):
         self.scan_in_progress = False
+        self.options = [{"top" : "Top Ports"}, {"dns": "DNS Brute Script (Subdomains)"}, {"list": "List Hosts"}, {"os": "Detect Os"}, {"version": "Port Version"}]
+
 
     def scan(self, target, type):
         self.scan_in_progress = True
