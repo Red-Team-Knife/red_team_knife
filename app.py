@@ -1,11 +1,10 @@
 from flask import Flask, render_template, request, jsonify
-import threading
-import time
-import nmap3
 from controllers.nmap import NmapController
+from dataStorage import DataStorage
 
 app = Flask(__name__)
 nmap_controller = NmapController()
+data_storage = DataStorage('test.json')
 
 @app.route('/')
 def index():
@@ -32,9 +31,10 @@ def nmap_results():
     target = request.form.get('target')
     options = request.form.get('options')
 
-    scan_result = nmap_controller.scan(target, options)
+    html_scan_result, scan_result = nmap_controller.scan(target, options)
 
-    return jsonify(scan_result)
+    data_storage.save_key_value('nmap', scan_result)
+    return jsonify(html_scan_result)
  
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

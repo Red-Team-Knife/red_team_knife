@@ -13,29 +13,29 @@ class NmapController():
         if type == 'top':
             nm_scan = nmap.scan_top_ports(target)
             self.scan_in_progress = False
-            return self.format_top_result(nm_scan)
+            return self.format_top_result(nm_scan), nm_scan
         elif type == 'dns':
             nm_scan = nmap.nmap_dns_brute_script(target)
             self.scan_in_progress = False
-            return self.format_dns_result(nm_scan)
+            return self.format_dns_result(nm_scan), nm_scan
         elif type == 'list':
             nm_scan = nmap.nmap_list_scan(target)
             self.scan_in_progress = False
-            return self.format_list_result(nm_scan)
+            return self.format_list_result(nm_scan), nm_scan
         elif type == 'os':
             nm_scan = nmap.nmap_os_detection(target)
             self.scan_in_progress = False
-            return self.format_os_result(nm_scan)
+            return self.format_os_result(nm_scan), nm_scan
         elif type == 'subnet':
             nm_scan = nmap.nmap_subnet_scan(target)
             self.scan_in_progress = False
-            return self.format_subnet_result(nm_scan)
+            return self.format_subnet_result(nm_scan), nm_scan
         elif type == 'version':
             nm_scan = nmap.nmap_version_detection(target)
             self.scan_in_progress = False
-            return self.format_version_result(nm_scan)
+            return self.format_version_result(nm_scan), nm_scan
         else:
-            return self.format_error()
+            return self.format_error(), None
 
 #TODO verificare la presenza dei campi. se non presenti lasciare spazio vuoto
         
