@@ -1,20 +1,20 @@
 from flask import Flask, render_template, request, jsonify
 from controllers.nmap import NmapController
 from dataStorage import DataStorage
+from sections import Sections
 
 app = Flask(__name__, static_url_path='/static')
 nmap_controller = NmapController()
 data_storage = DataStorage('test.json')
+sections_provider = Sections()
+sections = sections_provider.sections
 
 @app.route('/')
 def index():
-    sections = {
-        'Section 1': ['1.1', '1.2'],
-        'Section 2': ['2.1', '2.2'],
-    }
+    
     return render_template('index.html', sections=sections)
 
-@app.route('/nmap_interface', methods=['GET', 'POST'])
+@app.route(sections_provider.LINK_NMAP_INTERFACE, methods=['GET', 'POST'])
 def nmap_interface():
     if request.method == 'POST':
         target = request.form.get('target')
@@ -22,11 +22,11 @@ def nmap_interface():
 
         print(target)
         print(options)
-        return render_template('nmap_results.html', target=target, options=options)
+        return render_template('nmap_results.html', target=target, options=options, sections=sections)
     
-    return render_template('nmap_interface.html', status='not scanning')
+    return render_template('nmap_interface.html', sections=sections)
 
-@app.route('/nmap_results', methods=['POST'])
+@app.route(sections_provider.LINK_NMAP_RESULTS, methods=['POST'])
 def nmap_results():
     target = request.form.get('target')
     options = request.form.get('options')

@@ -1,7 +1,11 @@
 {% extends "base.html" %}
+
+{% block title %}
+- Nmap
+{% endblock %}
 {% block content %}
 
-<h2>Nmap Interface</h2>
+<h2>Nmap</h2>
 <form method="post">
     <label for="target">Target:</label>
     <input type="text" id="target" name="target" required><br>
@@ -9,7 +13,5 @@
     <input type="text" id="options" name="options"><br>
     <button type="submit">Scan</button>
 </form>
-
-<p>{{status}}</p>
 {% endblock %}
 

@@ -1,3 +1,8 @@
+:root {
+    --white: #dddddd ;
+    --background-white:  #f2f2f2; 
+    --yellow-highlighting: #ffff0087;
+}
 body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
 body {font-size:16px;}
 .w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
@@ -21,13 +26,19 @@ table {
     width: 100%;
 }
 th, td {
-    border: 1px solid #dddddd;
+    border: 1px solid var(--white);
     text-align: left;
     padding: 8px;
 }
 th {
-    background-color: #f2f2f2;
+    background-color: var(--background-white);
 }
 .open {
-    background-color: #ffff0087; /* Highlight color for open ports */
+    background-color: var(--yellow-highlighting); /* Highlight color for open ports */
+}
+.no-underline-link {
+    text-decoration: none;
+}
+.no-underline-link-hover {
+    text-decoration: none;
 }

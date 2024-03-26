@@ -1,9 +1,14 @@
 {% extends "base.html" %}
+
+{% block title %}
+- Nmap Scan Results
+{% endblock %}
+
 {%block content%}
-    <h1>Nmap Results</h1>
+    <h1>Nmap Scan Results</h1>
 
     <div id="nmap_results">
-        <p>Results are loading, please don't close or refresh the window, otherwhise the scan will be lost!</p>
+        <p>Scan results are loading, please don't close or refresh the window, otherwhise the scan will be lost!</p>
     </div>
 
     <script>

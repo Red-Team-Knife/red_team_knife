@@ -162,33 +162,33 @@
             }
         },
         "runtime": {
-            "time": "1711445245",
-            "timestr": "Tue Mar 26 10:27:25 2024",
-            "summary": "Nmap done at Tue Mar 26 10:27:25 2024; 1 IP address (1 host up) scanned in 7.06 seconds",
-            "elapsed": "7.06",
+            "time": "1711448250",
+            "timestr": "Tue Mar 26 11:17:30 2024",
+            "summary": "Nmap done at Tue Mar 26 11:17:30 2024; 1 IP address (1 host up) scanned in 7.00 seconds",
+            "elapsed": "7.00",
             "exit": "success"
         },
         "stats": {
             "scanner": "nmap",
             "args": "/usr/bin/nmap -v -oX - --top-ports 10 scanme.nmap.org",
-            "start": "1711445238",
-            "startstr": "Tue Mar 26 10:27:18 2024",
+            "start": "1711448243",
+            "startstr": "Tue Mar 26 11:17:23 2024",
             "version": "7.94SVN",
             "xmloutputversion": "1.05"
         },
         "task_results": [
             {
                 "task": "Ping Scan",
-                "time": "1711445240",
+                "time": "1711448245",
                 "extrainfo": "1 total hosts"
             },
             {
                 "task": "Parallel DNS resolution of 1 host.",
-                "time": "1711445242"
+                "time": "1711448247"
             },
             {
                 "task": "Connect Scan",
-                "time": "1711445245",
+                "time": "1711448250",
                 "extrainfo": "10 total ports"
             }
         ]
