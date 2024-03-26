@@ -4,7 +4,7 @@ import time
 import nmap3
 from controllers.nmap import NmapController
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 nmap_controller = NmapController()
 
 @app.route('/')

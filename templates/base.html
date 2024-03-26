@@ -6,42 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
-        body {font-size:16px;}
-        .w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
-        .w3-half img:hover{opacity:1}
-        /* Subitems style settings */
-        .sidebar-item {
-            margin-left: 20px;
-            font-size: 14px;
-            overflow: hidden;
-            transition: max-height 0.5s ease;
-            max-height: 0;
-        }
-        .sidebar-item.collapsed {
-            max-height: 0;
-        }
-        .sidebar-item.expanded {
-            max-height: 1000px;
-        }
-        table {
-        border-collapse: collapse;
-        width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .open {
-            background-color: #ffff0087; /* Highlight color for open ports */
-        }
-    </style>
+    
 </head>
 <body>
     
@@ -102,31 +70,6 @@
     <!-- End page content -->
 </div>
 
-<script>
-    // Script to open and close sidebar
-    function index_open() {
-        document.getElementById("mySidebar").style.display = "block";
-        document.getElementById("myOverlay").style.display = "block";
-    }
-    
-    function index_close() {
-        document.getElementById("mySidebar").style.display = "none";
-        document.getElementById("myOverlay").style.display = "none";
-    }
-    
-    // Funzione per mostrare l'elemento sotto il pulsante della sidebar con transizione
-    function showItem(element) {
-        var item = element.nextElementSibling;
-        if (item.classList.contains("collapsed")) {
-            item.classList.remove("collapsed");
-            // Aggiungi una pausa prima di aggiungere la classe "expanded"
-            item.classList.add("expanded");
-        } else {
-            item.classList.remove("expanded");
-            item.classList.add("collapsed");
-        }
-    }
-</script>
 
 </body>
 </html>
