@@ -1,10 +1,11 @@
 import nmap3
-import json
+
 
 class NmapController():
     def __init__(self):
         self.scan_in_progress = False
         self.options = [{"top" : "Top Ports"}, {"dns": "DNS Brute Script (Subdomains)"}, {"list": "List Hosts"}, {"os": "Detect Os"}, {"version": "Port Version"}]
+        self.scan_result = None
 
 
     def scan(self, target, type):
@@ -13,31 +14,31 @@ class NmapController():
         nmap = nmap3.Nmap()
 
         if type == 'top':
-            nm_scan = nmap.scan_top_ports(target)
+            self.scan_result = nmap.scan_top_ports(target)
             self.scan_in_progress = False
-            return self.format_top_result(nm_scan), nm_scan
+            return self.format_top_result(self.scan_result)
         elif type == 'dns':
-            nm_scan = nmap.nmap_dns_brute_script(target)
+            self.scan_result = nmap.nmap_dns_brute_script(target)
             self.scan_in_progress = False
-            return self.format_dns_result(nm_scan), nm_scan
+            return self.format_dns_result(self.scan_result)
         elif type == 'list':
-            nm_scan = nmap.nmap_list_scan(target)
+            self.scan_result = nmap.nmap_list_scan(target)
             self.scan_in_progress = False
-            return self.format_list_result(nm_scan), nm_scan
+            return self.format_list_result(self.scan_result)
         elif type == 'os':
-            nm_scan = nmap.nmap_os_detection(target)
+            self.scan_result = nmap.nmap_os_detection(target)
             self.scan_in_progress = False
-            return self.format_os_result(nm_scan), nm_scan
+            return self.format_os_result(self.scan_result)
         elif type == 'subnet':
-            nm_scan = nmap.nmap_subnet_scan(target)
+            self.scan_result = nmap.nmap_subnet_scan(target)
             self.scan_in_progress = False
-            return self.format_subnet_result(nm_scan), nm_scan
+            return self.format_subnet_result(self.scan_result)
         elif type == 'version':
-            nm_scan = nmap.nmap_version_detection(target)
+            self.scan_result = nmap.nmap_version_detection(target)
             self.scan_in_progress = False
-            return self.format_version_result(nm_scan), nm_scan
+            return self.format_version_result(self.scan_result)
         else:
-            return self.format_error(), None
+            return self.format_error()
 
 #TODO verificare la presenza dei campi. se non presenti lasciare spazio vuoto
         

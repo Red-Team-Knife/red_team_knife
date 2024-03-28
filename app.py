@@ -19,7 +19,7 @@ def nmap_interface():
     if request.method == 'POST':
         target = request.form.get('target')
         option = request.form.get('options')
-        #TODO aggiungere loadin per assicurarsi che non si sia chiantato        
+      
         return render_template('nmap_results.html', target=target, options=option, sections=sections)
     
     return render_template('nmap_interface.html', sections=sections, options_list=nmap_controller.options)
@@ -29,10 +29,13 @@ def nmap_results():
     target = request.form.get('target')
     options = request.form.get('options')
 
-    html_scan_result, scan_result = nmap_controller.scan(target, options)
-
-    data_storage.save_key_value('nmap', scan_result)
+    html_scan_result = nmap_controller.scan(target, options)
     return jsonify(html_scan_result)
+
+@app.route(sections_provider.LINK_NMAP_SAVE_RESULTS, methods=['POST'])
+def nmap_save_results():
+    data_storage.save_key_value('nmap', nmap_controller.scan_result)
+    return "<p>Results successfully saved.</p>"
  
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

@@ -14,3 +14,4 @@ class Sections():
 
         self.LINK_NMAP_INTERFACE = '/nmap_interface'
         self.LINK_NMAP_RESULTS = '/nmap_results'
+        self.LINK_NMAP_SAVE_RESULTS = '/nmap_save_results'
