@@ -2,20 +2,17 @@ from flask import Flask, render_template, request, jsonify
 from controllers.nmap import NmapController
 from dataStorage import DataStorage
 from sections import Sections
-from controllers.scan import ScanController
 
 app = Flask(__name__, static_url_path='/static')
 nmap_controller = NmapController()
 data_storage = DataStorage('test.json')
 sections_provider = Sections()
 sections = sections_provider.sections
-scan_controller = ScanController()
 
 @app.route('/')
 def index():
-    scan_list = scan_controller.fetch_saved_scans()
     
-    return render_template('index.html', scan_list=scan_list)
+    return render_template('index.html', sections=sections)
 
 @app.route(sections_provider.LINK_NMAP_INTERFACE, methods=['GET', 'POST'])
 def nmap_interface():
