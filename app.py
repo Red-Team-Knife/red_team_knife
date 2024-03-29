@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from controllers.nmap import NmapController
+from controllers.scan import ScanController
 from dataStorage import DataStorage
 from sections import Sections
 
@@ -8,11 +9,20 @@ nmap_controller = NmapController()
 data_storage = DataStorage('test.json')
 sections_provider = Sections()
 sections = sections_provider.sections
+scan_controller = ScanController()
 
 @app.route('/')
 def index():
+    scan_list = scan_controller.fetch_saved_scans() 
     
-    return render_template('index.html', sections=sections)
+    return render_template('index.html', sections=sections, scan_list=scan_list)
+
+@app.route('/new_scan', methods=['POST'])
+def new_scan():
+    scan_name = request.form.get('input_text') #cambiare l'input_text
+    print(request.form)
+    scan_controller.create_file(scan_name)
+    return "success"
 
 @app.route(sections_provider.LINK_NMAP_INTERFACE, methods=['GET', 'POST'])
 def nmap_interface():
