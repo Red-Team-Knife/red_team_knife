@@ -34,7 +34,7 @@
         <!-- Inserisci qui gli item -->
         {% if scan_list %}
             {% for key in scan_list.keys() %}
-                <a href="{{ url_for('scan_detail', scan=scan_list.get(key)) }}" class="scan-item">{{ scan_list.get(key) }}</a>
+                <a href="{{ url_for('scan_detail', scan_file_name=key) }}" class="scan-item">{{ scan_list.get(key) }}</a>
             {% endfor %}
 
         {% else %}

@@ -3,7 +3,7 @@ from controllers.nmap import NmapController
 from dataStorage import DataStorage
 from sections import Sections
 from models.scan import Scan
-
+from util import *
 import os
 
 app = Flask(__name__, static_url_path='/static')
@@ -19,9 +19,16 @@ if not os.path.exists(SCANS_PATH):
     os.makedirs(ROOT_FOLDER)
     os.path.abspath(SCANS_PATH)
 
+@app.context_processor
+def utility_processor():
+    return dict(render_dictionary=render_dictionary)
 
 @app.route('/')
 def index():
+    global current_scan
+    if current_scan is not None:
+        scan = current_scan.data_storage.__data__ 
+        return render_template('index_scan.html',sections= sections, scan= scan)
 
     # List all saved scans
     scan_list = {}
@@ -30,7 +37,6 @@ def index():
         scan = Scan(file_source= SCANS_PATH + "/" + scan_name)
         scan_list[scan_name] = scan.name
 
-    #TODO verificare presenza di scansione già avviata e caricarne i dettagli
     
     return render_template('index.html', sections=sections, scan_list=scan_list)
 
@@ -46,7 +52,8 @@ def new_scan():
 @app.route('/scan_detail', methods=['GET'])
 def scan_detail():
     global current_scan
-    current_scan = request.args.get('scan')
+    scan_file_name = request.args.get('scan_file_name')
+    current_scan = Scan(file_source= SCANS_PATH + "/" + scan_file_name)
     return redirect(url_for('index'))
 
 @app.route(sections_provider.LINK_NMAP_INTERFACE, methods=['GET', 'POST'])

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}
+- Home Scan
+{% endblock %}
+
+{% block content %}
+<div class="past-scan">
+    {{ render_dictionary(scan) | safe }}
+</div>
+{% endblock %}
