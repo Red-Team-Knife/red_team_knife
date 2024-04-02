@@ -42,3 +42,16 @@ th {
 .no-underline-link-hover {
     text-decoration: none;
 }
+
+.scan-item {
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-bottom: 1px solid #aaa;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: calc(100% - 22px); /* considera il padding e il bordo */
+    margin: 0 10px; /* margine per separare gli elementi */
+}
+

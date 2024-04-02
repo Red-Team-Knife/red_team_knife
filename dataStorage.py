@@ -20,3 +20,6 @@ class DataStorage():
     def save_key_value(self, key, value):
         self.__data__[key] = value
         self.__save_data__()
+
+    def get_value(self, key):
+        return self.__data__.get(key)

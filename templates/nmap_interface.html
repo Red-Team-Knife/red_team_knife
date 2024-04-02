@@ -7,8 +7,12 @@
 
 <h2>Nmap</h2>
 <form method="post">
+
     <label for="target">Target:</label>
-    <input type="text" id="target" name="target" required><br>
+    <input type="text" id="target" name="target"
+        value="{% if target %}{{ target }}{% endif %}"
+        {% if target %} readonly {% endif %} 
+    required><br>
 
     <label>Options:</label><br>
         {% for option in options_list %}
