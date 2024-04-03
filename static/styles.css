@@ -61,3 +61,18 @@ th {
     background-color: #f2f2f2;
     padding: 20px;
 }
+.new-scan-button {
+    text-decoration: none;
+    border-bottom: 1px solid #aaa;
+    background-color: #4CAF50; /* Colore di sfondo */
+    border: none; /* Nessun bordo */
+    color: white; /* Colore del testo */
+    padding: 15px 32px; /* Spaziatura interna */
+    text-align: center; /* Allineamento del testo */
+    text-decoration: none; /* Nessun sottolineato */
+    display: inline-block; /* Visualizza come blocco inline */
+    font-size: 16px; /* Dimensione del carattere */
+    margin: 4px 2px; /* Margine */
+    cursor: pointer; /* Tipo di cursore */
+    border-radius: 10px; /* Bordi arrotondati */
+  }

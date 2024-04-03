@@ -40,11 +40,19 @@ def index():
     
     return render_template('index.html', sections=sections, scan_list=scan_list)
 
-@app.route('/new_scan', methods=['POST'])
+@app.route('/new_scan', methods=['POST', 'GET'])
 def new_scan():
+    global current_scan
+
+    #TODO fixare il redirect
+    if request.method == 'GET':
+        current_scan = None
+        return redirect(url_for("index"))
+    
+
     scan_name = request.form.get('scan_name')
     scan_host = request.form.get('scan_host')
-    global current_scan
+
     current_scan = Scan(scan_name, scan_host, SCANS_PATH)
 
     return redirect(url_for("index"))
