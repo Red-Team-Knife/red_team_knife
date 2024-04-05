@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}
+theHarvester Scan Results
+{% endblock %}
+
+{%block content%}
+<h1>theHarvester Scan Results</h1>
+<div id="save_results_section">
+    <button id="save_results" style="display: none;">Save Results</button>
+</div>
+
+<div id="nmap_results">
+    <p><i class="fas fa-spinner fa-spin"></i>   Scan results are loading, please don't close or refresh the window,
+        otherwhise the scan will be lost!</p>
+    <button id="abort_scan" style="display:none;">Abort Scan</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var target = "{{ target }}";
+        var source = "{{source}}";
+        var result_limit = "{{result_limit}}";
+        var result_limit_enable = "{{result_limit_enable}}";
+        var offset = "{{offset}}";
+        var proxy = "{{proxy}}";
+        var dns_bruteforce = "{{dns_bruteforce}}";
+        var dns_lookup = "{{dns_lookup}}";
+        var dns_resolution = "{{dns_resolution_virtual_hosts}}";
+        var dns_server = "{{dns_server}}";
+        var screenshot = "{{screenshot}}";
+        var shodan = "{{shodan}}";
+        var subdomain_resolution = "{{subdomain_resolution}}";;
+        var takeover_check = "{{takeover_check}}";
+
+        var theHarvesterResultsDiv = $('#nmap_results');
+        var loadingMsg = $('#loading_msg');
+        var abortBtn = $('#abort_scan');
+        var saveBtn = $('#save_results');
+        var saveResultsDiv = $('#save_results_section')
+
+        var xhr;
+
+        abortBtn.on('click', function () {
+            if (xhr && xhr.readyState !== 4) {
+                xhr.abort();
+                window.location.href = "{{hyperlink_constants.LINK_THE_HARVESTER_INTERFACE}}"
+            }
+        });
+
+        saveBtn.on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: "{{hyperlink_constants.LINK_THE_HARVESTER_SAVE_RESULTS}}",
+                data: {},
+                success: function (response) {
+
+                    saveResultsDiv.html(response)
+                },
+                error: function (xhr, status, error) {
+
+                    console.error('Error saving results:', error);
+                    alert('Error saving results.');
+                }
+            });
+        });
+
+        xhr = $.ajax({
+            type: 'POST',
+            url: "{{hyperlink_constants.LINK_THE_HARVESTER_RESULTS}}",
+            data: {
+                target: target, source: source, result_limit: result_limit, result_limit_enable: result_limit_enable,
+                offset: offset, proxy: proxy, dns_bruteforce: dns_bruteforce, dns_lookup: dns_lookup,
+                dns_resolution: dns_resolution, dns_server: dns_server,
+                screenshot: screenshot, shodan: shodan, subdomain_resolution: subdomain_resolution,
+                takeover_check: takeover_check
+            },
+            beforeSend: function () {
+                loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
+                abortBtn.show();
+            },
+            success: function (data) {
+                theHarvesterResultsDiv.html(data);
+                saveBtn.show();
+                abortBtn.hide();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching theHarvester results:', error);
+                theHarvesterResultsDiv.html('<p>Error fetching theHarvester results. Check terminal for more information.</p>');
+                abortBtn.hide();
+            }
+        });
+    });
+</script>
+{%endblock%}

@@ -1,57 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>Swiss Army Knife {% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %} - Swiss Army Knife</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
     <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
-    
+
     <!-- Sidebar/menu -->
-<nav class="w3-sidebar w3-red w3-collapse w3-top w3-large w3-padding" style="z-index:3;width:300px;font-weight:bold;" id="mySidebar">
-    <a href="javascript:void(0)" onclick="index_close()" class="w3-button w3-hide-large w3-display-topleft" style="width:100%;font-size:22px">Tools Index</a>
-    <div class="w3-container">
-        <h3 class="w3-padding-64"><b></b></h3>
-    </div>
-    
-    <div class="w3-bar-block">
-        {% for section in sections %}
-            <a href="#exploitation" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">{{ section }}</a> 
+    <nav class="w3-sidebar w3-red w3-collapse w3-top w3-large w3-padding"
+        style="z-index:3;width:300px;font-weight:bold;" id="mySidebar">
+        <a href="javascript:void(0)" onclick="index_close()" class="w3-button w3-hide-large w3-display-topleft"
+            style="width:100%;font-size:22px">Tools Index</a>
+        <div class="w3-container">
+            <h3 class="w3-padding-64"><b></b></h3>
+        </div>
+
+        <div class="w3-bar-block">
+            {% for section in sections %}
+            <a href="#exploitation" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">{{ section
+                }}</a>
             <div class="sidebar-item collapsed">
                 {% for subsection in sections[section] %}
-                    {% for key in subsection.keys() %}
-                        <p><a href="{{subsection[key]}}">{{ key }}</a></p>
-                    {% endfor %}
-                {% endfor %}    
+                {% for key in subsection.keys() %}
+                <p><a href="{{subsection[key]}}">{{ key }}</a></p>
+                {% endfor %}
+                {% endfor %}
             </div>
-            
-        {% endfor %}
+
+            {% endfor %}
+        </div>
+    </nav>
+
+    <header class="w3-container w3-top w3-red w3-xlarge w3-padding"
+        style="display: flex; align-items: center; justify-content: space-between; text-align: center;">
+        <a href="javascript:void(0)" class="w3-button w3-red w3-hide-large w3-left" style="margin-right: auto;"
+            onclick="index_open()">☰</a>
+        <a href="/" class="no-underline-link"><span style="margin: 0 auto;">Swiss Army Knife</span></a>
+    </header>
+    <div class="w3-overlay w3-hide-large" onclick="index_close()" style="cursor:pointer" title="close side menu"
+        id="myOverlay"></div>
+
+    <div class="content" style="margin-left:340px;margin-right:40px;margin-top:70px;">
+        <section>
+            {% block content %}
+            {% endblock %}
+        </section>
     </div>
-</nav>
-
-<!-- Top menu on small screens -->
-<header class="w3-container w3-top w3-red w3-xlarge w3-padding" style="display: flex; align-items: center; justify-content: space-between; text-align: center;">
-    <!-- Il pulsante del menù a tendina verrà mostrato solo su schermi piccoli e sarà posizionato a sinistra -->
-    <a href="javascript:void(0)" class="w3-button w3-red w3-hide-large w3-left" style="margin-right: auto;" onclick="index_open()">☰</a>
-    <a href="/" class="no-underline-link"><span style="margin: 0 auto;">Swiss Army Knife</span></a>
-</header>
-<!-- Overlay effect when opening sidebar on small screens -->
-<div class="w3-overlay w3-hide-large" onclick="index_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
-
-<!-- !PAGE CONTENT! -->
-<div class="content" style="margin-left:340px;margin-right:40px;margin-top:70px;">
-    <section>
-    {% block content %}
-    {% endblock %}
-    </section>
-    <!-- End page content -->
-</div>
 
 
 </body>
+
 </html>

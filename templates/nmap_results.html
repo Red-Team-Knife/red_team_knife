@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-- Nmap Scan Results
+Nmap Scan Results
 {% endblock %}
 
 {%block content%}
@@ -12,7 +12,8 @@
 
 
 <div id="nmap_results">
-    <p><i class="fas fa-spinner fa-spin"></i>Scan results are loading, please don't close or refresh the window, otherwhise the scan will be lost!</p>
+    <p><i class="fas fa-spinner fa-spin"></i>   Scan results are loading, please don't close or refresh the window,
+        otherwhise the scan will be lost!</p>
     <button id="abort_scan" style="display:none;">Abort Scan</button>
 </div>
 
@@ -21,74 +22,60 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 
 <script>
-    //window.addEventListener('beforeunload', (event) => {
-        // Cancel the event as stated by the standard.
-        //event.preventDefault();
-        // Chrome requires returnValue to be set.
-        //event.returnValue = '';
-        //});
-        
-        $(document).ready(function() {
-            var target = "{{ target }}";
-            var options = "{{ options }}";
-            var nmapResultsDiv = $('#nmap_results');
-            var loadingMsg = $('#loading_msg');
-            var abortBtn = $('#abort_scan');
-            var saveBtn = $('#save_results');
-            var saveResultsDiv = $('#save_results_section')
-            
-            
-            
-            var xhr;
-            
-            abortBtn.on('click', function() {                
-                if (xhr && xhr.readyState !== 4) {
-                    xhr.abort();
-                    window.location.href = '/nmap_interface'
-                }
-            });
-            
-            saveBtn.on('click', function() {
-                $.ajax({                    
-                    type: 'POST',
-                    url: '/nmap_save_results',
-                    data: {},
-                    success: function(response) {
-                        
-                        saveResultsDiv.html(response)
-                    },
-                    error: function(xhr, status, error) {
-                        
-                        console.error('Error saving results:', error);
-                        alert('Error saving results. Please try again later.');
-                    }
-                });
-            });
-            
-            xhr = $.ajax({
+    $(document).ready(function () {
+        var target = "{{ target }}";
+        var options = "{{ options }}";
+        var nmapResultsDiv = $('#nmap_results');
+        var loadingMsg = $('#loading_msg');
+        var abortBtn = $('#abort_scan');
+        var saveBtn = $('#save_results');
+        var saveResultsDiv = $('#save_results_section')
+
+        var xhr;
+
+        abortBtn.on('click', function () {
+            if (xhr && xhr.readyState !== 4) {
+                xhr.abort();
+                window.location.href = "{{hyperlink_constants.LINK_NMAP_INTERFACE}}"
+            }
+        });
+
+        saveBtn.on('click', function () {
+            $.ajax({
                 type: 'POST',
-                url: '/nmap_results',
-                data: { target: target, options: options },
-                beforeSend: function() {
-                    // Mostra l'icona di caricamento e il pulsante di abort
-                    loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
-                    abortBtn.show();
+                url: "{{hyperlink_constants.LINK_NMAP_SAVE_RESULTS}}",
+                data: {},
+                success: function (response) {
+
+                    saveResultsDiv.html(response)
                 },
-                success: function(data) {
-                    // Sostituisci l'icona di caricamento con i risultati
-                    nmapResultsDiv.html(data);
-                    saveBtn.show();
-                    // Nascondi il pulsante di abort quando i risultati sono caricati
-                    abortBtn.hide();
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching Nmap results:', error);
-                    // Mostra un messaggio di errore se necessario
-                    nmapResultsDiv.html('<p>Error fetching Nmap results. Please try again later.</p>');
-                    // Nascondi il pulsante di abort in caso di errore
-                    abortBtn.hide();
+                error: function (xhr, status, error) {
+
+                    console.error('Error saving results:', error);
+                    alert('Error saving results.');
                 }
             });
         });
-    </script>
-    {%endblock%}
+
+        xhr = $.ajax({
+            type: 'POST',
+            url: '/nmap_results',
+            data: { target: target, options: options },
+            beforeSend: function () {
+                loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
+                abortBtn.show();
+            },
+            success: function (data) {
+                nmapResultsDiv.html(data);
+                saveBtn.show();
+                abortBtn.hide();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching Nmap results:', error);
+                nmapResultsDiv.html('<p>Error fetching Nmap results. Check terminal for more information.</p>');
+                abortBtn.hide();
+            }
+        });
+    });
+</script>
+{%endblock%}

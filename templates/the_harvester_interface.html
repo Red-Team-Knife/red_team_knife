@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+theHarvester
+{% endblock %}
+{% block content %}
+
+<h2>theHarvester</h2>
+<form method="post">
+
+    <label for="target">Target:</label>
+    <input type="text" id="target" name="target" value="{% if target %}{{ target }}{% endif %}" {% if target %} readonly
+        {% endif %} required><br><br>
+
+    <label>Options:</label><br><br>
+    <label for="{{LIMIT}}">Limit:</label>
+    <input type="number" id="{{LIMIT}}" name="{{LIMIT}}" value="500" min="1">
+    <input type="checkbox" id="{{LIMIT_ENABLE}}" name="{{LIMIT_ENABLE}}" onchange="toggleLimit()" checked="true">
+    <label for="{{LIMIT_ENABLE}}">Enable Limit</label>
+    <br>
+    <label for="{{OFFSET}}">Offset:</label>
+    <input type="number" id="{{OFFSET}}" name="{{OFFSET}}" value="0" min="0">
+    <br>
+    <label for="{{PROXY}}">Proxy:</label>
+    <input type="text" id="{{PROXY}}" name="{{PROXY}}" placeholder="Enter proxy">
+    <br>
+    <input type="checkbox" id="{{SHODAN}}" name="{{SHODAN}}">
+    <label for="{{SHODAN}}">Use Shodan</label>
+    <br>
+    <input type="checkbox" id="{{SCREENSHOT}}" name="{{SCREENSHOT}}">
+    <label for="{{SCREENSHOT}}">Take Screenshots</label>
+    <br>
+    <input type="checkbox" id="{{DNS_RESOLUTION}}" name="{{DNS_RESOLUTION}}">
+    <label for="{{DNS_RESOLUTION}}">Enable DNS Resolution</label>
+    <br>
+    <label for="{{DNS_SERVER}}">DNS Server:</label>
+    <input type="text" id="{{DNS_SERVER}}" name="{{DNS_SERVER}}" placeholder="Enter DNS server">
+    <br>
+    <input type="checkbox" id="{{TAKEOVER_CHECK}}" name="{{TAKEOVER_CHECK}}">
+    <label for="{{TAKEOVER_CHECK}}">Perform Takeover Check</label>
+    <br>
+    <input type="checkbox" id="{{SUBDOMAIN_RESOLUTION}}" name="{{SUBDOMAIN_RESOLUTION}}">
+    <label for="{{SUBDOMAIN_RESOLUTION}}">Perform Subdomain Resolution</label>
+    <br>
+    <input type="checkbox" id="{{DNS_LOOKUP}}" name="{{DNS_LOOKUP}}">
+    <label for="{{DNS_LOOKUP}}">Enable DNS Lookup</label>
+    <br>
+    <input type="checkbox" id="{{DNS_BRUTEFORCE}}" name="{{DNS_BRUTEFORCE}}">
+    <label for="{{DNS_BRUTEFORCE}}">Enable DNS Bruteforce</label>
+    <br>
+    <label for="{{SOURCE}}">Source:</label>
+    <select name="{{SOURCE}}" id="{{SOURCE}}" value="all">
+        <option value="all">all</option>
+        <option value="anubis">anubis</option>
+        <option value="baidu">baidu</option>
+        <option value="bevigil">bevigil</option>
+        <option value="binaryedge">binaryedge</option>
+        <option value="bing">bing</option>
+        <option value="bingapi">bingapi</option>
+        <option value="bufferoverrun">bufferoverrun</option>
+        <option value="brave">brave</option>
+        <option value="censys">censys</option>
+        <option value="certspotter">certspotter</option>
+        <option value="criminalip">criminalip</option>
+        <option value="crtsh">crtsh</option>
+        <option value="dnsdumpster">dnsdumpster</option>
+        <option value="duckduckgo">duckduckgo</option>
+        <option value="fullhunt">fullhunt</option>
+        <option value="github-code">github-code</option>
+        <option value="hackertarget">hackertarget</option>
+        <option value="hunter">hunter</option>
+        <option value="hunterhow">hunterhow</option>
+        <option value="intelx">intelx</option>
+        <option value="netlas">netlas</option>
+        <option value="onyphe">onyphe</option>
+        <option value="otx">otx</option>
+        <option value="projectDiscovery">projectDiscovery</option>
+        <option value="rapiddns">rapiddns</option>
+        <option value="rocketreach">rocketreach</option>
+        <option value="securityTrails">securityTrails</option>
+        <option value="sitedossier">sitedossier</option>
+        <option value="subdomaincenter">subdomaincenter</option>
+        <option value="subdomainfincerc99">subdomainfincerc99</option>
+        <option value="threatminer">threatminer</option>
+        <option value="tomba">tomba</option>
+        <option value="urlscan">urlscan</option>
+        <option value="vhost">vhost</option>
+        <option value="virustotal">virustotal</option>
+        <option value="yahoo">yahoo</option>
+        <option value="zoomeye">zoomeye</option>
+    </select><br><br>
+    <button type="submit">Scan</button>
+</form>
+
+
+<script>
+    function toggleLimit() {
+        var limitInput = document.getElementById("limit");
+        var limitCheckbox = document.getElementById("limit_enable");
+        limitInput.disabled = !limitCheckbox.checked;
+    }
+</script>
+
+{% endblock %}

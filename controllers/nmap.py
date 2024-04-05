@@ -1,47 +1,41 @@
 import nmap3
 
-
 class NmapController():
     def __init__(self):
-        self.scan_in_progress = False
-        self.options = [{"top" : "Top Ports"}, {"dns": "DNS Brute Script (Subdomains)"}, {"list": "List Hosts"}, {"os": "Detect Os"}, {"version": "Port Version"}]
-        self.scan_result = None
+        self.scan_options = [{"top" : "Top Ports"},
+                        {"dns": "DNS Brute Script (Subdomains)"},
+                        {"list": "List Hosts"},
+                        {"os": "Detect Os"},
+                        {"version": "Port Version"}]
+        self.last_scan_result = None
 
-
-    def scan(self, target, type):
-        self.scan_in_progress = True
+    def run(self, target, type):
 
         nmap = nmap3.Nmap()
 
         if type == 'top':
-            self.scan_result = nmap.scan_top_ports(target)
-            self.scan_in_progress = False
-            return self.format_top_result(self.scan_result)
+            self.last_scan_result = nmap.scan_top_ports(target)
+            return self.format_top_result(self.last_scan_result)
         elif type == 'dns':
-            self.scan_result = nmap.nmap_dns_brute_script(target)
-            self.scan_in_progress = False
-            return self.format_dns_result(self.scan_result)
+            self.last_scan_result = nmap.nmap_dns_brute_script(target)
+            return self.format_dns_result(self.last_scan_result)
         elif type == 'list':
-            self.scan_result = nmap.nmap_list_scan(target)
-            self.scan_in_progress = False
-            return self.format_list_result(self.scan_result)
+            self.last_scan_result = nmap.nmap_list_scan(target)
+            return self.format_list_result(self.last_scan_result)
         elif type == 'os':
-            self.scan_result = nmap.nmap_os_detection(target)
-            self.scan_in_progress = False
-            return self.format_os_result(self.scan_result)
+            self.last_scan_result = nmap.nmap_os_detection(target)
+            return self.format_os_result(self.last_scan_result)
         elif type == 'subnet':
-            self.scan_result = nmap.nmap_subnet_scan(target)
-            self.scan_in_progress = False
-            return self.format_subnet_result(self.scan_result)
+            self.last_scan_result = nmap.nmap_subnet_scan(target)
+            return self.format_subnet_result(self.last_scan_result)
         elif type == 'version':
-            self.scan_result = nmap.nmap_version_detection(target)
-            self.scan_in_progress = False
-            return self.format_version_result(self.scan_result)
+            self.last_scan_result = nmap.nmap_version_detection(target)
+            return self.format_version_result(self.last_scan_result)
         else:
             return self.format_error()
 
 #TODO verificare la presenza dei campi. se non presenti lasciare spazio vuoto
-        
+
     def format_list_result(self, scan_result):
         html_output =   """
                         <table>
@@ -53,6 +47,7 @@ class NmapController():
                         """
 
         ips = scan_result.keys() - ['runtime', 'stats', 'task_results']
+        
         # Loop through each IP address
         for ip in ips:
             print(ip)
@@ -67,7 +62,6 @@ class NmapController():
                 """
         html_output += "</table>"
         return html_output
-        
 
     def format_os_result(self, scan_result):
         print(scan_result)
@@ -102,7 +96,7 @@ class NmapController():
                 """
         html_output += "</table>"
         return html_output
-
+    
 #TODO non funziona
     def format_subnet_result(self, scan_result):
         print(scan_result)

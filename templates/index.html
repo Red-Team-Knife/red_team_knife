@@ -1,17 +1,14 @@
 {% extends "base.html" %}
 {%block title%}
-- Home
+Home
 {% endblock %}
 
 {% block content %}
-<!-- Contenuto specifico per l'indice -->
 <div style="text-align: center;">
-    <!-- Prima area -->
-    <div class="w3-container" style="display: inline-block; width: 45%; border-right: 1px solid black; padding-right: 10px; padding-top: 100px;">
-        <!-- Contenuto della prima area -->
+    <div class="w3-container"
+        style="display: inline-block; width: 45%; border-right: 1px solid black; padding-right: 10px; padding-top: 100px;">
         <h2 class="w3-xxxlarge w3-text-red"><b>New Scan</b></h2>
         <form action="/new_scan" method="post">
-            <!-- Etichetta di testo inseribile -->
             <label for="input_text">Scan name:</label>
             <br>
             <input type="text" id="input_text" name="scan_name" required>
@@ -20,28 +17,23 @@
             <br>
             <input type="text" id="input_text" name="scan_host" required>
             <br><br>
-            <!-- Pulsante di invio -->
             <input type="submit" value="Invia">
         </form>
     </div>
-    <!-- Linea di demarcazione -->
+
     <div style="display: inline-block; width: 10px;"></div>
-    <!-- Seconda area -->
     <div style="display: inline-block; width: 45%; padding-left: 10px;">
-        <!-- Contenuto della seconda area -->
         <h2 class="w3-xxxlarge w3-text-red"><b>Past Scans</b></h2>
-        <div style="width: calc(100% - 20px); height: calc(100% - 20px); border: 1px solid #aaa; background-color: #e0e0e0; margin: 10px; overflow: auto;">
-        <!-- Inserisci qui gli item -->
-        {% if scan_list %}
+        <div
+            style="width: calc(100% - 20px); height: calc(100% - 20px); border: 1px solid #aaa; background-color: #e0e0e0; margin: 10px; overflow: auto;">
+            {% if scan_list %}
             {% for key in scan_list.keys() %}
-                <a href="{{ url_for('scan_detail', scan_file_name=key) }}" class="scan-item">{{ scan_list.get(key) }}</a>
+            <a href="{{ url_for('scan_detail', scan_file_name=key) }}" class="scan-item">{{ scan_list.get(key) }}</a>
             {% endfor %}
 
-        {% else %}
+            {% else %}
             <p style="padding: 10px;">No past scan found.</p>
-        {% endif %}
-
-            <!-- Puoi aggiungere più item come desideri -->
+            {% endif %}
         </div>
     </div>
 </div>
