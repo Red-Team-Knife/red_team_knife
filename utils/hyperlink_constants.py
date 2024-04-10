@@ -1,11 +1,10 @@
-from flask import url_for
-
 
 
 SECTIONS = {
     "Reconnaissance": [
         {"Nmap": '/nmap'},
         {"theHarvester": '/theHarvester'},
+        {"Feroxbuster": '/feroxbuster'}
     ],
     "Weaponization": [{"Nmap": "/nmap_interface"}],
     "Delivery": [{"Nmap": "/nmap_interface"}],

@@ -1,5 +1,5 @@
 import subprocess, os, json, shutil
-from html_format_util import *
+from utils.html_format_util import *
 
 BURP = "burp"
 BURP_REPLAY = "burp-replay"
@@ -51,7 +51,7 @@ IGNORE_EXTENSIONS = "ignore_extensions"
 TEMP_FILE_NAME = "feroxbuster-temp"
 
 
-class Feroxbuster:
+class FeroxbusterController:
     def __init__(self):
         self.scan_result = None
 

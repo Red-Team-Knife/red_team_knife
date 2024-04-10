@@ -6,6 +6,7 @@ import os
 from utils.html_format_util import render_dictionary
 from view.nmap import nmap_blueprint
 from view.the_harvester import the_harvester_blueprint
+from view.feroxbuster import feroxbuster_blueprint
 from current_scan import CurrentScan
 
 
@@ -15,6 +16,8 @@ from current_scan import CurrentScan
 app = Flask(__name__, static_url_path="/static")
 app.register_blueprint(nmap_blueprint, url_prefix='/nmap')
 app.register_blueprint(the_harvester_blueprint, url_prefix='/theHarvester')
+app.register_blueprint(feroxbuster_blueprint, url_prefix='/feroxbuster')
+
 
 
 sections = hyperlink_constants.SECTIONS
@@ -52,10 +55,6 @@ def index():
 
     return render_template("index.html", sections=sections, scan_list=scan_list)
 
-@app.route("/test")
-def test():
-    out = feroxbuster_controller.run('kali.org', {TIME_LIMIT: '10s'})
-    return render_template("test.html", out=out)
 
 @app.route("/new_scan", methods=["POST", "GET"])
 def new_scan():
