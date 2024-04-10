@@ -27,6 +27,7 @@ if not os.path.exists(SCANS_PATH):
     os.path.abspath(SCANS_PATH)
 
 
+
 @app.context_processor
 def utility_processor():
     return dict(render_dictionary=render_dictionary)
@@ -51,6 +52,10 @@ def index():
 
     return render_template("index.html", sections=sections, scan_list=scan_list)
 
+@app.route("/test")
+def test():
+    out = feroxbuster_controller.run('kali.org', {TIME_LIMIT: '10s'})
+    return render_template("test.html", out=out)
 
 @app.route("/new_scan", methods=["POST", "GET"])
 def new_scan():

@@ -20,8 +20,11 @@ SCREENSHOTS_DIRECTORY = "screenshots"
 
 RUNNING_MESSAGE = "Running theHarvester with command: "
 
+
 # TODO dont print empty results
 # TODO if no results available write che non ne stonn
+
+# TODO json data
 # TODO add suppport for API keys
 class TheHarvester:
     def __init__(self):
