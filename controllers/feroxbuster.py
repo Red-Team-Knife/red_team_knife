@@ -1,4 +1,5 @@
 import subprocess, os, json, shutil
+from html_format_util import *
 
 BURP = "burp"
 BURP_REPLAY = "burp-replay"
@@ -54,7 +55,7 @@ class Feroxbuster:
     def __init__(self):
         self.scan_result = None
 
-    def run(self, target, options:dict):
+    def run(self, target, options: dict):
         command = [
             "feroxbuster",
             "-u",
@@ -62,9 +63,9 @@ class Feroxbuster:
             "-o",
             TEMP_FILE_NAME,
             "--json",
+            "--no-state",
         ]
 
-        print(command)
         # composite settings
         if options.get(BURP, False):
             command.append("--burp")
@@ -168,15 +169,15 @@ class Feroxbuster:
                 command.append(i)
         if options.get(CLIENT_CERTIFICATE, False):
             command.append("--client-cert")
-            command.append(CLIENT_CERTIFICATE)
+            command.append(options[CLIENT_CERTIFICATE])
         if options.get(CLIENT_KEY, False):
             command.append("--client-key")
-            command.append(CLIENT_KEY)
+            command.append(options[CLIENT_KEY])
 
         # scan options
         if options.get(THREADS, False):
             command.append("-t")
-            command.append(THREADS)
+            command.append(options[THREADS])
         if options.get(DISABLE_RECURSION, False):
             command.append("-n")
         if options.get(RECURSION_DEPTH, False):
@@ -188,39 +189,39 @@ class Feroxbuster:
             command.append("--dont-extract-links")
         if options.get(CONCURRENT_SCAN_LIMIT, False):
             command.append("-L")
-            command.append(CONCURRENT_SCAN_LIMIT)
+            command.append(options[CONCURRENT_SCAN_LIMIT])
         if options.get(PARALLEL_INSTANCES, False):
             command.append("--parallel")
-            command.append(PARALLEL_INSTANCES)
+            command.append(options[PARALLEL_INSTANCES])
         if options.get(RATE_LIMIT, False):
             command.append("--rate_limit")
-            command.append(RATE_LIMIT)
+            command.append(options[RATE_LIMIT])
         if options.get(TIME_LIMIT, False):
             command.append("--time-limit")
-            command.append(TIME_LIMIT)
+            command.append(options[TIME_LIMIT])
         if options.get(WORDLIST_PATH, False):
             command.append("--time-limit")
-            command.append(TIME_LIMIT)
+            command.append(options[WORDLIST_PATH])
         if options.get(AUTO_TUNE, False):
-            command.append('--auto-tune')
+            command.append("--auto-tune")
         if options.get(AUTO_BAIL, False):
-            command.append('--auto-bail')
+            command.append("--auto-bail")
         if options.get(DISABLE_WILDCARD_FILTERING, False):
-            command.append('-D')
+            command.append("-D")
 
         # dynamic collection settings
         if options.get(REMEMBER_EXTENSION, False):
-            command.append('-E')
+            command.append("-E")
             if options.get(IGNORE_EXTENSIONS, False):
                 for i in options[IGNORE_EXTENSIONS]:
-                    command.append('-I')
+                    command.append("-I")
                     command.append(i)
         if options.get(ASK_FOR_ALTERNATIVE_EXTENSIONS, False):
-            command.append('-B')
+            command.append("-B")
         if options.get(ADD_CRITICAL_WORDS, False):
-            command.append('-g')
+            command.append("-g")
 
-        
+        print(command)
 
         feroxbuster_process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
@@ -237,30 +238,57 @@ class Feroxbuster:
         # Wait for the process to terminate
         feroxbuster_process.wait()
 
-        return None
+        return self.format_result()
 
-    def format_result(self, scan_result):
-        html_output = """
+    def format_result(self):
+
+        # List to store parsed JSON objects
+        json_objects = []
+
+        # Read the file line by line and parse JSON
+        with open(TEMP_FILE_NAME, "r") as file:
+            for line in file:
+                try:
+                    # Parse the JSON from the line
+                    json_object = json.loads(line.strip())
+                    # Append the parsed JSON object to the list
+                    json_objects.append(json_object)
+                except json.JSONDecodeError as e:
+                    print(f"Error parsing JSON: {e}")
+
+        sorted = {}
+        for i in json_objects:
+            status = i["status"]
+            if sorted.get(status, False):
+                sorted[status].append(i)
+            else:
+                sorted[status] = [i]
+
+        status_codes = ''
+        for code in list(sorted.keys()):
+            status_codes += str(code)
+            status_codes += ", "
+        
+        status_codes = status_codes[:-2]
+        
+        html_output = f"""
+        <h1>Status codes: {status_codes}</h1>
                         <table>
                         """
 
-        for key in scan_result.keys():
+        for key in list(sorted.keys()):
             html_output += f"""
                 <tr>
-                    <td><b>{key}</b></td>
+                    <td style="font-size: 24px;"><b>{key}</b></td>
+                </tr>
                 """
 
             items = ""
-            for i in scan_result[key]:
-                items += i
-                items += "<br>"
+            for i in sorted[key]:
+                items += "<tr><td>"
+                items += render_dictionary(i)
+                items += "</td></tr>"
 
-            # remove last '<br>'
-            items = items[:-4]
-
-            html_output += f"""
-                <td>{items}</td>
-                </tr>
-            """
+            html_output += items
         html_output += "</table>"
         return html_output

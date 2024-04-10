@@ -14,8 +14,6 @@ the_harvester_controller = TheHarvester()
 feroxbuster_controller = Feroxbuster()
 sections = hyperlink_constants.SECTIONS
 
-# print(the_harvester_controller.run("kali.org", "duckduckgo"))
-
 current_scan = None
 
 ROOT_FOLDER = "scans"
@@ -24,7 +22,7 @@ if not os.path.exists(SCANS_PATH):
     os.makedirs(ROOT_FOLDER)
     os.path.abspath(SCANS_PATH)
 
-feroxbuster_controller.run('kali.org', dict())
+
 
 @app.context_processor
 def utility_processor():
@@ -50,6 +48,10 @@ def index():
 
     return render_template("index.html", sections=sections, scan_list=scan_list)
 
+@app.route("/test")
+def test():
+    out = feroxbuster_controller.run('kali.org', {TIME_LIMIT: '10s'})
+    return render_template("test.html", out=out)
 
 @app.route("/new_scan", methods=["POST", "GET"])
 def new_scan():
