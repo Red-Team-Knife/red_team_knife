@@ -1,6 +1,7 @@
 from flask import *
 from controllers.nmap import *
 from controllers.the_harvester import *
+from controllers.feroxbuster import *
 from data_storage import DataStorage
 import hyperlink_constants
 from models.scan import Scan
@@ -10,6 +11,7 @@ import os
 app = Flask(__name__, static_url_path="/static")
 nmap_controller = NmapController()
 the_harvester_controller = TheHarvester()
+feroxbuster_controller = Feroxbuster()
 sections = hyperlink_constants.SECTIONS
 
 # print(the_harvester_controller.run("kali.org", "duckduckgo"))
@@ -22,6 +24,7 @@ if not os.path.exists(SCANS_PATH):
     os.makedirs(ROOT_FOLDER)
     os.path.abspath(SCANS_PATH)
 
+feroxbuster_controller.run('kali.org', dict())
 
 @app.context_processor
 def utility_processor():
