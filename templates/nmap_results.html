@@ -43,7 +43,7 @@ Nmap Scan Results
         saveBtn.on('click', function () {
             $.ajax({
                 type: 'POST',
-                url: "{{hyperlink_constants.LINK_NMAP_SAVE_RESULTS}}",
+                url: "{{url_for('nmap.save_results')}}",
                 data: {},
                 success: function (response) {
 
@@ -59,7 +59,7 @@ Nmap Scan Results
 
         xhr = $.ajax({
             type: 'POST',
-            url: '/nmap_results',
+            url: "{{url_for('nmap.results')}}",
             data: { target: target, options: options },
             beforeSend: function () {
                 loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');

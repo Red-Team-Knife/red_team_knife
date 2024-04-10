@@ -47,14 +47,14 @@ theHarvester Scan Results
         abortBtn.on('click', function () {
             if (xhr && xhr.readyState !== 4) {
                 xhr.abort();
-                window.location.href = "{{hyperlink_constants.LINK_THE_HARVESTER_INTERFACE}}"
+                window.location.href = "{{url_for('theHarvester.interface')}}"
             }
         });
 
         saveBtn.on('click', function () {
             $.ajax({
                 type: 'POST',
-                url: "{{hyperlink_constants.LINK_THE_HARVESTER_SAVE_RESULTS}}",
+                url: "{{url_for('theHarvester.save_results')}}",
                 data: {},
                 success: function (response) {
 
@@ -70,7 +70,7 @@ theHarvester Scan Results
 
         xhr = $.ajax({
             type: 'POST',
-            url: "{{hyperlink_constants.LINK_THE_HARVESTER_RESULTS}}",
+            url: "{{url_for('theHarvester.results')}}",
             data: {
                 target: target, source: source, result_limit: result_limit, result_limit_enable: result_limit_enable,
                 offset: offset, proxy: proxy, dns_bruteforce: dns_bruteforce, dns_lookup: dns_lookup,

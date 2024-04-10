@@ -20,7 +20,8 @@ SCREENSHOTS_DIRECTORY = "screenshots"
 
 RUNNING_MESSAGE = "Running theHarvester with command: "
 
-
+# TODO dont print empty results
+# TODO if no results available write che non ne stonn
 # TODO add suppport for API keys
 class TheHarvester:
     def __init__(self):
@@ -143,7 +144,7 @@ class TheHarvester:
                 + os.path.abspath(SCREENSHOTS_DIRECTORY)
                 + "</p><br>"
             )
-            scan_result.pop("screenshots_available")
+        scan_result.pop("screenshots_available")
 
         html_output += """
                         <table>

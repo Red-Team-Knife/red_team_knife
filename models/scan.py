@@ -1,4 +1,4 @@
-import os, data_storage, datetime, json
+import os, utils.data_storage as data_storage, datetime, json
 
 
 class Scan:

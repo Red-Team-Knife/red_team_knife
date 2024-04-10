@@ -1,0 +1,2 @@
+class CurrentScan:
+    scan = None
