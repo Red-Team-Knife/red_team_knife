@@ -19,7 +19,6 @@ def interface():
             "the_harvester_results.html",
             target=target,
             sections=sections,
-            hyperlink_constants=hyperlink_constants,
             source=request.form.get(SOURCE),
             result_limit=request.form.get(LIMIT),
             result_limit_enable=request.form.get(LIMIT_ENABLE),

@@ -5,6 +5,7 @@
     <title>{% block title %}{% endblock %} - Swiss Army Knife</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block additional_headers %} {% endblock %}
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -12,6 +13,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
     <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 
 <body>
@@ -27,7 +29,7 @@
 
         <div class="w3-bar-block">
             {% for section in sections %}
-            <a href="#exploitation" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">{{ section
+            <a href="#{{section}}" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">{{ section
                 }}</a>
             <div class="sidebar-item collapsed">
                 {% for subsection in sections[section] %}

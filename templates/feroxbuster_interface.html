@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}
+Feroxbuster
+{% endblock %}
+
+{% block additional_headers %}
+{% endblock %}
+
+{% block content %}
+
+<h2>Feroxbuster</h2>
+
+<form method="post">
+    <label for="target">Target:</label>
+    <input type="text" id="target" name="target" value="{% if target %}{{ target }}{% endif %}" {% if target %} readonly
+        {% endif %} required><br><br>
+
+    <label>Options:</label><br><br>
+
+    <div class="form-elements">
+
+        <a href="#composite" onclick="showItem(this)" class="composite-section" >Composite</a>
+        <div class="form-item collapsed">
+            <label for="{{ BURP }}">BURP:</label>
+            <input type="text" id="{{ BURP }}" name="{{ BURP }}" value="{{ BURP }}"><br>
+
+            <label for="{{ BURP_REPLAY }}">BURP_REPLAY:</label>
+            <input type="text" id="{{ BURP_REPLAY }}" name="{{ BURP_REPLAY }}" value="{{ BURP_REPLAY }}"><br>
+
+            <label for="{{ SMART }}">SMART:</label>
+            <input type="text" id="{{ SMART }}" name="{{ SMART }}" value="{{ SMART }}"><br>
+
+            <label for="{{ THOROUGH }}">THOROUGH:</label>
+            <input type="text" id="{{ THOROUGH }}" name="{{ THOROUGH }}" value="{{ THOROUGH }}"><br>
+        </div>
+
+        <a href="#proxy" onclick="showItem(this)" class="proxy-section">Proxy</a>
+        <div class="form-item collapsed">
+
+            <label for="{{ PROXY }}">PROXY:</label>
+            <input type="text" id="{{ PROXY }}" name="{{ PROXY }}" value=""><br>
+
+            <label for="{{ REPLAY_PROXY }}">REPLAY_PROXY:</label>
+            <input type="text" id="{{ REPLAY_PROXY }}" name="{{ REPLAY_PROXY }}" value="{{ REPLAY_PROXY }}"><br>
+
+            <label for="{{ REPLAY_CODE }}">REPLAY_CODE:</label>
+            <input type="text" id="{{ REPLAY_CODE }}" name="{{ REPLAY_CODE }}" value="{{ REPLAY_CODE }}"><br>
+        </div>
+
+        <a href="#request" onclick="showItem(this)" class="request-section">Requests</a>
+        <div class="form-item collapsed">
+
+            <label for="{{ USER_AGENT }}">USER_AGENT:</label>
+            <input type="text" id="{{ USER_AGENT }}" name="{{ USER_AGENT }}" value="{{ USER_AGENT }}"><br>
+
+            <label for="{{ RANDOM_USER_AGENT }}">RANDOM_USER_AGENT:</label>
+            <input type="text" id="{{ RANDOM_USER_AGENT }}" name="{{ RANDOM_USER_AGENT }}"
+                value="{{ RANDOM_USER_AGENT }}"><br>
+
+            <label for="{{ EXTENSIONS }}">EXTENSIONS:</label>
+            <input type="text" id="{{ EXTENSIONS }}" name="{{ EXTENSIONS }}" value="{{ EXTENSIONS }}"><br>
+
+            <label for="{{ METHODS }}">METHODS:</label>
+            <input type="text" id="{{ METHODS }}" name="{{ METHODS }}" value="{{ METHODS }}"><br>
+
+            <label for="{{ DATA }}">DATA:</label>
+            <input type="text" id="{{ DATA }}" name="{{ DATA }}" value="{{ DATA }}"><br>
+
+            <label for="{{ HEADERS }}">HEADERS:</label>
+            <input type="text" id="{{ HEADERS }}" name="{{ HEADERS }}" value="{{ HEADERS }}"><br>
+
+            <label for="{{ COOKIES }}">COOKIES:</label>
+            <input type="text" id="{{ COOKIES }}" name="{{ COOKIES }}" value="{{ COOKIES }}"><br>
+
+            <label for="{{ QUERIES }}">QUERIES:</label>
+            <input type="text" id="{{ QUERIES }}" name="{{ QUERIES }}" value="{{ QUERIES }}"><br>
+
+            <label for="{{ SLASH }}">SLASH:</label>
+            <input type="text" id="{{ SLASH }}" name="{{ SLASH }}" value="{{ SLASH }}"><br>
+        </div>
+
+        <a href="#request-filters" onclick="showItem(this)" class="request-filters-section">Request Filters</a>
+        <div class="form-item collapsed">
+
+            <label for="{{ DONT_SCAN_URLS }}">DONT_SCAN_URLS:</label>
+            <input type="text" id="{{ DONT_SCAN_URLS }}" name="{{ DONT_SCAN_URLS }}" value="{{ DONT_SCAN_URLS }}"><br>
+        </div>
+
+        <a href="#response-filters" onclick="showItem(this)" class="response-filters-section">Response Filters</a>
+        <div class="form-item collapsed">
+
+            <label for="{{ FILTER_MAX_DIMENSIONS }}">FILTER_MAX_DIMENSIONS:</label>
+            <input type="text" id="{{ FILTER_MAX_DIMENSIONS }}" name="{{ FILTER_MAX_DIMENSIONS }}"
+                value="{{ FILTER_MAX_DIMENSIONS }}"><br>
+
+            <label for="{{ FILTER_REGEXES }}">FILTER_REGEXES:</label>
+            <input type="text" id="{{ FILTER_REGEXES }}" name="{{ FILTER_REGEXES }}" value="{{ FILTER_REGEXES }}"><br>
+
+            <label for="{{ FILTER_WORD_NUMBERS }}">FILTER_WORD_NUMBERS:</label>
+            <input type="text" id="{{ FILTER_WORD_NUMBERS }}" name="{{ FILTER_WORD_NUMBERS }}"
+                value="{{ FILTER_WORD_NUMBERS }}"><br>
+
+            <label for="{{ FILTER_LINE_NUMBERS }}">FILTER_LINE_NUMBERS:</label>
+            <input type="text" id="{{ FILTER_LINE_NUMBERS }}" name="{{ FILTER_LINE_NUMBERS }}"
+                value="{{ FILTER_LINE_NUMBERS }}"><br>
+
+            <label for="{{ FILTER_STATUS_CODES }}">FILTER_STATUS_CODES:</label>
+            <input type="text" id="{{ FILTER_STATUS_CODES }}" name="{{ FILTER_STATUS_CODES }}"
+                value="{{ FILTER_STATUS_CODES }}"><br>
+
+            <label for="{{ ALLOW_STATUS_CODES }}">ALLOW_STATUS_CODES:</label>
+            <input type="text" id="{{ ALLOW_STATUS_CODES }}" name="{{ ALLOW_STATUS_CODES }}"
+                value="{{ ALLOW_STATUS_CODES }}"><br>
+        </div>
+
+        <a href="#client" onclick="showItem(this)" class="client-section">Client</a>
+        <div class="form-item collapsed">
+
+            <label for="{{ REQUEST_TIMEOUT }}">REQUEST_TIMEOUT:</label>
+            <input type="text" id="{{ REQUEST_TIMEOUT }}" name="{{ REQUEST_TIMEOUT }}"
+                value="{{ REQUEST_TIMEOUT }}"><br>
+
+            <label for="{{ AUTOMATIC_REDIRECT }}">AUTOMATIC_REDIRECT:</label>
+            <input type="text" id="{{ AUTOMATIC_REDIRECT }}" name="{{ AUTOMATIC_REDIRECT }}"
+                value="{{ AUTOMATIC_REDIRECT }}"><br>
+
+            <label for="{{ INESCURE_DISABLE_TLS_CERTIFICATES }}">INESCURE_DISABLE_TLS_CERTIFICATES:</label>
+            <input type="text" id="{{ INESCURE_DISABLE_TLS_CERTIFICATES }}"
+                name="{{ INESCURE_DISABLE_TLS_CERTIFICATES }}" value="{{ INESCURE_DISABLE_TLS_CERTIFICATES }}"><br>
+
+            <label for="{{ SERVER_CERTIFICATES }}">SERVER_CERTIFICATES:</label>
+            <input type="text" id="{{ SERVER_CERTIFICATES }}" name="{{ SERVER_CERTIFICATES }}"
+                value="{{ SERVER_CERTIFICATES }}"><br>
+
+            <label for="{{ CLIENT_CERTIFICATE }}">CLIENT_CERTIFICATE:</label>
+            <input type="text" id="{{ CLIENT_CERTIFICATE }}" name="{{ CLIENT_CERTIFICATE }}"
+                value="{{ CLIENT_CERTIFICATE }}"><br>
+
+            <label for="{{ CLIENT_KEY }}">CLIENT_KEY:</label>
+            <input type="text" id="{{ CLIENT_KEY }}" name="{{ CLIENT_KEY }}" value="{{ CLIENT_KEY }}"><br>
+        </div>
+
+        <a href="#scan" onclick="showItem(this)" class="scan-section">Scan</a>
+        <div class="form-item collapsed">
+
+            <label for="{{ THREADS }}">THREADS:</label>
+            <input type="text" id="{{ THREADS }}" name="{{ THREADS }}" value="{{ THREADS }}"><br>
+
+            <label for="{{ DISABLE_RECURSION }}">DISABLE_RECURSION:</label>
+            <input type="text" id="{{ DISABLE_RECURSION }}" name="{{ DISABLE_RECURSION }}"
+                value="{{ DISABLE_RECURSION }}"><br>
+
+            <label for="{{ RECURSION_DEPTH }}">RECURSION_DEPTH:</label>
+            <input type="text" id="{{ RECURSION_DEPTH }}" name="{{ RECURSION_DEPTH }}"
+                value="{{ RECURSION_DEPTH }}"><br>
+
+            <label for="{{ FORCE_RECURSION }}">FORCE_RECURSION:</label>
+            <input type="text" id="{{ FORCE_RECURSION }}" name="{{ FORCE_RECURSION }}"
+                value="{{ FORCE_RECURSION }}"><br>
+
+            <label for="{{ DONT_EXTRACT_LINKS }}">DONT_EXTRACT_LINKS:</label>
+            <input type="text" id="{{ DONT_EXTRACT_LINKS }}" name="{{ DONT_EXTRACT_LINKS }}"
+                value="{{ DONT_EXTRACT_LINKS }}"><br>
+
+            <label for="{{ CONCURRENT_SCAN_LIMIT }}">CONCURRENT_SCAN_LIMIT:</label>
+            <input type="text" id="{{ CONCURRENT_SCAN_LIMIT }}" name="{{ CONCURRENT_SCAN_LIMIT }}"
+                value="{{ CONCURRENT_SCAN_LIMIT }}"><br>
+
+            <label for="{{ PARALLEL_INSTANCES }}">PARALLEL_INSTANCES:</label>
+            <input type="text" id="{{ PARALLEL_INSTANCES }}" name="{{ PARALLEL_INSTANCES }}"
+                value="{{ PARALLEL_INSTANCES }}"><br>
+
+            <label for="{{ RATE_LIMIT }}">RATE_LIMIT:</label>
+            <input type="text" id="{{ RATE_LIMIT }}" name="{{ RATE_LIMIT }}" value="{{ RATE_LIMIT }}"><br>
+
+            <label for="{{ WORDLIST_PATH }}">WORDLIST_PATH:</label>
+            <input type="text" id="{{ WORDLIST_PATH }}" name="{{ WORDLIST_PATH }}" value="{{ WORDLIST_PATH }}"><br>
+
+            <label for="{{ AUTO_TUNE }}">AUTO_TUNE:</label>
+            <input type="text" id="{{ AUTO_TUNE }}" name="{{ AUTO_TUNE }}" value="{{ AUTO_TUNE }}"><br>
+
+            <label for="{{ AUTO_BAIL }}">AUTO_BAIL:</label>
+            <input type="text" id="{{ AUTO_BAIL }}" name="{{ AUTO_BAIL }}" value="{{ AUTO_BAIL }}"><br>
+
+            <label for="{{ DISABLE_WILDCARD_FILTERING }}">DISABLE_WILDCARD_FILTERING:</label>
+            <input type="text" id="{{ DISABLE_WILDCARD_FILTERING }}" name="{{ DISABLE_WILDCARD_FILTERING }}"
+                value="{{ DISABLE_WILDCARD_FILTERING }}"><br>
+        </div>
+
+        <a href="#dynamic-collection" onclick="showItem(this)" class="dynamic-collection-section">Dynamic Collection</a>
+        <div class="form-item collapsed">
+
+            <label for="{{ REMEMBER_EXTENSION }}">REMEMBER_EXTENSION:</label>
+            <input type="text" id="{{ REMEMBER_EXTENSION }}" name="{{ REMEMBER_EXTENSION }}"
+                value="{{ REMEMBER_EXTENSION }}"><br>
+
+            <label for="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}">ASK_FOR_ALTERNATIVE_EXTENSIONS:</label>
+            <input type="text" id="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}" name="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}"
+                value="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}"><br>
+
+            <label for="{{ ADD_CRITICAL_WORDS }}">ADD_CRITICAL_WORDS:</label>
+            <input type="text" id="{{ ADD_CRITICAL_WORDS }}" name="{{ ADD_CRITICAL_WORDS }}"
+                value="{{ ADD_CRITICAL_WORDS }}"><br>
+
+            <label for="{{ IGNORE_EXTENSIONS }}">IGNORE_EXTENSIONS:</label>
+            <input type="text" id="{{ IGNORE_EXTENSIONS }}" name="{{ IGNORE_EXTENSIONS }}"
+                value="{{ IGNORE_EXTENSIONS }}"><br>
+        </div>
+    </div>
+    <button type="submit">Scan</button>
+</form>
+
+{% endblock %}

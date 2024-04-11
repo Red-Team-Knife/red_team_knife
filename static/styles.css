@@ -1,12 +1,35 @@
 :root {
-    --white: #dddddd ;
-    --background-white:  #f2f2f2; 
+    --white: #dddddd;
+    --background-white: #f2f2f2;
     --yellow-highlighting: #ffff0087;
+    --main-color: #f44336;
+    --main-color-hover: #a8190f;
 }
-body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
-body {font-size:16px;}
-.w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
-.w3-half img:hover{opacity:1}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-family: "Poppins", sans-serif
+}
+
+body {
+    font-size: 16px;
+}
+
+.w3-half img {
+    margin-bottom: -6px;
+    margin-top: 16px;
+    opacity: 0.8;
+    cursor: pointer
+}
+
+.w3-half img:hover {
+    opacity: 1
+}
+
 /* Subitems style settings */
 .sidebar-item {
     margin-left: 20px;
@@ -15,30 +38,56 @@ body {font-size:16px;}
     transition: max-height 0.5s ease;
     max-height: 0;
 }
+
 .sidebar-item.collapsed {
     max-height: 0;
 }
+
 .sidebar-item.expanded {
     max-height: 1000px;
 }
+
+.form-item {
+    margin-left: 20px;
+    font-size: 14px;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    max-height: 0;
+}
+
+.form-item.collapsed {
+    max-height: 0;
+}
+
+.form-item.expanded {
+    max-height: 1000px;
+}
+
 table {
     border-collapse: collapse;
     width: 100%;
 }
-th, td {
+
+th,
+td {
     border: 1px solid var(--white);
     text-align: left;
     padding: 8px;
 }
+
 th {
     background-color: var(--background-white);
 }
+
 .open {
-    background-color: var(--yellow-highlighting); /* Highlight color for open ports */
+    background-color: var(--yellow-highlighting);
+    /* Highlight color for open ports */
 }
+
 .no-underline-link {
     text-decoration: none;
 }
+
 .no-underline-link-hover {
     text-decoration: none;
 }
@@ -51,9 +100,12 @@ th {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: calc(100% - 22px); /* considera il padding e il bordo */
-    margin: 0 10px; /* margine per separare gli elementi */
+    width: calc(100% - 22px);
+    /* considera il padding e il bordo */
+    margin: 0 10px;
+    /* margine per separare gli elementi */
 }
+
 .past-scan {
     width: 50%;
     margin: 100px auto;
@@ -61,18 +113,94 @@ th {
     background-color: #f2f2f2;
     padding: 20px;
 }
-.new-scan-button {
+
+
+input[type="text"] {
+    width: calc(50% - 80px);
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Stile del pulsante di invio */
+button {
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #a8190f;
+}
+
+.form-elements {
+    font-size: 20px;
+    /* Dimensione del carattere */
+    font-weight: bold;
+    /* Grassetto */
     text-decoration: none;
-    border-bottom: 1px solid #aaa;
-    background-color: #4CAF50; /* Colore di sfondo */
-    border: none; /* Nessun bordo */
-    color: white; /* Colore del testo */
-    padding: 15px 32px; /* Spaziatura interna */
-    text-align: center; /* Allineamento del testo */
-    text-decoration: none; /* Nessun sottolineato */
-    display: inline-block; /* Visualizza come blocco inline */
-    font-size: 16px; /* Dimensione del carattere */
-    margin: 4px 2px; /* Margine */
-    cursor: pointer; /* Tipo di cursore */
-    border-radius: 10px; /* Bordi arrotondati */
-  }
+    /* Rimuove il sottolineato del link */
+    color: var(--main-color);
+    text-decoration: none;
+    /* Colore del testo */
+    /* Altri stili che desideri applicare */
+}
+
+a:link {
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:active {
+    text-decoration: none;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+/* Stile dei titoli delle sezioni */
+.accordion-button {
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-button:hover {
+    background-color: #a8190f;
+}
+
+/* Stile del corpo delle sezioni */
+.accordion-body {
+    padding: 10px 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    text-decoration: none;
+}
