@@ -10,7 +10,7 @@ feroxbuster_controller = FeroxbusterController()
 
 
 @feroxbuster_blueprint.route("/", methods=["GET", "POST"])
-def inteface():
+def interface():
     if request.method == "POST":
         target = request.form.get("target")
         options = request.form.get("ajax_dict")
@@ -121,8 +121,6 @@ def inteface():
                         IGNORE_EXTENSIONS= IGNORE_EXTENSIONS
                         )
 
-    out = feroxbuster_controller.run('kali.org', {TIME_LIMIT: '10s'})
-    return render_template("test.html", out=out)
 
 @feroxbuster_blueprint.route('/results', methods=["POST"])
 def results():
