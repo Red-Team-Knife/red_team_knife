@@ -14,7 +14,7 @@ def interface():
     if request.method == "POST":
         target = request.form.get("target")
         options = request.form.get("ajax_dict")
-        
+        print(request.data)
         return render_template("feroxbuster_results.html",
                                sections= sections,
                                target= target,

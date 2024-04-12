@@ -11,7 +11,7 @@ Feroxbuster
 
 <h2>Feroxbuster</h2>
 
-<form method="post">
+<form id="ferox-form" method="post">
     <label for="target">Target:</label>
     <input type="text" id="target" name="target" value="{% if target %}{{ target }}{% endif %}" {% if target %} readonly
         {% endif %} required><br><br>
@@ -200,7 +200,37 @@ Feroxbuster
                 placeholder=""><br>
         </div>
     </div>
-    <button type="submit">Scan</button>
+    <button id="submitButton" type="submit">Scan</button>
 </form>
 
+<script>
+    $(document).ready(function(){
+        $('#submitButton').click(function(e){ // Cambia questo ID in base all'ID del tuo bottone
+            e.preventDefault(); // Evita il comportamento predefinito del bottone
+            //TODO: GESTIRE REQUIRE DI TARGET
+            // Serializza i dati del modulo in formato JSON
+            var formData = $('#ferox-form').serializeArray();
+            var jsonData = {};
+            $(formData).each(function(index, obj){
+                jsonData[obj.name] = obj.value;
+            });
+            
+            // Effettua la richiesta Ajax POST a Flask
+            $.ajax({
+                url: "{{url_for('feroxbuster.interface')}}",
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(jsonData),
+                success: function(response){
+                    // Gestisci la risposta dal server
+                    console.log('Risposta dal server:', response);
+                },
+                error: function(xhr, status, error){
+                    console.error('Si è verificato un errore:', error);
+                }
+            });
+        });
+    });
+    </script>
+    
 {% endblock %}
