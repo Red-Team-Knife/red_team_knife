@@ -1,4 +1,6 @@
 import subprocess, os, json, shutil
+from utils.dict import remove_empty_values
+from utils.commands import build_command_string
 
 # constants also used in the html template
 LIMIT = "result_limit"
@@ -21,11 +23,11 @@ SCREENSHOTS_DIRECTORY = "screenshots"
 RUNNING_MESSAGE = "Running theHarvester with command: "
 
 
-# TODO dont print empty results
-# TODO if no results available write che non ne stonn
 
-# TODO json data
+
 # TODO add suppport for API keys
+
+
 class TheHarvester:
     def __init__(self):
         self.scan_result = None
@@ -100,15 +102,11 @@ class TheHarvester:
         if self.check_input(dns_bruteforce):
             command.append("-c")
 
-        # TODO incompleto
         if self.check_input(subdomain_resolution):
             command.append("-r")
 
         # log command
-        command_string = ""
-        for i in command:
-            command_string += i
-            command_string += " "
+        command_string = build_command_string(command)
 
         print(RUNNING_MESSAGE + command_string[:-1])
 
@@ -132,35 +130,42 @@ class TheHarvester:
             self.scan_result = data
 
             # return formatted html
-            return self.format_result(data)
+            return self.format_result()
         except subprocess.CalledProcessError as e:
             print(e.output.decode("utf-8"))
             print("\033[0m")
             return None
 
-    def format_result(self, scan_result):
+
+    def format_result(self):
+
+        self.scan_result = remove_empty_values(self.scan_result)
+
+        if not self.scan_result:
+            return "<p>No Result Found</p>"
+
         html_output = ""
 
-        if scan_result["screenshots_available"]:
+        if self.scan_result.get("screenshots_available", False):
             html_output += (
                 "<p>Screenshots saved here: "
                 + os.path.abspath(SCREENSHOTS_DIRECTORY)
                 + "</p><br>"
             )
-        scan_result.pop("screenshots_available")
+            self.scan_result.pop("screenshots_available")
 
         html_output += """
                         <table>
                         """
 
-        for key in scan_result.keys():
+        for key in self.scan_result.keys():
             html_output += f"""
                 <tr>
                     <td><b>{key}</b></td>
                 """
 
             items = ""
-            for i in scan_result[key]:
+            for i in self.scan_result[key]:
                 items += i
                 items += "<br>"
 

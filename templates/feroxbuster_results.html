@@ -59,8 +59,10 @@ Feroxbuster Scan Results
 
         xhr = $.ajax({
             type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
             url: "{{url_for('feroxbuster.results')}}",
-            data: { target: target, options: options },
+            data: JSON.stringify({ target: target, options: options }),
             beforeSend: function () {
                 loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
                 abortBtn.show();
@@ -71,8 +73,8 @@ Feroxbuster Scan Results
                 abortBtn.hide();
             },
             error: function (xhr, status, error) {
-                console.error('Error fetching Nmap results:', error);
-                nmapResultsDiv.html('<p>Error fetching Nmap results. Check terminal for more information.</p>');
+                console.error('Error fetching Feroxbuster results:', error);
+                nmapResultsDiv.html('<p>Error fetching Feroxbuster results. Check terminal for more information.</p>');
                 abortBtn.hide();
             }
         });

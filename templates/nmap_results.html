@@ -36,7 +36,7 @@ Nmap Scan Results
         abortBtn.on('click', function () {
             if (xhr && xhr.readyState !== 4) {
                 xhr.abort();
-                window.location.href = "{{hyperlink_constants.LINK_NMAP_INTERFACE}}"
+                window.location.href = "{{url_for('nmap.interface')}}"
             }
         });
 

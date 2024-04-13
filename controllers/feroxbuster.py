@@ -1,4 +1,5 @@
 import subprocess, os, json, shutil
+from utils.commands import build_command_string
 from utils.html_format_util import *
 
 BURP = "burp"
@@ -36,7 +37,6 @@ RECURSION_DEPTH = "recursion_depth"
 FORCE_RECURSION = "force_recursion"
 DONT_EXTRACT_LINKS = "dont_extract_links"
 CONCURRENT_SCAN_LIMIT = "concurrent_scan_limit"
-PARALLEL_INSTANCES = "parallel_instances"
 RATE_LIMIT = "rate_limit"
 TIME_LIMIT = "time_limit"
 WORDLIST_PATH = "wordlist_path"
@@ -49,6 +49,7 @@ ADD_CRITICAL_WORDS = "add_critical_words"
 IGNORE_EXTENSIONS = "ignore_extensions"
 
 TEMP_FILE_NAME = "feroxbuster-temp"
+RUNNING_MESSAGE = "Running Feroxbuster with command: "
 
 
 class FeroxbusterController:
@@ -190,11 +191,8 @@ class FeroxbusterController:
         if options.get(CONCURRENT_SCAN_LIMIT, False):
             command.append("-L")
             command.append(options[CONCURRENT_SCAN_LIMIT])
-        if options.get(PARALLEL_INSTANCES, False):
-            command.append("--parallel")
-            command.append(options[PARALLEL_INSTANCES])
         if options.get(RATE_LIMIT, False):
-            command.append("--rate_limit")
+            command.append("--rate-limit")
             command.append(options[RATE_LIMIT])
         if options.get(TIME_LIMIT, False):
             command.append("--time-limit")
@@ -221,7 +219,9 @@ class FeroxbusterController:
         if options.get(ADD_CRITICAL_WORDS, False):
             command.append("-g")
 
-        print(command)
+        command_string = build_command_string(command)
+        
+        print(RUNNING_MESSAGE + command_string[:-1])
 
         feroxbuster_process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
@@ -256,13 +256,16 @@ class FeroxbusterController:
                 except json.JSONDecodeError as e:
                     print(f"Error parsing JSON: {e}")
 
+        os.remove(TEMP_FILE_NAME)
+
         sorted = {}
         for i in json_objects:
-            status = i["status"]
-            if sorted.get(status, False):
-                sorted[status].append(i)
-            else:
-                sorted[status] = [i]
+            if i.get("status", False):
+                status = i["status"]
+                if sorted.get(status, False):
+                    sorted[status].append(i)
+                else:
+                    sorted[status] = [i]
 
         status_codes = ''
         for code in list(sorted.keys()):

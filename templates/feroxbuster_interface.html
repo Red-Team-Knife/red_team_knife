@@ -20,7 +20,7 @@ Feroxbuster
 
     <div class="form-elements">
 
-        <a href="#composite" onclick="showItem(this)" class="composite-section" >Composite</a>
+        <a href="#composite" onclick="showItem(this)" class="composite-section">Composite</a>
         <div class="form-item collapsed">
             <label for="{{ BURP }}">Set Burp:</label>
             <input type="checkbox" id="{{ BURP }}" name="{{ BURP }}"><br>
@@ -45,14 +45,14 @@ Feroxbuster
             <input type="text" id="{{ REPLAY_PROXY }}" name="{{ REPLAY_PROXY }}" placeholder="http(s)://host:port"><br>
 
             <label for="{{ REPLAY_CODE }}">Replay Code:</label>
-            <input type="number" id="{{ REPLAY_CODE }}" name="{{ REPLAY_CODE }}" placeholder="301"><br>
+            <input type="number" id="{{ REPLAY_CODE }}" name="{{ REPLAY_CODE }}" placeholder="301" min="0"><br>
         </div>
 
         <a href="#request" onclick="showItem(this)" class="request-section">Requests</a>
         <div class="form-item collapsed">
 
             <label for="{{ USER_AGENT }}">User Agent:</label>
-            <input type="text" id="{{ USER_AGENT }}" name="{{ USER_AGENT }}" value="feroxbuster/2.10.1"><br>
+            <input type="text" id="{{ USER_AGENT }}" name="{{ USER_AGENT }}" placeholder="feroxbuster/2.10.1"><br>
 
             <label for="{{ RANDOM_USER_AGENT }}">Set Random User Agent:</label>
             <input type="checkbox" id="{{ RANDOM_USER_AGENT }}" name="{{ RANDOM_USER_AGENT }}"><br>
@@ -61,7 +61,7 @@ Feroxbuster
             <input type="text" id="{{ EXTENSIONS }}" name="{{ EXTENSIONS }}" placeholder="@ext.txt"><br>
 
             <label for="{{ METHODS }}">Methods:</label>
-            <input type="text" id="{{ METHODS }}" name="{{ METHODS }}" value="GET"><br>
+            <input type="text" id="{{ METHODS }}" name="{{ METHODS }}" placeholder="GET"><br>
 
             <label for="{{ DATA }}">Data:</label>
             <input type="text" id="{{ DATA }}" name="{{ DATA }}" placeholder="@post.bin"><br>
@@ -91,34 +91,30 @@ Feroxbuster
 
             <label for="{{ FILTER_MAX_DIMENSIONS }}">Exclude Size:</label>
             <input type="number" id="{{ FILTER_MAX_DIMENSIONS }}" name="{{ FILTER_MAX_DIMENSIONS }}"
-                placeholder="5120"><br>
+                placeholder="5120" min="0"><br>
 
             <label for="{{ FILTER_REGEXES }}">Filter Regexes:</label>
             <input type="text" id="{{ FILTER_REGEXES }}" name="{{ FILTER_REGEXES }}" placeholder="'^ignore me$'"><br>
 
             <label for="{{ FILTER_WORD_NUMBERS }}">Filter Word Number:</label>
-            <input type="number" id="{{ FILTER_WORD_NUMBERS }}" name="{{ FILTER_WORD_NUMBERS }}"
-                placeholder="312"><br>
+            <input type="number" id="{{ FILTER_WORD_NUMBERS }}" name="{{ FILTER_WORD_NUMBERS }}" placeholder="312" min="0"><br>
 
             <label for="{{ FILTER_LINE_NUMBERS }}">Filter Line Number:</label>
-            <input type="number" id="{{ FILTER_LINE_NUMBERS }}" name="{{ FILTER_LINE_NUMBERS }}"
-                placeholder="20"><br>
+            <input type="number" id="{{ FILTER_LINE_NUMBERS }}" name="{{ FILTER_LINE_NUMBERS }}" placeholder="20" min="0"><br>
 
             <label for="{{ FILTER_STATUS_CODES }}">Filter Out Status Codes:</label>
-            <input type="number" id="{{ FILTER_STATUS_CODES }}" name="{{ FILTER_STATUS_CODES }}"
-                placeholder="404"><br>
+            <input type="number" id="{{ FILTER_STATUS_CODES }}" name="{{ FILTER_STATUS_CODES }}" placeholder="404" min="0"><br>
 
             <label for="{{ ALLOW_STATUS_CODES }}">Filter In Status Codes:</label>
             <input type="number" id="{{ ALLOW_STATUS_CODES }}" name="{{ ALLOW_STATUS_CODES }}"
-                placeholder="All Included"><br>
+                placeholder="All Included" min="0"><br>
         </div>
 
         <a href="#client" onclick="showItem(this)" class="client-section">Client</a>
         <div class="form-item collapsed">
 
             <label for="{{ REQUEST_TIMEOUT }}">Request Timeout:</label>
-            <input type="number" id="{{ REQUEST_TIMEOUT }}" name="{{ REQUEST_TIMEOUT }}"
-                value="7"><br>
+            <input type="number" id="{{ REQUEST_TIMEOUT }}" name="{{ REQUEST_TIMEOUT }}" placeholder="7" min="0"><br>
 
             <label for="{{ AUTOMATIC_REDIRECT }}">Allow Automatic Redirect:</label>
             <input type="checkbox" id="{{ AUTOMATIC_REDIRECT }}" name="{{ AUTOMATIC_REDIRECT }}"><br>
@@ -128,12 +124,10 @@ Feroxbuster
                 name="{{ INESCURE_DISABLE_TLS_CERTIFICATES }}"><br>
 
             <label for="{{ SERVER_CERTIFICATES }}">Add PEM Server Certificates:</label>
-            <input type="text" id="{{ SERVER_CERTIFICATES }}" name="{{ SERVER_CERTIFICATES }}"
-                value=""><br>
+            <input type="text" id="{{ SERVER_CERTIFICATES }}" name="{{ SERVER_CERTIFICATES }}" value=""><br>
 
             <label for="{{ CLIENT_CERTIFICATE }}">Add PEM Client Certificates:</label>
-            <input type="text" id="{{ CLIENT_CERTIFICATE }}" name="{{ CLIENT_CERTIFICATE }}"
-                value=""><br>
+            <input type="text" id="{{ CLIENT_CERTIFICATE }}" name="{{ CLIENT_CERTIFICATE }}" value=""><br>
 
             <label for="{{ CLIENT_KEY }}">Add PEM Client Key:</label>
             <input type="text" id="{{ CLIENT_KEY }}" name="{{ CLIENT_KEY }}" value=""><br>
@@ -143,14 +137,13 @@ Feroxbuster
         <div class="form-item collapsed">
 
             <label for="{{ THREADS }}">Threads:</label>
-            <input type="number" id="{{ THREADS }}" name="{{ THREADS }}" value="50"><br>
+            <input type="number" id="{{ THREADS }}" name="{{ THREADS }}" placeholder="50" min="0"><br>
 
             <label for="{{ DISABLE_RECURSION }}">Disable Recursion:</label>
             <input type="checkbox" id="{{ DISABLE_RECURSION }}" name="{{ DISABLE_RECURSION }}"><br>
 
             <label for="{{ RECURSION_DEPTH }}">Recursion Depth:</label>
-            <input type="number" id="{{ RECURSION_DEPTH }}" name="{{ RECURSION_DEPTH }}"
-                value="4"><br>
+            <input type="number" id="{{ RECURSION_DEPTH }}" name="{{ RECURSION_DEPTH }}" placeholder="4" min="0"><br>
 
             <label for="{{ FORCE_RECURSION }}">Enable Force Recursion:</label>
             <input type="checkbox" id="{{ FORCE_RECURSION }}" name="{{ FORCE_RECURSION }}"><br>
@@ -159,16 +152,10 @@ Feroxbuster
             <input type="checkbox" id="{{ DONT_EXTRACT_LINKS }}" name="{{ DONT_EXTRACT_LINKS }}"><br>
 
             <label for="{{ CONCURRENT_SCAN_LIMIT }}">Concurrent Scan Limit:</label>
-            <input type="number" id="{{ CONCURRENT_SCAN_LIMIT }}" name="{{ CONCURRENT_SCAN_LIMIT }}"
-                value="0"><br>
-
-            <!-- TODO: VALUTARE DI RIMUOVERE IN BASE AL COMPORTAMENTO -->
-            <label for="{{ PARALLEL_INSTANCES }}">Run Parallel Scans:</label>
-            <input type="number" id="{{ PARALLEL_INSTANCES }}" name="{{ PARALLEL_INSTANCES }}"
-                placeholder=""><br>
+            <input type="number" id="{{ CONCURRENT_SCAN_LIMIT }}" name="{{ CONCURRENT_SCAN_LIMIT }}" placeholder="0" min="0"><br>
 
             <label for="{{ RATE_LIMIT }}">Set Limit Number of Request:</label>
-            <input type="number" id="{{ RATE_LIMIT }}" name="{{ RATE_LIMIT }}" value="0"><br>
+            <input type="number" id="{{ RATE_LIMIT }}" name="{{ RATE_LIMIT }}" placeholder="0" min="0"><br>
 
             <label for="{{ WORDLIST_PATH }}">Wordlist:</label>
             <input type="text" id="{{ WORDLIST_PATH }}" name="{{ WORDLIST_PATH }}" placeholder="Path or URL"><br>
@@ -181,6 +168,10 @@ Feroxbuster
 
             <label for="{{ DISABLE_WILDCARD_FILTERING }}">Disable Wildcard Filtering:</label>
             <input type="checkbox" id="{{ DISABLE_WILDCARD_FILTERING }}" name="{{ DISABLE_WILDCARD_FILTERING }}"><br>
+
+            <label for="{{TIME_LIMIT}}">Scan Time Limit</label>
+            <input type="text" id="{{TIME_LIMIT}}" name="{{TIME_LIMIT}}" placeholder="10s, 10m, 10h..."><br>
+
         </div>
 
         <a href="#dynamic-collection" onclick="showItem(this)" class="dynamic-collection-section">Dynamic Collection</a>
@@ -190,47 +181,19 @@ Feroxbuster
             <input type="checkbox" id="{{ REMEMBER_EXTENSION }}" name="{{ REMEMBER_EXTENSION }}"><br>
 
             <label for="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}">Enable Request for Alternative Extensions:</label>
-            <input type="checkbox" id="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}" name="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}"><br>
+            <input type="checkbox" id="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}"
+                name="{{ ASK_FOR_ALTERNATIVE_EXTENSIONS }}"><br>
 
             <label for="{{ ADD_CRITICAL_WORDS }}">Enable Critical Words Autocollecting:</label>
             <input type="checkbox" id="{{ ADD_CRITICAL_WORDS }}" name="{{ ADD_CRITICAL_WORDS }}"><br>
 
             <label for="{{ IGNORE_EXTENSIONS }}">Ignore Extensions:</label>
-            <input type="text" id="{{ IGNORE_EXTENSIONS }}" name="{{ IGNORE_EXTENSIONS }}"
-                placeholder=""><br>
+            <input type="text" id="{{ IGNORE_EXTENSIONS }}" name="{{ IGNORE_EXTENSIONS }}" placeholder=""><br>
         </div>
     </div>
     <button id="submitButton" type="submit">Scan</button>
 </form>
 
-<script>
-    $(document).ready(function(){
-        $('#submitButton').click(function(e){ // Cambia questo ID in base all'ID del tuo bottone
-            e.preventDefault(); // Evita il comportamento predefinito del bottone
-            //TODO: GESTIRE REQUIRE DI TARGET
-            // Serializza i dati del modulo in formato JSON
-            var formData = $('#ferox-form').serializeArray();
-            var jsonData = {};
-            $(formData).each(function(index, obj){
-                jsonData[obj.name] = obj.value;
-            });
-            
-            // Effettua la richiesta Ajax POST a Flask
-            $.ajax({
-                url: "{{url_for('feroxbuster.interface')}}",
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(jsonData),
-                success: function(response){
-                    // Gestisci la risposta dal server
-                    console.log('Risposta dal server:', response);
-                },
-                error: function(xhr, status, error){
-                    console.error('Si è verificato un errore:', error);
-                }
-            });
-        });
-    });
-    </script>
-    
+
+
 {% endblock %}

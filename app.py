@@ -4,13 +4,14 @@ from models.scan import Scan
 from utils import *
 import os
 from utils.html_format_util import render_dictionary
-from view.nmap import nmap_blueprint
-from view.the_harvester import the_harvester_blueprint
-from view.feroxbuster import feroxbuster_blueprint
+from views.nmap import nmap_blueprint
+from views.the_harvester import the_harvester_blueprint
+from views.feroxbuster import feroxbuster_blueprint
 from current_scan import CurrentScan
 
 
 #TODO: implementare visualizzazione risultati di un tool già utilizzato anche in fase di re-click
+#TODO: ALLINEA PASSAGGIO DATI HARV NMAP
 
 
 app = Flask(__name__, static_url_path="/static")

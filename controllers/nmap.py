@@ -1,43 +1,41 @@
 import nmap3
 
-class NmapController():
+
+class NmapController:
     def __init__(self):
-        self.scan_options = [{"top" : "Top Ports"},
-                        {"dns": "DNS Brute Script (Subdomains)"},
-                        {"list": "List Hosts"},
-                        {"os": "Detect Os"},
-                        {"version": "Port Version"}]
+        self.scan_options = [
+            {"top": "Top Ports"},
+            {"dns": "DNS Brute Script (Subdomains)"},
+            {"list": "List Hosts"},
+            {"os": "Detect Os"},
+            {"version": "Port Version"},
+        ]
         self.last_scan_result = None
 
     def run(self, target, type):
 
         nmap = nmap3.Nmap()
 
-        if type == 'top':
+        if type == "top":
             self.last_scan_result = nmap.scan_top_ports(target)
             return self.format_top_result(self.last_scan_result)
-        elif type == 'dns':
+        elif type == "dns":
             self.last_scan_result = nmap.nmap_dns_brute_script(target)
             return self.format_dns_result(self.last_scan_result)
-        elif type == 'list':
+        elif type == "list":
             self.last_scan_result = nmap.nmap_list_scan(target)
             return self.format_list_result(self.last_scan_result)
-        elif type == 'os':
+        elif type == "os":
             self.last_scan_result = nmap.nmap_os_detection(target)
             return self.format_os_result(self.last_scan_result)
-        elif type == 'subnet':
-            self.last_scan_result = nmap.nmap_subnet_scan(target)
-            return self.format_subnet_result(self.last_scan_result)
-        elif type == 'version':
+        elif type == "version":
             self.last_scan_result = nmap.nmap_version_detection(target)
             return self.format_version_result(self.last_scan_result)
         else:
             return self.format_error()
 
-#TODO verificare la presenza dei campi. se non presenti lasciare spazio vuoto
-
     def format_list_result(self, scan_result):
-        html_output =   """
+        html_output = """
                         <table>
                             <tr>
                                 <th>Ip</th>
@@ -46,12 +44,12 @@ class NmapController():
                             </tr>
                         """
 
-        ips = scan_result.keys() - ['runtime', 'stats', 'task_results']
-        
+        ips = scan_result.keys() - ["runtime", "stats", "task_results"]
+
         # Loop through each IP address
         for ip in ips:
             print(ip)
-            for hostname in scan_result[ip]['hostname']:
+            for hostname in scan_result[ip]["hostname"]:
                 html_output += f"""
                     <tr>
                         <td>{ip}</td>
@@ -65,7 +63,7 @@ class NmapController():
 
     def format_os_result(self, scan_result):
         print(scan_result)
-        html_output =   """
+        html_output = """
                         <table>
                             <tr>
                                 <th>Address</th>
@@ -77,11 +75,11 @@ class NmapController():
                                 <th>Vendor</th>
                             </tr>
                         """
-        ips = scan_result.keys() - ['runtime', 'stats', 'task_results']
+        ips = scan_result.keys() - ["runtime", "stats", "task_results"]
         # Loop through each IP address
         for ip in ips:
             print(ip)
-            for os_info in scan_result[ip]['osmatch']:
+            for os_info in scan_result[ip]["osmatch"]:
                 html_output += f"""
                     <tr>
                         <td>{ip}</td>
@@ -96,14 +94,10 @@ class NmapController():
                 """
         html_output += "</table>"
         return html_output
-    
-#TODO non funziona
-    def format_subnet_result(self, scan_result):
-        print(scan_result)
 
     def format_version_result(self, scan_result):
         print(scan_result)
-        html_output =   """
+        html_output = """
                         <table>
                             <tr>
                                 <th>Hostname</th>
@@ -121,11 +115,11 @@ class NmapController():
                             </tr>
                         """
 
-        ips = scan_result.keys() - ['runtime', 'stats', 'task_results']
+        ips = scan_result.keys() - ["runtime", "stats", "task_results"]
         # Loop through each IP address
         for ip in ips:
             print(ip)
-            for port_info in scan_result[ip]['ports']:
+            for port_info in scan_result[ip]["ports"]:
                 html_output += f"""
                     <tr class="{'' if port_info['state'] != 'open' else 'open'}">
                         <td>{', '.join(host['name'] for host in scan_result[ip]['hostname'])}</td>
@@ -147,8 +141,8 @@ class NmapController():
         html_output += "</table>"
         return html_output
 
-    def format_dns_result(self, scan_result):            
-        html_output =   """
+    def format_dns_result(self, scan_result):
+        html_output = """
                         <table>
                             <tr>
                                 <th>Hostname</th>
@@ -168,7 +162,7 @@ class NmapController():
         return html_output
 
     def format_top_result(self, scan_result):
-        html_output =   """
+        html_output = """
                         <table>
                             <tr>
                                 <th>Hostname</th>
@@ -179,11 +173,11 @@ class NmapController():
                             </tr>
                         """
 
-        ips = scan_result.keys() - ['runtime', 'stats', 'task_results']
+        ips = scan_result.keys() - ["runtime", "stats", "task_results"]
         # Loop through each IP address
         for ip in ips:
             print(ip)
-            for port_info in scan_result[ip]['ports']:
+            for port_info in scan_result[ip]["ports"]:
                 html_output += f"""
                     <tr class="{'' if port_info['state'] != 'open' else 'open'}">
                         <td>{', '.join(host['name'] for host in scan_result[ip]['hostname'])}</td>
