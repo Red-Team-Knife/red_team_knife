@@ -1,4 +1,5 @@
 from flask import *
+import controllers.nmap
 import utils.hyperlink_constants as hyperlink_constants
 from models.scan import Scan
 from utils import *
@@ -7,19 +8,31 @@ from utils.html_format_util import render_dictionary
 from views.nmap import nmap_blueprint
 from views.the_harvester import the_harvester_blueprint
 from views.feroxbuster import feroxbuster_blueprint
+from views.base_view import BaseBlueprint
 from current_scan import CurrentScan
+import controllers
 
 
-#TODO: implementare visualizzazione risultati di un tool già utilizzato anche in fase di re-click
-#TODO: ALLINEA PASSAGGIO DATI HARV NMAP
+# TODO: implementare visualizzazione risultati di un tool già utilizzato anche in fase di re-click
+# TODO: ALLINEA PASSAGGIO DATI HARV NMAP
 
 
 app = Flask(__name__, static_url_path="/static")
-app.register_blueprint(nmap_blueprint, url_prefix='/nmap')
-app.register_blueprint(the_harvester_blueprint, url_prefix='/theHarvester')
-app.register_blueprint(feroxbuster_blueprint, url_prefix='/feroxbuster')
+# app.register_blueprint(nmap_blueprint, url_prefix='/nmap')
+app.register_blueprint(the_harvester_blueprint, url_prefix="/theHarvester")
+app.register_blueprint(feroxbuster_blueprint, url_prefix="/feroxbuster")
 
+nmap_blueprint = BaseBlueprint(
+    "nmap",
+    __name__,
+    controllers.nmap.NmapController(),
+    "nmap",
+    "nmap/nmap_interface.html",
+    "nmap/nmap_results.html",
+    controllers.nmap.scan_options,
+)
 
+app.register_blueprint(nmap_blueprint)
 
 sections = hyperlink_constants.SECTIONS
 
@@ -29,7 +42,6 @@ SCANS_PATH = os.path.abspath(ROOT_FOLDER)
 if not os.path.exists(SCANS_PATH):
     os.makedirs(ROOT_FOLDER)
     os.path.abspath(SCANS_PATH)
-
 
 
 @app.context_processor

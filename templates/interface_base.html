@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+{% block content %}
+
+<h2>{% block header %}{% endblock %}</h2>
+
+{% if past_scan_available %}
+<form method="post">
+    <label for="load_past_scan_results">Past Scan Results Found</label><br>
+    <input type="hidden" name="load_previous_results" value="true">
+    <button type="submit">Load Result</button>
+</form>
+{% endif %}
+
+<form method="post">
+
+    <label for="target">Target:</label>
+    <input type="text" id="target" name="target" value="{% if target %}{{ target }}{% endif %}" {% if target %} readonly
+        {% endif %} required><br>
+
+    <label>Options:</label><br>
+    {% for option, input_type, value, options in options_list %}
+    {% if input_type == "radio" %}
+    <input type="radio" id="{{ option }}" name="options" value="{{ value }}">
+    <label for="{{ option }}">{{ option }}</label><br>
+    {% elif input_type == "checkbox" %}
+    <input type="checkbox" id="{{ option }}" name="options" value="{{ value }}">
+    <label for="{{ option }}">{{ option }}</label><br>
+    {% elif input_type == "text" %}
+    <input type="text" id="{{ option }}" name="options" value="">
+    <label for="{{ option }}">{{ option }}</label><br>
+    {% elif input_type == "select" %}
+    <select name="{{ value }}" id="{{ value }}">
+        {% for option_value, option_text in options %}
+        <option value="{{ option_value }}">{{ option_text }}</option>
+        {% endfor %}
+    </select><br><br>
+    {% endif %}
+    {% endfor %}
+    <button type="submit">Scan</button>
+</form>
+
+{% endblock %}

@@ -1,15 +1,15 @@
 import nmap3
 
+scan_options = [
+    ("Top Ports", "radio", "top", ""),
+    ("DNS Brute Script (Subdomains)", "radio", "dns", ""),
+    ("List Hosts", "radio", "list", ""),
+    ("Detect Os", "radio", "os", ""),
+    ("Port Version", "radio", "version", ""),
+]
 
 class NmapController:
-    def __init__(self):
-        self.scan_options = [
-            {"top": "Top Ports"},
-            {"dns": "DNS Brute Script (Subdomains)"},
-            {"list": "List Hosts"},
-            {"os": "Detect Os"},
-            {"version": "Port Version"},
-        ]
+    def __init__(self):       
         self.last_scan_result = None
 
     def run(self, target, type):
