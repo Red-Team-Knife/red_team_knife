@@ -11,38 +11,48 @@ class NmapController:
             {"version": "Port Version"},
         ]
         self.last_scan_result = None
-        
-
-    
 
     def run(self, target, type):
         nmap = nmap3.Nmap()
 
-#TODO: salvare tutti i diversi tipi di scansione
-        '''
-        
-        if self.last_scan_result is not None:
-     '''       
-
         if type == "top":
             self.last_scan_result = nmap.scan_top_ports(target)
-            return self.format_top_result(self.last_scan_result)
+            html = self.__format_top_result__(self.last_scan_result)
         elif type == "dns":
             self.last_scan_result = nmap.nmap_dns_brute_script(target)
-            return self.format_dns_result(self.last_scan_result)
+            html = self.__format_dns_result__(self.last_scan_result)
         elif type == "list":
             self.last_scan_result = nmap.nmap_list_scan(target)
-            return self.format_list_result(self.last_scan_result)
+            html = self.__format_list_result__(self.last_scan_result)
         elif type == "os":
             self.last_scan_result = nmap.nmap_os_detection(target)
-            return self.format_os_result(self.last_scan_result)
+            html = self.__format_os_result__(self.last_scan_result)
         elif type == "version":
             self.last_scan_result = nmap.nmap_version_detection(target)
-            return self.format_version_result(self.last_scan_result)
+            
+            html = self.__format_version_result__(self.last_scan_result)
+        else:
+            html = self.format_error()
+        self.last_scan_result["type"] = type
+        
+        return html
+
+    def restore_last_scan(self):
+        type = self.last_scan_result['type']
+        if type == "top":
+            return self.__format_top_result__(self.last_scan_result)
+        elif type == "dns":
+            return self.__format_dns_result__(self.last_scan_result)
+        elif type == "list":
+            return self.__format_list_result__(self.last_scan_result)
+        elif type == "os":
+            return self.__format_os_result__(self.last_scan_result)
+        elif type == "version":
+            return self.__format_version_result__(self.last_scan_result)
         else:
             return self.format_error()
 
-    def format_list_result(self, scan_result):
+    def __format_list_result__(self, scan_result):
         html_output = """
                         <table>
                             <tr>
@@ -52,7 +62,8 @@ class NmapController:
                             </tr>
                         """
 
-        ips = scan_result.keys() - ["runtime", "stats", "task_results"]
+        ips = self.__remove_unnecessary_keys__(scan_result.keys())
+        print('ips', ips)
 
         # Loop through each IP address
         for ip in ips:
@@ -69,7 +80,7 @@ class NmapController:
         html_output += "</table>"
         return html_output
 
-    def format_os_result(self, scan_result):
+    def __format_os_result__(self, scan_result):
         print(scan_result)
         html_output = """
                         <table>
@@ -83,7 +94,7 @@ class NmapController:
                                 <th>Vendor</th>
                             </tr>
                         """
-        ips = scan_result.keys() - ["runtime", "stats", "task_results"]
+        ips = scan_result.keys() - ["runtime", "stats", "task_results", "type"]
         # Loop through each IP address
         for ip in ips:
             print(ip)
@@ -103,7 +114,7 @@ class NmapController:
         html_output += "</table>"
         return html_output
 
-    def format_version_result(self, scan_result):
+    def __format_version_result__(self, scan_result):
         print(scan_result)
         html_output = """
                         <table>
@@ -149,7 +160,7 @@ class NmapController:
         html_output += "</table>"
         return html_output
 
-    def format_dns_result(self, scan_result):
+    def __format_dns_result__(self, scan_result):
         html_output = """
                         <table>
                             <tr>
@@ -169,7 +180,7 @@ class NmapController:
         html_output += "</table>"
         return html_output
 
-    def format_top_result(self, scan_result):
+    def __format_top_result__(self, scan_result):
         html_output = """
                         <table>
                             <tr>
@@ -181,7 +192,7 @@ class NmapController:
                             </tr>
                         """
 
-        ips = scan_result.keys() - ["runtime", "stats", "task_results"]
+        ips = self.__remove_unnecessary_keys__(scan_result.keys())
         # Loop through each IP address
         for ip in ips:
             print(ip)
@@ -198,3 +209,6 @@ class NmapController:
                 """
         html_output += "</table>"
         return html_output
+
+    def __remove_unnecessary_keys__(self, keys):
+        return keys - ["runtime", "stats", "task_results", "type"]

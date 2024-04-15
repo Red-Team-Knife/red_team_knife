@@ -21,7 +21,7 @@ def interface():
 
 
         return render_template(
-            "the_harvester_results.html",
+            "the_harvester/the_harvester_results.html",
             target=target,
             sections=sections,
             options= json.dumps(options)
@@ -29,7 +29,7 @@ def interface():
 
     if CurrentScan.scan is not None:
         return render_template(
-            "the_harvester_interface.html",
+            "the_harvester/the_harvester_interface.html",
             sections=sections,
             target=CurrentScan.scan.host,
             LIMIT=LIMIT,
@@ -47,7 +47,7 @@ def interface():
             SOURCE=SOURCE,
         )
     return render_template(
-        "the_harvester_interface.html",
+        "the_harvester/the_harvester_interface.html",
         sections=sections,
         LIMIT=LIMIT,
         LIMIT_ENABLE=LIMIT_ENABLE,

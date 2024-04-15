@@ -167,6 +167,8 @@ button {
     color: #fff;
     border: none;
     padding: 10px 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     font-size: 15px;
     cursor: pointer;
     border-radius: 5px;

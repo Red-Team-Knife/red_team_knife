@@ -8,9 +8,9 @@ Nmap
 <h2>Nmap</h2>
 
 {% if past_scan_available %}
-<form action="{{url_for('nmap.load_results')}}" method="get">
-
+<form method="post">
     <label for="load_past_scan_results">Past Scan Results Found</label><br>
+    <input type="hidden" name="load_previous_results" value="true">
     <button type="submit">Load Result</button>
 </form>
 {% endif %}

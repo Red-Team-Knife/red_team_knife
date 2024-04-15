@@ -22,7 +22,7 @@ def interface():
         options.pop("target")
 
         return render_template(
-            "feroxbuster_results.html",
+            "feroxbuster/feroxbuster_results.html",
             sections=sections,
             target=target,
             options=json.dumps(options),
@@ -30,7 +30,7 @@ def interface():
 
     if CurrentScan.scan is not None:
         return render_template(
-            "feroxbuster_interface.html",
+            "feroxbuster/feroxbuster_interface.html",
             sections=sections,
             target=CurrentScan.scan.host,
             BURP=BURP,
@@ -81,7 +81,7 @@ def interface():
         )
 
     return render_template(
-        "feroxbuster_interface.html",
+        "feroxbuster/feroxbuster_interface.html",
         sections=sections,
         BURP=BURP,
         BURP_REPLAY=BURP_REPLAY,

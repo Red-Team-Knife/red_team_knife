@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{%block content%}
+
+<h1>{%block header %}{% endblock %}</h1>
+<div id="save_results_section">
+    <button id="save_results" style="display: none;">Save Results</button>
+</div>
+
+<div id="results">
+    {% if not past_scan_available %}
+    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
+        otherwise the scan will be lost!</p>
+    <button id="abort_scan" style="display:none;">Abort Scan</button>
+    {% else %}
+    <form method="get">
+        <button type="submit">New Scan</button>
+    </form>
+
+    {{ scan_result | safe }}
+    {% endif %}
+</div>
+
+{%block ajax_script %}
+{%endblock%}
+{%endblock%}
