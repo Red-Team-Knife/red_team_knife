@@ -11,10 +11,18 @@ class NmapController:
             {"version": "Port Version"},
         ]
         self.last_scan_result = None
+        
+
+    
 
     def run(self, target, type):
-
         nmap = nmap3.Nmap()
+
+#TODO: salvare tutti i diversi tipi di scansione
+        '''
+        
+        if self.last_scan_result is not None:
+     '''       
 
         if type == "top":
             self.last_scan_result = nmap.scan_top_ports(target)

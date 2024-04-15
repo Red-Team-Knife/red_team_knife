@@ -1,3 +1,4 @@
+import html
 from flask import *
 from controllers.the_harvester import *
 import utils.hyperlink_constants as hyperlink_constants
@@ -13,25 +14,17 @@ the_harvester_controller = TheHarvester()
 def interface():
     if request.method == "POST":
 
-        target = request.form.get("target")
+        options = request.form.to_dict()
+
+        target = options["target"]
+        options.pop("target")
+
 
         return render_template(
             "the_harvester_results.html",
             target=target,
             sections=sections,
-            source=request.form.get(SOURCE),
-            result_limit=request.form.get(LIMIT),
-            result_limit_enable=request.form.get(LIMIT_ENABLE),
-            offset=request.form.get(OFFSET),
-            proxy=request.form.get(PROXY),
-            dns_bruteforce=request.form.get(DNS_BRUTEFORCE),
-            dns_lookup=request.form.get(DNS_LOOKUP),
-            dns_resolution_virtual_hosts=request.form.get(DNS_RESOLUTION),
-            dns_server=request.form.get(DNS_SERVER),
-            screenshot=request.form.get(SCREENSHOT),
-            shodan=request.form.get(SHODAN),
-            subdomain_resolution=request.form.get(SUBDOMAIN_RESOLUTION),
-            takeover_check=request.form.get(TAKEOVER_CHECK),
+            options= json.dumps(options)
         )
 
     if CurrentScan.scan is not None:
@@ -74,28 +67,16 @@ def interface():
 
 @the_harvester_blueprint.route('/results', methods=["POST"])
 def results():
-    target = request.form.get("target")
+    target = request.json["target"]
+    form = html.unescape(request.json["options"])
+    options = remove_empty_values(json.loads(form))
 
-    limit = ""
-
-    if request.form.get(LIMIT_ENABLE) == "on":
-        limit = request.form.get(LIMIT)
 
     html_scan_result = the_harvester_controller.run(
         domain=target,
-        source=request.form.get(SOURCE),
-        result_limit=limit,
-        offset=request.form.get(OFFSET),
-        proxy=request.form.get(PROXY),
-        dns_bruteforce=request.form.get(DNS_BRUTEFORCE),
-        dns_lookup=request.form.get(DNS_LOOKUP),
-        dns_resolution_virtual_hosts=request.form.get(DNS_RESOLUTION),
-        dns_server=request.form.get(DNS_SERVER),
-        screenshot=request.form.get(SCREENSHOT),
-        shodan=request.form.get(SHODAN),
-        subdomain_resolution=request.form.get(SUBDOMAIN_RESOLUTION),
-        takeover_check=request.form.get(TAKEOVER_CHECK),
+        options=options
     )
+
     return jsonify(html_scan_result)
 
 

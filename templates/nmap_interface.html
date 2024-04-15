@@ -6,23 +6,29 @@ Nmap
 {% block content %}
 
 <h2>Nmap</h2>
+
+{% if past_scan_available %}
+<form action="{{url_for('nmap.load_results')}}" method="get">
+
+    <label for="load_past_scan_results">Past Scan Results Found</label><br>
+    <button type="submit">Load Result</button>
+</form>
+{% endif %}
+
 <form method="post">
 
     <label for="target">Target:</label>
-    <input type="text" id="target" name="target"
-        value="{% if target %}{{ target }}{% endif %}"
-        {% if target %} readonly {% endif %} 
-    required><br>
+    <input type="text" id="target" name="target" value="{% if target %}{{ target }}{% endif %}" {% if target %} readonly
+        {% endif %} required><br>
 
     <label>Options:</label><br>
-        {% for option in options_list %}
-            {% for key in option.keys() %}
-                <input type="radio" id="{{key}}" name="options" value="{{key}}">
-                <label for="option">{{option[key]}}</label><br>
-            {% endfor %}        
+    {% for option in options_list %}
+        {% for key in option.keys() %}
+            <input type="radio" id="{{key}}" name="options" value="{{key}}">
+            <label for="option">{{option[key]}}</label><br>
         {% endfor %}
+    {% endfor %}
     <button type="submit">Scan</button>
 </form>
 
 {% endblock %}
-

@@ -11,7 +11,7 @@ Feroxbuster Scan Results
 </div>
 
 
-<div id="nmap_results">
+<div id="results">
     <p><i class="fas fa-spinner fa-spin"></i>   Scan results are loading, please don't close or refresh the window,
         otherwhise the scan will be lost!</p>
     <button id="abort_scan" style="display:none;">Abort Scan</button>
@@ -25,7 +25,7 @@ Feroxbuster Scan Results
     $(document).ready(function () {
         var target = "{{ target }}";
         var options = "{{ options }}";
-        var nmapResultsDiv = $('#nmap_results');
+        var nmapResultsDiv = $('#results');
         var loadingMsg = $('#loading_msg');
         var abortBtn = $('#abort_scan');
         var saveBtn = $('#save_results');

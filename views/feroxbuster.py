@@ -15,17 +15,17 @@ feroxbuster_controller = FeroxbusterController()
 def interface():
     if request.method == "POST":
 
-        form = request.form.to_dict()
+        options = request.form.to_dict()
 
-        target = form["target"]
+        target = options["target"]
 
-        form.pop("target")
+        options.pop("target")
 
         return render_template(
             "feroxbuster_results.html",
             sections=sections,
             target=target,
-            options=json.dumps(form),
+            options=json.dumps(options),
         )
 
     if CurrentScan.scan is not None:

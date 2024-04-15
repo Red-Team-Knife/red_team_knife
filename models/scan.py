@@ -57,27 +57,8 @@ class Scan:
                 file,
             )
 
-        self.current_scan = file_name
-
         return file_path
 
-    def get_scan(self, scan_name):
-        root_path = os.path.abspath(self.root_folder)
-
-        if not os.path.exists(root_path):
-            return None
-
-        file_path = os.path.join(root_path, f"{scan_name}.json")
-
-        # Check if file exists
-        if os.path.isfile(file_path):
-            # Read file
-            with open(file_path, "r") as file:
-                try:
-                    scan = json.load(file)
-                    return scan
-                except json.JSONDecodeError as e:
-                    print(f"Error during fetch of the scan '{scan_name}': {e}")
-                    return None
-        else:
-            return None
+    def get_tool_scan(self, tool:str):
+        
+        return self.data_storage.get_value(tool)

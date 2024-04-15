@@ -10,7 +10,7 @@ theHarvester Scan Results
     <button id="save_results" style="display: none;">Save Results</button>
 </div>
 
-<div id="nmap_results">
+<div id="results">
     <p><i class="fas fa-spinner fa-spin"></i>   Scan results are loading, please don't close or refresh the window,
         otherwhise the scan will be lost!</p>
     <button id="abort_scan" style="display:none;">Abort Scan</button>
@@ -22,21 +22,9 @@ theHarvester Scan Results
 <script>
     $(document).ready(function () {
         var target = "{{ target }}";
-        var source = "{{source}}";
-        var result_limit = "{{result_limit}}";
-        var result_limit_enable = "{{result_limit_enable}}";
-        var offset = "{{offset}}";
-        var proxy = "{{proxy}}";
-        var dns_bruteforce = "{{dns_bruteforce}}";
-        var dns_lookup = "{{dns_lookup}}";
-        var dns_resolution = "{{dns_resolution_virtual_hosts}}";
-        var dns_server = "{{dns_server}}";
-        var screenshot = "{{screenshot}}";
-        var shodan = "{{shodan}}";
-        var subdomain_resolution = "{{subdomain_resolution}}";;
-        var takeover_check = "{{takeover_check}}";
+        var options = "{{ options }}"
 
-        var theHarvesterResultsDiv = $('#nmap_results');
+        var theHarvesterResultsDiv = $('#results');
         var loadingMsg = $('#loading_msg');
         var abortBtn = $('#abort_scan');
         var saveBtn = $('#save_results');
@@ -70,19 +58,16 @@ theHarvester Scan Results
 
         xhr = $.ajax({
             type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
             url: "{{url_for('theHarvester.results')}}",
-            data: {
-                target: target, source: source, result_limit: result_limit, result_limit_enable: result_limit_enable,
-                offset: offset, proxy: proxy, dns_bruteforce: dns_bruteforce, dns_lookup: dns_lookup,
-                dns_resolution: dns_resolution, dns_server: dns_server,
-                screenshot: screenshot, shodan: shodan, subdomain_resolution: subdomain_resolution,
-                takeover_check: takeover_check
-            },
+            data: JSON.stringify({ target: target, options: options }),
             beforeSend: function () {
                 loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
                 abortBtn.show();
             },
             success: function (data) {
+                console.log(data)
                 theHarvesterResultsDiv.html(data);
                 saveBtn.show();
                 abortBtn.hide();

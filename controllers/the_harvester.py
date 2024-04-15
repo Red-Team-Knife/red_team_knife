@@ -27,27 +27,13 @@ RUNNING_MESSAGE = "Running theHarvester with command: "
 
 # TODO add suppport for API keys
 
-
 class TheHarvester:
     def __init__(self):
         self.scan_result = None
 
-    def run(
-        self,
-        domain,
-        source="all",
-        result_limit=None,
-        offset=None,
-        proxy=None,
-        shodan=None,
-        screenshot=None,
-        dns_resolution_virtual_hosts=None,
-        dns_server=None,
-        takeover_check=None,
-        subdomain_resolution=None,
-        dns_lookup=None,
-        dns_bruteforce=None,
-    ):
+    def run(self,domain, options: dict):
+
+        screenshot_saved= False
 
         # check screenshot folder existance
         screenshot_folder = os.path.abspath(SCREENSHOTS_DIRECTORY)
@@ -59,50 +45,53 @@ class TheHarvester:
 
         # build command
         command = ["theHarvester", "-d", domain, "-f", TEMP_FILE_NAME]
-        if source:
+
+
+        if options.get(SOURCE, False):
             command.append("-b")
-            command.append(source)
+            command.append(options.get(SOURCE))
         else:
             command.append("-b")
             command.append("all")
 
-        if self.check_input(result_limit):
+        if options.get(LIMIT, False):
             command.append("-l")
-            command.append(result_limit)
+            command.append(options.get(LIMIT))
 
-        if offset != "0":
+        if options.get(OFFSET, False):
             command.append("-S")
-            command.append(offset)
+            command.append(options.get(OFFSET))
 
-        if self.check_input(proxy):
+        if options.get(PROXY, False):
             command.append("-p")
-            command.append(proxy)
+            command.append(options.get(PROXY))
 
-        if self.check_input(shodan):
+        if options.get(SHODAN, False):
             command.append("-s")
-            command.append(shodan)
+            command.append(options.get(SHODAN))
 
-        if self.check_input(screenshot):
+        if options.get(SCREENSHOTS_DIRECTORY, False):
             command.append("--screenshot")
-            command.append(SCREENSHOTS_DIRECTORY)
+            command.append(options.get(SCREENSHOTS_DIRECTORY))
+            screenshot_saved = True
 
-        if self.check_input(dns_server):
+        if options.get(DNS_SERVER, False):
             command.append("-e")
-            command.append(dns_server)
+            command.append(options.get(DNS_SERVER))
 
-        if self.check_input(takeover_check):
+        if options.get(TAKEOVER_CHECK, False):
             command.append("-t")
 
-        if self.check_input(dns_resolution_virtual_hosts):
+        if options.get(DNS_RESOLUTION, False):
             command.append("-v")
 
-        if self.check_input(dns_lookup):
+        if options.get(DNS_LOOKUP, False):
             command.append("-n")
 
-        if self.check_input(dns_bruteforce):
+        if options.get(DNS_BRUTEFORCE, False):
             command.append("-c")
 
-        if self.check_input(subdomain_resolution):
+        if options.get(SUBDOMAIN_RESOLUTION, False):
             command.append("-r")
 
         # log command
@@ -122,7 +111,7 @@ class TheHarvester:
             os.remove(TEMP_FILE_NAME + ".xml")
 
             # check if screenshots are available
-            if self.check_input(screenshot):
+            if screenshot_saved:
                 data["screenshots_available"] = True
             else:
                 data["screenshots_available"] = False
@@ -178,6 +167,3 @@ class TheHarvester:
             """
         html_output += "</table>"
         return html_output
-
-    def check_input(self, input):
-        return input != None and str(input) != "" and str(input) != "None"

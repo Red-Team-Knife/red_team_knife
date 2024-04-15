@@ -11,8 +11,8 @@ Nmap Scan Results
 </div>
 
 
-<div id="nmap_results">
-    <p><i class="fas fa-spinner fa-spin"></i>   Scan results are loading, please don't close or refresh the window,
+<div id="results">
+    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
         otherwhise the scan will be lost!</p>
     <button id="abort_scan" style="display:none;">Abort Scan</button>
 </div>
@@ -25,11 +25,13 @@ Nmap Scan Results
     $(document).ready(function () {
         var target = "{{ target }}";
         var options = "{{ options }}";
-        var nmapResultsDiv = $('#nmap_results');
+        var nmapResultsDiv = $('#results');
         var loadingMsg = $('#loading_msg');
         var abortBtn = $('#abort_scan');
         var saveBtn = $('#save_results');
         var saveResultsDiv = $('#save_results_section')
+
+        var past_scan_available = "{{past_scan_available}}"
 
         var xhr;
 
@@ -57,25 +59,32 @@ Nmap Scan Results
             });
         });
 
-        xhr = $.ajax({
-            type: 'POST',
-            url: "{{url_for('nmap.results')}}",
-            data: { target: target, options: options },
-            beforeSend: function () {
-                loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
-                abortBtn.show();
-            },
-            success: function (data) {
-                nmapResultsDiv.html(data);
-                saveBtn.show();
-                abortBtn.hide();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error fetching Nmap results:', error);
-                nmapResultsDiv.html('<p>Error fetching Nmap results. Check terminal for more information.</p>');
-                abortBtn.hide();
-            }
-        });
+        if (past_scan_available) {
+
+            nmapResultsDiv.html(scan_result)
+
+        } else {
+            xhr = $.ajax({
+                type: 'POST',
+                url: "{{url_for('nmap.results')}}",
+                data: { target: target, options: options },
+                beforeSend: function () {
+                    loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
+                    abortBtn.show();
+                },
+                success: function (data) {
+                    nmapResultsDiv.html(data);
+                    saveBtn.show();
+                    abortBtn.hide();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching Nmap results:', error);
+                    nmapResultsDiv.html('<p>Error fetching Nmap results. Check terminal for more information.</p>');
+                    abortBtn.hide();
+                }
+            });
+        }
     });
+
 </script>
 {%endblock%}

@@ -26,6 +26,15 @@ def interface():
 
 
     if CurrentScan.scan is not None:
+            
+        if CurrentScan.scan.get_tool_scan("nmap") is not None:
+            return render_template(
+                "nmap_interface.html",
+                sections=sections,
+                past_scan_available=True
+            )
+                 
+
         return render_template(
             "nmap_interface.html",
             sections=sections,
@@ -33,12 +42,25 @@ def interface():
             target=CurrentScan.scan.host,
             hyperlink_constants=hyperlink_constants,
         )
+    
+    
     return render_template(
         "nmap_interface.html",
         sections=sections,
         options_list=nmap_controller.scan_options,
         hyperlink_constants=hyperlink_constants,
     )
+
+
+@nmap_blueprint.route('/load_results', methods=["GET"])
+def load_results():
+
+    return render_template("nmap_results.html", 
+                           sections= sections,
+                           past_scan_available= True,
+                           scan_result = jsonify()
+                           )
+
 
 
 @nmap_blueprint.route('/results', methods=["POST"])
