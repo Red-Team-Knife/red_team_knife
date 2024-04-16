@@ -21,18 +21,26 @@
         {% endif %} required><br>
 
     <label>Options:</label><br>
-    {% for option, input_type, value, options in options_list %}
+    {% for option_name, input_type, value, options in options_list %}
     {% if input_type == "radio" %}
-    <input type="radio" id="{{ option }}" name="options" value="{{ value }}">
-    <label for="{{ option }}">{{ option }}</label><br>
+    <input type="radio" id="{{ value }}" name="{{options}}" value="{{ value }}">
+    <label for="{{ value }}">{{ option_name }}</label><br>
+
     {% elif input_type == "checkbox" %}
-    <input type="checkbox" id="{{ option }}" name="options" value="{{ value }}">
-    <label for="{{ option }}">{{ option }}</label><br>
+    <input type="checkbox" id="{{ value }}" name="{{value}}">
+    <label for="{{ value }}">{{ option_name }}</label><br>
+
     {% elif input_type == "text" %}
-    <input type="text" id="{{ option }}" name="options" value="">
-    <label for="{{ option }}">{{ option }}</label><br>
+    <label for="{{ value }}">{{ option_name }}</label><br>
+    <input type="text" id="{{ value }}" name="{{value}}" placeholder="{{options}}"><br>
+
+    {% elif input_type == "number" %}
+    <label for="{{ value }}">{{ option_name }}</label><br>
+    <input type="number" id="{{ value }}" name="{{value}}" placeholder="{{options}}" min="0"><br>
+
     {% elif input_type == "select" %}
-    <select name="{{ value }}" id="{{ value }}">
+    <label for="{{ value }}">{{ option_name }}</label><br>
+    <select name="{{value}}" id="{{ value }}">
         {% for option_value, option_text in options %}
         <option value="{{ option_value }}">{{ option_text }}</option>
         {% endfor %}

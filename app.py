@@ -1,5 +1,7 @@
 from flask import *
-import controllers.nmap
+from controllers.nmap import NmapController, scan_options as nmap_scan_options
+from controllers.the_harvester import TheHarvesterController, scan_options as the_harvester_scan_options
+from controllers.feroxbuster import FeroxbusterController, scan_options as feroxbuster_scan_options
 import utils.hyperlink_constants as hyperlink_constants
 from models.scan import Scan
 from utils import *
@@ -8,7 +10,7 @@ from utils.html_format_util import render_dictionary
 from views.nmap import nmap_blueprint
 from views.the_harvester import the_harvester_blueprint
 from views.feroxbuster import feroxbuster_blueprint
-from views.base_view import BaseBlueprint
+from views.view import BaseBlueprint
 from current_scan import CurrentScan
 import controllers
 
@@ -19,20 +21,41 @@ import controllers
 
 app = Flask(__name__, static_url_path="/static")
 # app.register_blueprint(nmap_blueprint, url_prefix='/nmap')
-app.register_blueprint(the_harvester_blueprint, url_prefix="/theHarvester")
-app.register_blueprint(feroxbuster_blueprint, url_prefix="/feroxbuster")
+# app.register_blueprint(the_harvester_blueprint, url_prefix="/theHarvester")
+# app.register_blueprint(feroxbuster_blueprint, url_prefix="/feroxbuster")
 
 nmap_blueprint = BaseBlueprint(
     "nmap",
     __name__,
-    controllers.nmap.NmapController(),
-    "nmap",
-    "nmap/nmap_interface.html",
-    "nmap/nmap_results.html",
-    controllers.nmap.scan_options,
+    NmapController(),
+    "Nmap",
+    "nmap/interface.html",
+    "nmap/results.html",
+    nmap_scan_options,
 )
 
+the_harvester_blueprint = BaseBlueprint(
+    "the_harvester",
+    __name__,
+    TheHarvesterController(),
+    "theHarvester",
+    "the_harvester/interface.html",
+    "the_harvester/results.html",
+    the_harvester_scan_options,
+)
+
+feroxbuster_blueprint = BaseBlueprint(
+    "feroxbuster",
+    __name__,
+    FeroxbusterController(),
+    "Feroxbuster",
+    "feroxbuster/interface.html",
+    "feroxbuster/results.html",
+    feroxbuster_scan_options,
+)
 app.register_blueprint(nmap_blueprint)
+app.register_blueprint(the_harvester_blueprint)
+app.register_blueprint(feroxbuster_blueprint)
 
 sections = hyperlink_constants.SECTIONS
 

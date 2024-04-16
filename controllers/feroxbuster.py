@@ -1,6 +1,7 @@
 import subprocess, os, json, shutil
 from utils.commands import build_command_string
 from utils.html_format_util import *
+from controllers.controller import Controller
 
 BURP = "burp"
 BURP_REPLAY = "burp-replay"
@@ -51,8 +52,66 @@ IGNORE_EXTENSIONS = "ignore_extensions"
 TEMP_FILE_NAME = "feroxbuster-temp"
 RUNNING_MESSAGE = "Running Feroxbuster with command: "
 
+scan_options = [
+    ("Set Burp", "checkbox", BURP, ""),
+    ("Set Burp for Replay", "checkbox", BURP_REPLAY, ""),
+    ("Set Smart Scan", "checkbox", SMART, ""),
+    ("Set Smart Extension", "checkbox", THOROUGH, ""),
+    ("Proxy", "text", PROXY, ""),
+    ("Replay Proxy", "text", REPLAY_PROXY, ""),
+    ("Replay Code", "number", REPLAY_CODE, ""),
+    ("User Agent", "text", USER_AGENT, ""),
+    ("Set Random User Agent", "checkbox", RANDOM_USER_AGENT, ""),
+    ("Extensions", "text", EXTENSIONS, ""),
+    ("Methods", "text", METHODS, ""),
+    ("Data", "text", DATA, ""),
+    ("Headers", "text", HEADERS, ""),
+    ("Cookies", "text", COOKIES, ""),
+    ("Queries", "text", QUERIES, ""),
+    ("Append Slash", "checkbox", SLASH, ""),
+    ("Exclude from Recursion", "text", DONT_SCAN_URLS, ""),
+    ("Exclude Size", "number", FILTER_MAX_DIMENSIONS, ""),
+    ("Filter Regexes", "text", FILTER_REGEXES, ""),
+    ("Filter Word Number", "number", FILTER_WORD_NUMBERS, ""),
+    ("Filter Line Number", "number", FILTER_LINE_NUMBERS, ""),
+    ("Filter Out Status Codes", "number", FILTER_STATUS_CODES, ""),
+    ("Filter In Status Codes", "number", ALLOW_STATUS_CODES, ""),
+    ("Request Timeout", "number", REQUEST_TIMEOUT, ""),
+    ("Allow Automatic Redirect", "checkbox", AUTOMATIC_REDIRECT, ""),
+    (
+        "Allow Insecure TLS Certificates",
+        "checkbox",
+        INESCURE_DISABLE_TLS_CERTIFICATES,
+        "",
+    ),
+    ("Add PEM Server Certificates", "text", SERVER_CERTIFICATES, ""),
+    ("Add PEM Client Certificates", "text", CLIENT_CERTIFICATE, ""),
+    ("Add PEM Client Key", "text", CLIENT_KEY, ""),
+    ("Threads", "number", THREADS, ""),
+    ("Disable Recursion", "checkbox", DISABLE_RECURSION, ""),
+    ("Recursion Depth", "number", RECURSION_DEPTH, ""),
+    ("Enable Force Recursion", "checkbox", FORCE_RECURSION, ""),
+    ("Disable Link Extraction", "checkbox", DONT_EXTRACT_LINKS, ""),
+    ("Concurrent Scan Limit", "number", CONCURRENT_SCAN_LIMIT, ""),
+    ("Set Limit Number of Request", "number", RATE_LIMIT, ""),
+    ("Wordlist", "text", WORDLIST_PATH, ""),
+    ("Enable Auto Tune", "checkbox", AUTO_TUNE, ""),
+    ("Enable Auto Bail", "checkbox", AUTO_BAIL, ""),
+    ("Disable Wildcard Filtering", "checkbox", DISABLE_WILDCARD_FILTERING, ""),
+    ("Scan Time Limit", "text", TIME_LIMIT, ""),
+    ("Enable Extension Autocollecting", "checkbox", REMEMBER_EXTENSION, ""),
+    (
+        "Enable Request for Alternative Extensions",
+        "checkbox",
+        ASK_FOR_ALTERNATIVE_EXTENSIONS,
+        "",
+    ),
+    ("Enable Critical Words Autocollecting", "checkbox", ADD_CRITICAL_WORDS, ""),
+    ("Ignore Extensions", "text", IGNORE_EXTENSIONS, ""),
+]
 
-class FeroxbusterController:
+
+class FeroxbusterController(Controller):
     def __init__(self):
         self.scan_result = None
 
@@ -220,7 +279,7 @@ class FeroxbusterController:
             command.append("-g")
 
         command_string = build_command_string(command)
-        
+
         print(RUNNING_MESSAGE + command_string[:-1])
 
         feroxbuster_process = subprocess.Popen(
@@ -238,9 +297,9 @@ class FeroxbusterController:
         # Wait for the process to terminate
         feroxbuster_process.wait()
 
-        return self.format_result()
+        return self.__format_result__()
 
-    def format_result(self):
+    def __format_result__(self):
 
         # List to store parsed JSON objects
         json_objects = []
@@ -267,13 +326,13 @@ class FeroxbusterController:
                 else:
                     sorted[status] = [i]
 
-        status_codes = ''
+        status_codes = ""
         for code in list(sorted.keys()):
             status_codes += str(code)
             status_codes += ", "
-        
+
         status_codes = status_codes[:-2]
-        
+
         html_output = f"""
         <h1>Status codes: {status_codes}</h1>
                         <table>

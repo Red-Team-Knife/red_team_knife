@@ -1,29 +1,8 @@
-{% extends "base.html" %}
+{% extends "results_base.html" %}
 
-{% block title %}
-Nmap Scan Results
-{% endblock %}
+{% block header %} Nmap Scan Results {%endblock%}
 
-{%block content%}
-<h1>Nmap Scan Results</h1>
-<div id="save_results_section">
-    <button id="save_results" style="display: none;" >Save Results</button>
-</div>
-
-<div id="results">
-    {% if not past_scan_available %}
-    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
-        otherwise the scan will be lost!</p>
-    <button id="abort_scan" style="display:none;">Abort Scan</button>
-    {% else %}
-    <form method="get">
-        <button type="submit">New Scan</button>
-    </form>
-
-    {{ scan_result | safe }}
-    {% endif %}
-</div>
-
+{% block ajax_script %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 
@@ -31,11 +10,13 @@ Nmap Scan Results
     $(document).ready(function () {
         var target = "{{ target }}";
         var options = "{{ options }}";
-        var nmapResultsDiv = $('#results');
+        
+        var resultsDiv = $('#results');
         var loadingMsg = $('#loading_msg');
         var abortBtn = $('#abort_scan');
         var saveBtn = $('#save_results');
         var saveResultsDiv = $('#save_results_section');
+
         var pastScanAvailable = "{{ past_scan_available }}"
         var xhr;
 
@@ -66,25 +47,25 @@ Nmap Scan Results
         if (pastScanAvailable === "False") {
             xhr = $.ajax({
                 type: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
                 url: "{{url_for('nmap.results')}}",
-                data: { target: target, options: options },
+                data: JSON.stringify({ target: target, options: options }),
                 beforeSend: function () {
                     loadingMsg.html('<i class="fa fa-spinner fa-spin"></i> Loading...');
                     abortBtn.show();
                 },
                 success: function (data) {
-                    nmapResultsDiv.html(data);
+                    resultsDiv.html(data);
                     saveBtn.show();
                     abortBtn.hide();
                 },
                 error: function (xhr, status, error) {
                     console.error('Error fetching Nmap results:', error);
-                    nmapResultsDiv.html('<p>Error fetching Nmap results. Check terminal for more information.</p>');
+                    resultsDiv.html('<p>Error fetching Nmap results. Check terminal for more information.</p>');
                     abortBtn.hide();
                 }
             });
-        } else {
-
         }
     });
 

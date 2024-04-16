@@ -6,7 +6,7 @@ from current_scan import CurrentScan
 
 the_harvester_blueprint = Blueprint('theHarvester', __name__)
 sections = hyperlink_constants.SECTIONS
-the_harvester_controller = TheHarvester()
+the_harvester_controller = TheHarvesterController()
 
 
 # THE HARVESTER
@@ -73,7 +73,7 @@ def results():
 
 
     html_scan_result = the_harvester_controller.run(
-        domain=target,
+        target=target,
         options=options
     )
 
@@ -83,7 +83,7 @@ def results():
 @the_harvester_blueprint.route('/save_results', methods=["POST"])
 def save_results():
     if CurrentScan.scan is not None:
-        CurrentScan.scan.save_scan("theHarvester", the_harvester_controller.scan_result)
+        CurrentScan.scan.save_scan("theHarvester", the_harvester_controller.last_scan_result)
         return "<p>Results successfully saved.</p>"
     return "<p>No scan started.</p>"
 

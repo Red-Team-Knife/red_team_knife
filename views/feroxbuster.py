@@ -1,6 +1,6 @@
 from controllers.feroxbuster import *
 import utils.hyperlink_constants as hyperlink_constants
-from utils.dict import remove_empty_values
+from utils.dictionary import remove_empty_values
 from flask import *
 from current_scan import CurrentScan
 import json, html

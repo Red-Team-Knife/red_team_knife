@@ -1,12 +1,24 @@
+import html
+import json
 from flask import Blueprint, request, render_template, jsonify
-from controllers.nmap import NmapController
+from utils.dictionary import remove_empty_values
 import utils.hyperlink_constants as hyperlink_constants
 from current_scan import CurrentScan
+from controllers.controller import Controller
 
-# TODO make controller class to inherit and put hint in init signature
+
 class BaseBlueprint(Blueprint):
-    def __init__(self, name, import_name, controller, tool_name:str, interface_template:str, results_template:str, options_list:list):
-        super().__init__(name, import_name, url_prefix='/'+tool_name)
+    def __init__(
+        self,
+        name,
+        import_name,
+        controller: Controller,
+        tool_name: str,
+        interface_template: str,
+        results_template: str,
+        options_list: list,
+    ):
+        super().__init__(name, import_name, url_prefix="/" + tool_name)
         self.sections = hyperlink_constants.SECTIONS
         self.controller = controller
         self.tool_name = tool_name
@@ -41,8 +53,11 @@ class BaseBlueprint(Blueprint):
                     )
 
             # a new scan was requested
-            target = request.form.get("target")
-            option = request.form.get("options")
+            options = request.form.to_dict()
+            print(options)
+
+            target = options["target"]
+            options.pop("target")
 
             return render_template(
                 self.results_template,
@@ -50,7 +65,7 @@ class BaseBlueprint(Blueprint):
                 past_scan_available=False,
                 scan_result="",
                 target=target,
-                options=option,
+                options=json.dumps(options),
             )
 
         # GET request means we want to access scan interface
@@ -64,7 +79,7 @@ class BaseBlueprint(Blueprint):
                     sections=self.sections,
                     past_scan_available=True,
                     target=CurrentScan.scan.host,
-                    options_list=self.options_list
+                    options_list=self.options_list,
                 )
 
             return render_template(
@@ -72,20 +87,22 @@ class BaseBlueprint(Blueprint):
                 sections=self.sections,
                 past_scan_available=False,
                 target=CurrentScan.scan.host,
-                options_list=self.options_list
+                options_list=self.options_list,
             )
 
         return render_template(
             self.interface_template,
             sections=self.sections,
-            options_list=self.options_list
+            options_list=self.options_list,
         )
 
     def results(self):
-        target = request.form.get("target")
-        options = request.form.get("options")
+        target = request.json["target"]
+        form = html.unescape(request.json["options"])
+        options = remove_empty_values(json.loads(form))
 
-        html_scan_result = self.controller.run(target, options)
+        html_scan_result = self.controller.run(target=target, options=options)
+
         return jsonify(html_scan_result)
 
     def save_results(self):

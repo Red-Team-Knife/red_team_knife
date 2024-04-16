@@ -2,9 +2,9 @@
 
 SECTIONS = {
     "Reconnaissance": [
-        {"Nmap": '/nmap'},
+        {"Nmap": '/Nmap'},
         {"theHarvester": '/theHarvester'},
-        {"Feroxbuster": '/feroxbuster'}
+        {"Feroxbuster": '/Feroxbuster'}
     ],
     "Weaponization": [{"Nmap": "/nmap_interface"}],
     "Delivery": [{"Nmap": "/nmap_interface"}],

@@ -1,20 +1,24 @@
 import nmap3
+from controllers.controller import Controller
 
 scan_options = [
-    ("Top Ports", "radio", "top", ""),
-    ("DNS Brute Script (Subdomains)", "radio", "dns", ""),
-    ("List Hosts", "radio", "list", ""),
-    ("Detect Os", "radio", "os", ""),
-    ("Port Version", "radio", "version", ""),
+    ("Top Ports", "radio", "top", "type"),
+    ("DNS Brute Script (Subdomains)", "radio", "dns", "type"),
+    ("List Hosts", "radio", "list", "type"),
+    ("Detect Os", "radio", "os", "type"),
+    ("Port Version", "radio", "version", "type"),
 ]
 
-class NmapController:
+class NmapController(Controller):
     def __init__(self):       
         self.last_scan_result = None
 
-    def run(self, target, type):
+    def run(self, target, options):
         nmap = nmap3.Nmap()
+        print(options)
 
+        type = options['type']
+        
         if type == "top":
             self.last_scan_result = nmap.scan_top_ports(target)
             html = self.__format_top_result__(self.last_scan_result)
