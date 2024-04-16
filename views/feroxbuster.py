@@ -147,6 +147,6 @@ def results():
 @feroxbuster_blueprint.route("/save_results", methods=["POST"])
 def save_results():
     if CurrentScan.scan is not None:
-        CurrentScan.scan.save_scan("feroxbuster", feroxbuster_controller.scan_result)
+        CurrentScan.scan.save_scan("feroxbuster", feroxbuster_controller.last_scan_result)
         return "<p>Results successfully saved.</p>"
     return "<p>No scan started.</p>"

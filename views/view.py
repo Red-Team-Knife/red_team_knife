@@ -1,6 +1,6 @@
 import html
 import json
-from flask import Blueprint, request, render_template, jsonify
+from flask import Blueprint, request, render_template, jsonify, url_for
 from utils.dictionary import remove_empty_values
 import utils.hyperlink_constants as hyperlink_constants
 from current_scan import CurrentScan
@@ -50,6 +50,8 @@ class BaseBlueprint(Blueprint):
                         sections=self.sections,
                         past_scan_available=True,
                         scan_result=self.controller.restore_last_scan(),
+                        current_section=self.name,
+                        tool=self.tool_name,
                     )
 
             # a new scan was requested
@@ -66,6 +68,8 @@ class BaseBlueprint(Blueprint):
                 scan_result="",
                 target=target,
                 options=json.dumps(options),
+                current_section=self.name,
+                tool=self.tool_name,
             )
 
         # GET request means we want to access scan interface

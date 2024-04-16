@@ -57,26 +57,26 @@ scan_options = [
     ("Set Burp for Replay", "checkbox", BURP_REPLAY, ""),
     ("Set Smart Scan", "checkbox", SMART, ""),
     ("Set Smart Extension", "checkbox", THOROUGH, ""),
-    ("Proxy", "text", PROXY, ""),
-    ("Replay Proxy", "text", REPLAY_PROXY, ""),
-    ("Replay Code", "number", REPLAY_CODE, ""),
-    ("User Agent", "text", USER_AGENT, ""),
+    ("Proxy", "text", PROXY, "http(s)://host:port"),
+    ("Replay Proxy", "text", REPLAY_PROXY, "http(s)://host:port"),
+    ("Replay Code", "number", REPLAY_CODE, "301"),
+    ("User Agent", "text", USER_AGENT, "feroxbuster/2.10.1"),
     ("Set Random User Agent", "checkbox", RANDOM_USER_AGENT, ""),
-    ("Extensions", "text", EXTENSIONS, ""),
-    ("Methods", "text", METHODS, ""),
-    ("Data", "text", DATA, ""),
-    ("Headers", "text", HEADERS, ""),
-    ("Cookies", "text", COOKIES, ""),
-    ("Queries", "text", QUERIES, ""),
+    ("Extensions", "text", EXTENSIONS, "@ext.txt"),
+    ("Methods", "text", METHODS, "GET"),
+    ("Data", "text", DATA, "@post.bin"),
+    ("Headers", "text", HEADERS, "Header:val"),
+    ("Cookies", "text", COOKIES, "stuff=things"),
+    ("Queries", "text", QUERIES, "token=stuff, secret=key"),
     ("Append Slash", "checkbox", SLASH, ""),
-    ("Exclude from Recursion", "text", DONT_SCAN_URLS, ""),
-    ("Exclude Size", "number", FILTER_MAX_DIMENSIONS, ""),
-    ("Filter Regexes", "text", FILTER_REGEXES, ""),
-    ("Filter Word Number", "number", FILTER_WORD_NUMBERS, ""),
-    ("Filter Line Number", "number", FILTER_LINE_NUMBERS, ""),
-    ("Filter Out Status Codes", "number", FILTER_STATUS_CODES, ""),
-    ("Filter In Status Codes", "number", ALLOW_STATUS_CODES, ""),
-    ("Request Timeout", "number", REQUEST_TIMEOUT, ""),
+    ("Exclude from Recursion", "text", DONT_SCAN_URLS, "regex, urls"),
+    ("Exclude Size", "number", FILTER_MAX_DIMENSIONS, "5120"),
+    ("Filter Regexes", "text", FILTER_REGEXES, "'^ignore me$'"),
+    ("Filter Word Number", "number", FILTER_WORD_NUMBERS, "312"),
+    ("Filter Line Number", "number", FILTER_LINE_NUMBERS, "20"),
+    ("Filter Out Status Codes", "number", FILTER_STATUS_CODES, "404"),
+    ("Filter In Status Codes", "number", ALLOW_STATUS_CODES, "All Included"),
+    ("Request Timeout", "number", REQUEST_TIMEOUT, "7"),
     ("Allow Automatic Redirect", "checkbox", AUTOMATIC_REDIRECT, ""),
     (
         "Allow Insecure TLS Certificates",
@@ -87,18 +87,18 @@ scan_options = [
     ("Add PEM Server Certificates", "text", SERVER_CERTIFICATES, ""),
     ("Add PEM Client Certificates", "text", CLIENT_CERTIFICATE, ""),
     ("Add PEM Client Key", "text", CLIENT_KEY, ""),
-    ("Threads", "number", THREADS, ""),
+    ("Threads", "number", THREADS, "50"),
     ("Disable Recursion", "checkbox", DISABLE_RECURSION, ""),
-    ("Recursion Depth", "number", RECURSION_DEPTH, ""),
+    ("Recursion Depth", "number", RECURSION_DEPTH, "4"),
     ("Enable Force Recursion", "checkbox", FORCE_RECURSION, ""),
     ("Disable Link Extraction", "checkbox", DONT_EXTRACT_LINKS, ""),
-    ("Concurrent Scan Limit", "number", CONCURRENT_SCAN_LIMIT, ""),
-    ("Set Limit Number of Request", "number", RATE_LIMIT, ""),
-    ("Wordlist", "text", WORDLIST_PATH, ""),
+    ("Concurrent Scan Limit", "number", CONCURRENT_SCAN_LIMIT, "0"),
+    ("Set Limit Number of Request", "number", RATE_LIMIT, "0"),
+    ("Wordlist", "text", WORDLIST_PATH, "Path or URL"),
     ("Enable Auto Tune", "checkbox", AUTO_TUNE, ""),
     ("Enable Auto Bail", "checkbox", AUTO_BAIL, ""),
     ("Disable Wildcard Filtering", "checkbox", DISABLE_WILDCARD_FILTERING, ""),
-    ("Scan Time Limit", "text", TIME_LIMIT, ""),
+    ("Scan Time Limit", "text", TIME_LIMIT, "5s, 10m, 3h..."),
     ("Enable Extension Autocollecting", "checkbox", REMEMBER_EXTENSION, ""),
     (
         "Enable Request for Alternative Extensions",
@@ -113,7 +113,7 @@ scan_options = [
 
 class FeroxbusterController(Controller):
     def __init__(self):
-        self.scan_result = None
+        self.last_scan_result = None
 
     def run(self, target, options: dict):
         command = [
@@ -317,6 +317,8 @@ class FeroxbusterController(Controller):
 
         os.remove(TEMP_FILE_NAME)
 
+        self.last_scan_result = json_objects
+        
         sorted = {}
         for i in json_objects:
             if i.get("status", False):

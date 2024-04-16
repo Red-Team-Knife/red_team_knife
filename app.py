@@ -1,7 +1,13 @@
 from flask import *
 from controllers.nmap import NmapController, scan_options as nmap_scan_options
-from controllers.the_harvester import TheHarvesterController, scan_options as the_harvester_scan_options
-from controllers.feroxbuster import FeroxbusterController, scan_options as feroxbuster_scan_options
+from controllers.the_harvester import (
+    TheHarvesterController,
+    scan_options as the_harvester_scan_options,
+)
+from controllers.feroxbuster import (
+    FeroxbusterController,
+    scan_options as feroxbuster_scan_options,
+)
 import utils.hyperlink_constants as hyperlink_constants
 from models.scan import Scan
 from utils import *
@@ -14,15 +20,8 @@ from views.view import BaseBlueprint
 from current_scan import CurrentScan
 import controllers
 
-
-# TODO: implementare visualizzazione risultati di un tool già utilizzato anche in fase di re-click
-# TODO: ALLINEA PASSAGGIO DATI HARV NMAP
-
-
 app = Flask(__name__, static_url_path="/static")
-# app.register_blueprint(nmap_blueprint, url_prefix='/nmap')
-# app.register_blueprint(the_harvester_blueprint, url_prefix="/theHarvester")
-# app.register_blueprint(feroxbuster_blueprint, url_prefix="/feroxbuster")
+
 
 nmap_blueprint = BaseBlueprint(
     "nmap",
