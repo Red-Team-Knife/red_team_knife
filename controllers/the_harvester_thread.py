@@ -1,7 +1,8 @@
 import subprocess, os, json, shutil
+import time
 from utils.dictionary import remove_empty_values
 from utils.commands import build_command_string
-from controllers.controller import Controller
+from controllers.controller_thread import Controller, CommandThread
 
 LIMIT = "result_limit"
 LIMIT_ENABLE = "result_limit_enable"
@@ -17,10 +18,11 @@ DNS_LOOKUP = "dns_lookup"
 DNS_BRUTEFORCE = "dns_bruteforce"
 SOURCE = "source"
 
-TEMP_FILE_NAME = "the-harvester-temp"
+TEMP_FILE_NAME = "tmp/the-harvester-temp"
 SCREENSHOTS_DIRECTORY = "screenshots"
 
 RUNNING_MESSAGE = "Running theHarvester with command: "
+TOOL_NAME = "theHarvester"
 
 
 scan_options = [
@@ -88,10 +90,13 @@ scan_options = [
 class TheHarvesterController(Controller):
     def __init__(self):
         self.last_scan_result = None
+        self.is_scan_in_progress = False
+        self.tool_name = TOOL_NAME
 
     def run(self, target, options: dict):
+        self.last_scan_result = None
 
-        screenshot_saved = False
+        self.screenshot_saved = False
 
         # check screenshot folder existance
         screenshot_folder = os.path.abspath(SCREENSHOTS_DIRECTORY)
@@ -130,7 +135,7 @@ class TheHarvesterController(Controller):
         if options.get(SCREENSHOT, False):
             command.append("--screenshot")
             command.append(SCREENSHOTS_DIRECTORY)
-            screenshot_saved = True
+            self.screenshot_saved = True
 
         if options.get(DNS_SERVER, False):
             command.append("-e")
@@ -156,10 +161,22 @@ class TheHarvesterController(Controller):
 
         print(RUNNING_MESSAGE + command_string[:-1])
 
-        try:
-            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-            print(output.decode("utf-8"))
-            print("\033[0m")
+        class TheHarvesterCommandThread(CommandThread):
+            def run(self):
+                super().run()
+                print("\033[0m")
+                if self._stop_event.is_set():
+                    try:
+                        os.remove(TEMP_FILE_NAME + ".json")
+                        os.remove(TEMP_FILE_NAME + ".xml")
+                    except:
+                        print("Couldn't remove temp theHarvester file.")
+            
+        self.thread = TheHarvesterCommandThread(command, self)
+        self.thread.start()
+
+    def __format_result__(self):
+        if not self.last_scan_result:
             with open(TEMP_FILE_NAME + ".json", "r") as file:
                 data = json.load(file)
 
@@ -168,23 +185,12 @@ class TheHarvesterController(Controller):
             os.remove(TEMP_FILE_NAME + ".xml")
 
             # check if screenshots are available
-            if screenshot_saved:
+            if self.screenshot_saved:
                 data["screenshots_available"] = True
             else:
                 data["screenshots_available"] = False
 
-            self.last_scan_result = data
-
-            # return formatted html
-            return self.__format_result__()
-        except subprocess.CalledProcessError as e:
-            print(e.output.decode("utf-8"))
-            print("\033[0m")
-            return None
-
-    def __format_result__(self):
-
-        self.last_scan_result = remove_empty_values(self.last_scan_result)
+            self.last_scan_result = remove_empty_values(data)
 
         if not self.last_scan_result:
             return "<p>No Result Found</p>"

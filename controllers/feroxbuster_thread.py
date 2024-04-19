@@ -1,7 +1,9 @@
 import subprocess, os, json, shutil
+import threading
+import time
 from utils.commands import build_command_string
 from utils.html_format_util import *
-from controllers.controller import Controller
+from controllers.controller_thread import Controller, CommandThread
 
 BURP = "burp"
 BURP_REPLAY = "burp-replay"
@@ -49,8 +51,9 @@ ASK_FOR_ALTERNATIVE_EXTENSIONS = "ask_for_alternative_extensions"
 ADD_CRITICAL_WORDS = "add_critical_words"
 IGNORE_EXTENSIONS = "ignore_extensions"
 
-TEMP_FILE_NAME = "feroxbuster-temp"
+TEMP_FILE_NAME = "tmp/feroxbuster-temp"
 RUNNING_MESSAGE = "Running Feroxbuster with command: "
+TOOL_NAME = "Feroxbuster"
 
 scan_options = [
     ("Set Burp", "checkbox", BURP, ""),
@@ -110,12 +113,16 @@ scan_options = [
     ("Ignore Extensions", "text", IGNORE_EXTENSIONS, ""),
 ]
 
-
 class FeroxbusterController(Controller):
+
     def __init__(self):
         self.last_scan_result = None
+        self.is_scan_in_progress = False
+        self.tool_name = TOOL_NAME
 
     def run(self, target, options: dict):
+        self.last_scan_result = None
+
         command = [
             "feroxbuster",
             "-u",
@@ -282,45 +289,41 @@ class FeroxbusterController(Controller):
 
         print(RUNNING_MESSAGE + command_string[:-1])
 
-        feroxbuster_process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-        )
-
-        # Print output while the command is running
-        while True:
-            output = feroxbuster_process.stdout.readline()
-            if output == "" and feroxbuster_process.poll() is not None:
-                break
-            if output:
-                print(output.strip())
-
-        # Wait for the process to terminate
-        feroxbuster_process.wait()
-
-        return self.__format_result__()
+        class FeroxbusterCommandThread(CommandThread):
+            def run(self):
+                super().run()
+                if self._stop_event.is_set():
+                    try:
+                        os.remove(TEMP_FILE_NAME)
+                    except:
+                        print("Couldn't remove temp Feroxbuster file.")
+            
+        self.thread = FeroxbusterCommandThread(command, self)
+        self.thread.start()
 
     def __format_result__(self):
 
-        # List to store parsed JSON objects
-        json_objects = []
+        if not self.last_scan_result:
+            # List to store parsed JSON objects
+            json_objects = []
 
-        # Read the file line by line and parse JSON
-        with open(TEMP_FILE_NAME, "r") as file:
-            for line in file:
-                try:
-                    # Parse the JSON from the line
-                    json_object = json.loads(line.strip())
-                    # Append the parsed JSON object to the list
-                    json_objects.append(json_object)
-                except json.JSONDecodeError as e:
-                    print(f"Error parsing JSON: {e}")
+            # Read the file line by line and parse JSON
+            with open(TEMP_FILE_NAME, "r") as file:
+                for line in file:
+                    try:
+                        # Parse the JSON from the line
+                        json_object = json.loads(line.strip())
+                        # Append the parsed JSON object to the list
+                        json_objects.append(json_object)
+                    except json.JSONDecodeError as e:
+                        print(f"Error parsing JSON: {e}")
 
-        os.remove(TEMP_FILE_NAME)
+            os.remove(TEMP_FILE_NAME)
 
-        self.last_scan_result = json_objects
+            self.last_scan_result = json_objects
         
         sorted = {}
-        for i in json_objects:
+        for i in self.last_scan_result:
             if i.get("status", False):
                 status = i["status"]
                 if sorted.get(status, False):

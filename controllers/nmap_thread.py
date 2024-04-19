@@ -1,5 +1,9 @@
+import threading
 import nmap3
 from controllers.controller import Controller
+from controllers.controller_thread import CommandThread
+
+TOOL_NAME = "Nmap"
 
 scan_options = [
     ("Top Ports", "radio", "top", "type"),
@@ -9,35 +13,47 @@ scan_options = [
     ("Port Version", "radio", "version", "type"),
 ]
 
-# Riscrivere controller in modo tale da utilizzare subprocess
 class NmapController(Controller):
     def __init__(self):       
         self.last_scan_result = None
+        self.is_scan_in_progress = False
+        self.tool_name = TOOL_NAME
 
     def run(self, target, options):
-        nmap = nmap3.Nmap()
-        print(options)
+        self.last_scan_result = None
 
+        nmap = nmap3.Nmap()
+        
         type = options['type']
         
+
         if type == "top":
-            self.last_scan_result = nmap.scan_top_ports(target)
+            function = nmap.scan_top_ports(target)
+        elif type == "dns":
+            function = nmap.nmap_dns_brute_script(target)
+        elif type == "list":
+            function = nmap.nmap_list_scan(target)
+        elif type == "os":
+            function = nmap.nmap_os_detection(target)
+        elif type == "version":
+            function = nmap.nmap_version_detection(target)
+        else:
+            html = self.format_error()
+        
+    def get_formatted_results(self):
+        if type == "top":
             html = self.__format_top_result__(self.last_scan_result)
         elif type == "dns":
-            self.last_scan_result = nmap.nmap_dns_brute_script(target)
             html = self.__format_dns_result__(self.last_scan_result)
         elif type == "list":
-            self.last_scan_result = nmap.nmap_list_scan(target)
             html = self.__format_list_result__(self.last_scan_result)
         elif type == "os":
-            self.last_scan_result = nmap.nmap_os_detection(target)
             html = self.__format_os_result__(self.last_scan_result)
         elif type == "version":
-            self.last_scan_result = nmap.nmap_version_detection(target)
-            
             html = self.__format_version_result__(self.last_scan_result)
         else:
             html = self.format_error()
+
         self.last_scan_result["type"] = type
         
         return html

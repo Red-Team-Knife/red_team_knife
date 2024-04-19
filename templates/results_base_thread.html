@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{tool}}{% endblock %}
+
+{%block content%}
+
+<h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
+<div id="save_results_section">
+    <button id="save_results" style="display: none;">Save Results</button>
+</div>
+
+<div id="results">
+    {% if not past_scan_available %}
+    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
+        otherwise the scan will be lost!</p>
+
+    <button id="abort_scan" style="display:none;">Abort Scan</button>
+    <div>
+        <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+    </div>
+
+    {% else %}
+    <form method="get">
+        <button type="submit">New Scan</button>
+    </form>
+
+    {{ scan_result | safe }}
+    {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var target = "{{ target }}";
+        var options = "{{ options }}";
+
+        var resultsDiv = $('#results');
+        var loadingMsg = $('#loading_msg');
+        var abortBtn = $('#abort_scan');
+        var saveBtn = $('#save_results');
+        var saveResultsDiv = $('#save_results_section');
+
+        var pastScanAvailable = "{{ past_scan_available }}";
+
+        var stopRequested = false
+
+        function checkScanStatus() {
+            if (!stopRequested) {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ url_for(current_section + '.is_scan_in_progress') }}",
+                    success: function (response) {
+                        if (response.scan_in_progress) {
+                            // If scan is still in progress, wait 1 second and check again
+                            setTimeout(checkScanStatus, 1000);
+                        } else {
+                            // If scan is complete, get the results
+                            getResults();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error checking scan status:', error);
+                    }
+                });
+            }
+        }
+
+        function getResults() {
+            $.ajax({
+                type: 'GET',
+                url: "{{ url_for(current_section + '.results') }}",
+                success: function (data) {
+                    resultsDiv.html(data);
+                    saveBtn.show();
+                    abortBtn.hide();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching results:', error);
+                    resultsDiv.html('<p>Error fetching results. Check terminal for more information.</p>');
+                    abortBtn.hide();
+                }
+            });
+        }
+
+        abortBtn.on('click', function () {
+            stopRequested = true
+            $.ajax({
+                type: 'GET',
+                url: "{{ url_for(current_section + '.stop_scan') }}",
+                success: function (data) {
+                    resultsDiv.html(data);
+                    setTimeout(function () {
+                        window.location.href = "{{ url_for(current_section + '.interface') }}";
+                    }, 1000);
+                },
+            });
+        });
+
+        saveBtn.on('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for(current_section + '.save_results') }}",
+                data: {},
+                success: function (response) {
+                    saveResultsDiv.html(response)
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error stopping scan:', error);
+                    alert('Error stopping scan:', error);
+                }
+            });
+        });
+
+        if (pastScanAvailable === "False") {
+            abortBtn.show()
+            // Start by checking the scan status
+            checkScanStatus();
+        }
+    });
+
+</script>
+
+{%endblock%}

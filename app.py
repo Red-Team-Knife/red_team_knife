@@ -1,10 +1,10 @@
 from flask import *
 from controllers.nmap import NmapController, scan_options as nmap_scan_options
-from controllers.the_harvester import (
+from controllers.the_harvester_thread import (
     TheHarvesterController,
     scan_options as the_harvester_scan_options,
 )
-from controllers.feroxbuster import (
+from controllers.feroxbuster_thread import (
     FeroxbusterController,
     scan_options as feroxbuster_scan_options,
 )
@@ -20,10 +20,28 @@ from utils import *
 import os
 from utils.html_format_util import render_dictionary
 from views.view import BaseBlueprint
+from views.view_thread import BaseBlueprint as BPT
 from current_scan import CurrentScan
-import controllers
 
 app = Flask(__name__, static_url_path="/static")
+
+#TODO creare cartella tmp ad inizio esecuzione
+
+sections = {
+    "Reconnaissance": [
+        ("Nmap", 'nmap'),
+        ("theHarvester", 'the_harvester'),
+        ("Feroxbuster", 'feroxbuster'),
+    ],
+    "Weaponization": [("w4af-Audit", "nmap")],
+    "Delivery": [("None", "nmap")],
+    "Exploitation": [("None", "nmap")],
+    "Installation": [("None", "nmap")],
+    "Command and Control": [("None", "nmap")],
+    "Action": [("None", "nmap")],
+}
+
+
 
 nmap_blueprint = BaseBlueprint(
     "nmap",
@@ -35,24 +53,26 @@ nmap_blueprint = BaseBlueprint(
     nmap_scan_options,
 )
 
-the_harvester_blueprint = BaseBlueprint(
+the_harvester_blueprint = BPT(
     "the_harvester",
     __name__,
     TheHarvesterController(),
     "theHarvester",
-    "the_harvester/interface.html",
-    "the_harvester/results.html",
+    "interface_base.html",
+    "results_base_thread.html",
     the_harvester_scan_options,
+    sections,
 )
 
-feroxbuster_blueprint = BaseBlueprint(
+feroxbuster_blueprint = BPT(
     "feroxbuster",
     __name__,
     FeroxbusterController(),
     "Feroxbuster",
-    "feroxbuster/interface.html",
-    "feroxbuster/results.html",
+    "interface_base.html",
+    "results_base_thread.html",
     feroxbuster_scan_options,
+    sections,
 )
 '''
 w4af_audit_blueprint = BaseBlueprint(
@@ -69,9 +89,6 @@ app.register_blueprint(nmap_blueprint)
 app.register_blueprint(the_harvester_blueprint)
 app.register_blueprint(feroxbuster_blueprint)
 #app.register_blueprint(w4af_audit_blueprint)
-
-sections = hyperlink_constants.SECTIONS
-
 
 ROOT_FOLDER = "scans"
 SCANS_PATH = os.path.abspath(ROOT_FOLDER)
