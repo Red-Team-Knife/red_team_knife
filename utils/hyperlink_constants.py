@@ -1,4 +1,4 @@
-
+#TODO avvalorare con url_for
 
 SECTIONS = {
     "Reconnaissance": [
@@ -6,7 +6,7 @@ SECTIONS = {
         {"theHarvester": '/theHarvester'},
         {"Feroxbuster": '/Feroxbuster'}
     ],
-    "Weaponization": [{"Nmap": "/nmap_interface"}],
+    "Weaponization": [{"w4af-Audit": "/w4af_audit"}],
     "Delivery": [{"Nmap": "/nmap_interface"}],
     "Exploitation": [{"Nmap": "/nmap_interface"}],
     "Installation": [{"Nmap": "/nmap_interface"}],
