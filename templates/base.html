@@ -47,7 +47,11 @@
         style="display: flex; align-items: center; justify-content: space-between; text-align: center;">
         <a href="javascript:void(0)" class="w3-button w3-red w3-hide-large w3-left" style="margin-right: auto;"
             onclick="index_open()">☰</a>
-        <a href="/" class="no-underline-link"><span style="margin: 0 auto;">Swiss Army Knife</span></a>
+        <div style="display: flex; align-items: center;">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Loading..." style="height: 1.5em; margin-right: 10px;">
+            <a href="/" class="no-underline-link"><span>Swiss Army Knife</span></a>
+        </div>
+        
     </header>
     <div class="w3-overlay w3-hide-large" onclick="index_close()" style="cursor:pointer" title="close side menu"
         id="myOverlay"></div>

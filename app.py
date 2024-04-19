@@ -8,10 +8,12 @@ from controllers.feroxbuster import (
     FeroxbusterController,
     scan_options as feroxbuster_scan_options,
 )
+'''
 from controllers.w4af_audit import (
     W4afAuditController,
     scan_options as w4af_audit_scan_options,
 )
+'''
 import utils.hyperlink_constants as hyperlink_constants
 from models.scan import Scan
 from utils import *
@@ -22,7 +24,6 @@ from current_scan import CurrentScan
 import controllers
 
 app = Flask(__name__, static_url_path="/static")
-
 
 nmap_blueprint = BaseBlueprint(
     "nmap",
@@ -53,7 +54,7 @@ feroxbuster_blueprint = BaseBlueprint(
     "feroxbuster/results.html",
     feroxbuster_scan_options,
 )
-
+'''
 w4af_audit_blueprint = BaseBlueprint(
     "w4af_audit",
     __name__,
@@ -63,11 +64,11 @@ w4af_audit_blueprint = BaseBlueprint(
     "w4af_audit/results.html",
     w4af_audit_scan_options,
 )
-
+'''
 app.register_blueprint(nmap_blueprint)
 app.register_blueprint(the_harvester_blueprint)
 app.register_blueprint(feroxbuster_blueprint)
-app.register_blueprint(w4af_audit_blueprint)
+#app.register_blueprint(w4af_audit_blueprint)
 
 sections = hyperlink_constants.SECTIONS
 
