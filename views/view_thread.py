@@ -36,6 +36,11 @@ class BaseBlueprint(Blueprint):
         # POST request means that either a scan is requested or a past scan needs to be restored
         if request.method == "POST":
 
+            if request.form.get("new_scan_requested"):
+                self.controller.last_scan_result = None
+                return self.get_interface_page()
+
+
             # check if a past scan needs to be restored
             load_previous_results = request.form.get("load_previous_results")
 
@@ -76,7 +81,11 @@ class BaseBlueprint(Blueprint):
                 current_section=self.name,
                 tool=self.tool_name,
             )
+        return self.get_interface_page()
 
+        
+
+    def get_interface_page(self):
         # GET request means we want to access scan interface
         # Check if a scan is already in progress
         if self.controller.is_scan_in_progress:
@@ -85,6 +94,15 @@ class BaseBlueprint(Blueprint):
                 sections=self.sections,
                 past_scan_available=False,
                 scan_result="",
+                current_section=self.name,
+                tool=self.tool_name,
+            )
+        if self.controller.last_scan_result:
+            return render_template(
+                self.results_template,
+                sections=self.sections,
+                unsaved_past_scan_available=True,
+                scan_result=self.controller.get_formatted_results(),
                 current_section=self.name,
                 tool=self.tool_name,
             )

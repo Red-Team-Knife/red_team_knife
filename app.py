@@ -1,6 +1,9 @@
 import subprocess
 from flask import *
-from controllers.nmap import NmapController, scan_options as nmap_scan_options
+from controllers.nmap_thread import (
+    NmapController,
+    scan_options as nmap_scan_options,
+)
 from controllers.the_harvester_thread import (
     TheHarvesterController,
     scan_options as the_harvester_scan_options,
@@ -49,15 +52,15 @@ SECTIONS = {
 
 
 def register_blueprints(app):
-    # TODO allineare template html nmap
-    nmap_blueprint = BaseBlueprint(
+    nmap_blueprint = BPT(
         "nmap",
         __name__,
         NmapController(),
         "Nmap",
-        "nmap/interface.html",
-        "nmap/results.html",
+        "interface_base.html",
+        "results_base_thread.html",
         nmap_scan_options,
+        SECTIONS
     )
 
     the_harvester_blueprint = BPT(
