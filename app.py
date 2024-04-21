@@ -84,6 +84,7 @@ def register_blueprints(app):
         feroxbuster_scan_options,
         SECTIONS,
     )
+    
     """
     w4af_audit_blueprint = BaseBlueprint(
         "w4af_audit",
