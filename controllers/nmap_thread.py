@@ -2,8 +2,8 @@ import threading
 import subprocess, os, json, shutil, time
 import nmap3
 from utils.commands import build_command_string
-from controllers.controller import Controller
-from controllers.controller_thread import CommandThread
+from controllers.controller_thread import Controller, CommandThread
+import xmltodict
 
 TOOL_NAME = "Nmap"
 LIST_SCAN = "list_scan"
@@ -17,8 +17,8 @@ ICMP_ECHO = "icmp_echo"
 ICMP_TIMESTAMP = "icmp_timestamp"
 ICMP_MASK = "icmp_mask"
 IP_PROTOCOL_PING = "ip_protocol_ping"
-DISABLE_DNS = "disable_arp"
-ALWAYS_RESOLVE_DNS = "ignore_rst"
+DISABLE_DNS = "disable_dns"
+ALWAYS_RESOLVE_DNS = "always_resolve_dns"
 TRACEROUTE = "traceroute"
 TCP_SYN_SCAN = "tcp_syn_scan"
 CONNECT_SCAN = "connect_scan"
@@ -80,6 +80,7 @@ POORLY_PRIVILAGED = "poorly_privileged"
 PRINT_ONLY_OPEN = "print_only_open"
 RADIO_SCAN_TYPE = "radio_scan_type"
 RADIO_USER_PRIVILAGE = "radio_user_privilage"
+RADIO_DNS_RESOLUTION = "radio_dns_resolution"
 
 TEMP_FILE_NAME = "tmp/nmap-temp"
 RUNNING_MESSAGE = "Running Nmap with command: "
@@ -97,8 +98,8 @@ scan_options = [
     ("Ping ICMP Timestamp", "checkbox", ICMP_TIMESTAMP, ""),
     ("Ping ICMP Address mask", "checkbox", ICMP_MASK, ""),
     ("IP Protocol Ping", "text", IP_PROTOCOL_PING, "IP-in-IP, IGMP"),
-    ("Disable DNS Resolution", "radio", DISABLE_DNS, "dns_resolution"),
-    ("Enable Total Dns Resolution", "checkbox", ALWAYS_RESOLVE_DNS, "dns_resolution"),
+    ("Disable DNS Resolution", "radio", DISABLE_DNS, RADIO_DNS_RESOLUTION),
+    ("Enable Total Dns Resolution", "radio", ALWAYS_RESOLVE_DNS, RADIO_DNS_RESOLUTION),
     ("Enable Traceroute", "checkbox", TRACEROUTE, ""),
     ("TCP SYN Scan", "radio", TCP_SYN_SCAN, RADIO_SCAN_TYPE),
     ("Connect() Scan", "radio", CONNECT_SCAN, RADIO_SCAN_TYPE),
@@ -203,10 +204,11 @@ class NmapController(Controller):
         if options.get(IP_PROTOCOL_PING, False):
             command.append("-PO")
             command.append('[' + ','.join(map(str, options[IP_PROTOCOL_PING])) + ']')
-        if options.get(DISABLE_DNS, False):
-            command.append("-n")
-        if options.get(ALWAYS_RESOLVE_DNS, False):
-            command.append("-R")
+        if options.get(RADIO_DNS_RESOLUTION, False):
+            if options[RADIO_DNS_RESOLUTION] == DISABLE_DNS:
+                command.append("-n")
+            elif options[RADIO_DNS_RESOLUTION] == ALWAYS_RESOLVE_DNS:
+                command.append("-R")
         if options.get(TRACEROUTE, False):
             command.append("--traceroute")
 
@@ -379,6 +381,9 @@ class NmapController(Controller):
 
         print(RUNNING_MESSAGE + command_string[:-1])
 
+        # create temp file to save scan details
+
+
         class NmapCommandThread(CommandThread):
             def run(self):
                 super().run()
@@ -395,30 +400,20 @@ class NmapController(Controller):
     def __format_result__(self):
 
         if not self.last_scan_result:
+            json_objects = ''
 
             with open(TEMP_FILE_NAME, "r") as file:
-                #TODO do something
-                pass
-            os.remove(TEMP_FILE_NAME)
-        return super().__format_result__()
-        
-    def get_formatted_results(self):
-        if type == "top":
-            html = self.__format_top_result__(self.last_scan_result)
-        elif type == "dns":
-            html = self.__format_dns_result__(self.last_scan_result)
-        elif type == "list":
-            html = self.__format_list_result__(self.last_scan_result)
-        elif type == "os":
-            html = self.__format_os_result__(self.last_scan_result)
-        elif type == "version":
-            html = self.__format_version_result__(self.last_scan_result)
-        else:
-            html = self.format_error()
+                # converting xml to dict
+                xml_dict = xmltodict.parse(file.read())
 
-        self.last_scan_result["type"] = type
-        
-        return html
+                json_objects += json.dumps(xml_dict)
+
+            os.remove(TEMP_FILE_NAME)
+
+            self.last_scan_result = json_objects
+
+        return self.last_scan_result
+    
 
     def restore_last_scan(self):
         type = self.last_scan_result['type']
