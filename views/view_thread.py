@@ -88,6 +88,7 @@ class BaseBlueprint(Blueprint):
     def get_interface_page(self):
         # GET request means we want to access scan interface
         # Check if a scan is already in progress
+
         if self.controller.is_scan_in_progress:
             return render_template(
                 self.results_template,
@@ -97,6 +98,8 @@ class BaseBlueprint(Blueprint):
                 current_section=self.name,
                 tool=self.tool_name,
             )
+        
+        # Check if an unsaved scan is still stored
         if self.controller.last_scan_result:
             return render_template(
                 self.results_template,
@@ -106,6 +109,7 @@ class BaseBlueprint(Blueprint):
                 current_section=self.name,
                 tool=self.tool_name,
             )
+
         # Check if current scan has a value
         if CurrentScan.scan is not None:
 

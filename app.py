@@ -1,14 +1,14 @@
 import subprocess
 from flask import *
-from controllers.nmap_thread import (
+from controllers.nmap import (
     NmapController,
     scan_options as nmap_scan_options,
 )
-from controllers.the_harvester_thread import (
+from controllers.the_harvester import (
     TheHarvesterController,
     scan_options as the_harvester_scan_options,
 )
-from controllers.feroxbuster_thread import (
+from controllers.feroxbuster import (
     FeroxbusterController,
     scan_options as feroxbuster_scan_options,
 )
@@ -24,8 +24,7 @@ from models.scan import Scan
 from utils import *
 import os
 from utils.html_format_util import render_dictionary
-from views.view import BaseBlueprint
-from views.view_thread import BaseBlueprint as BPT
+from views.view_thread import BaseBlueprint
 from current_scan import CurrentScan
 
 app = Flask(__name__, static_url_path="/static")
@@ -35,6 +34,9 @@ app = Flask(__name__, static_url_path="/static")
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
 TEMP_FOLDER = "tmp"
+
+INTERFACE_TEMPLATE = "interface_base.html"
+RESULTS_TEMPLATE = "results_base.html"
 
 SECTIONS = {
     "Reconnaissance": [
@@ -52,39 +54,39 @@ SECTIONS = {
 
 
 def register_blueprints(app):
-    nmap_blueprint = BPT(
+    nmap_blueprint = BaseBlueprint(
         "nmap",
         __name__,
         NmapController(),
         "Nmap",
-        "interface_base.html",
-        "results_base_thread.html",
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
         nmap_scan_options,
         SECTIONS
     )
 
-    the_harvester_blueprint = BPT(
+    the_harvester_blueprint = BaseBlueprint(
         "the_harvester",
         __name__,
         TheHarvesterController(),
         "theHarvester",
-        "interface_base.html",
-        "results_base_thread.html",
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
         the_harvester_scan_options,
         SECTIONS,
     )
 
-    feroxbuster_blueprint = BPT(
+    feroxbuster_blueprint = BaseBlueprint(
         "feroxbuster",
         __name__,
         FeroxbusterController(),
         "Feroxbuster",
-        "interface_base.html",
-        "results_base_thread.html",
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
         feroxbuster_scan_options,
         SECTIONS,
     )
-    
+
     """
     w4af_audit_blueprint = BaseBlueprint(
         "w4af_audit",
