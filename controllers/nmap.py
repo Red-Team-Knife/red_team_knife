@@ -423,6 +423,9 @@ class NmapController(Controller):
 
             os.remove(TEMP_FILE_NAME)
 
+            with open("test.json", "w") as file:
+                print(json.dumps(json_objects), file=file)
+
             self.last_scan_result = json_objects
 
         return self.__format_html__()
@@ -430,6 +433,7 @@ class NmapController(Controller):
 
     def __format_html__(self):
         html_string = "<table>\n"
+        #TODO generalizza la tabella per gli altri tipi di scan
         
         # build table headers
         html_string += "<tr>"
@@ -445,7 +449,7 @@ class NmapController(Controller):
                 html_string += "<tr class = open>"
             else:
                 html_string += "<tr>"
-                
+
             for key in row:
                 # check subdictionary
                 if type(row[key]) == dict:
