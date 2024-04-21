@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}
-{% endblock %}
+{% block title %} {{tool}} {% endblock %}
 {% block content %}
 
-<h2>{% block header %}{% endblock %}</h2>
+<h2>{% block header %} {{tool}} {% endblock %}</h2>
 
 {% if past_scan_available %}
 <form method="post">
