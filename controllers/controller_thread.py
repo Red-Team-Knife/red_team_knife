@@ -50,6 +50,7 @@ class CommandThread(threading.Thread):
             output = self.process.stdout.readline()
             if output:
                 print(output.strip())
+
         if not self._stop_event.is_set():
             print(self.tool_name + " scan completed.")
 

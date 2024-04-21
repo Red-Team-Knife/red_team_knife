@@ -11,20 +11,19 @@
 
 <div id="results">
     {% if not past_scan_available %}
-    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
-        otherwise the scan will be lost!</p>
+        <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
+            otherwise the scan will be lost!</p>
 
-    <button id="abort_scan" style="display:none;">Abort Scan</button>
-    <div>
-        <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
-    </div>
+        <button id="abort_scan" style="display:none;">Abort Scan</button>
+        <div>
+            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+        </div>
 
     {% else %}
-    <form method="get">
-        <button type="submit">New Scan</button>
-    </form>
-
-    {{ scan_result | safe }}
+        <form method="get">
+            <button type="submit">New Scan</button>
+        </form>
+        {{ scan_result | safe }}
     {% endif %}
 </div>
 

@@ -47,8 +47,6 @@ class BaseBlueprint(Blueprint):
                         self.tool_name
                     )
 
-                    print(self.controller.restore_last_scan())
-
                     return render_template(
                         self.results_template,
                         sections=self.sections,
@@ -65,6 +63,7 @@ class BaseBlueprint(Blueprint):
             target = options["target"]
             options.pop("target")
 
+            # Start scanning
             self.controller.run(target, options)
 
             return render_template(
@@ -125,7 +124,6 @@ class BaseBlueprint(Blueprint):
         return jsonify({"scan_in_progress": self.controller.is_scan_in_progress})
 
     def results(self):
-
         return jsonify(self.controller.get_formatted_results())
 
     def save_results(self):
