@@ -179,6 +179,11 @@ button:hover {
     background-color: #a8190f;
 }
 
+button:disabled {
+    background-color: #808080;
+    cursor: not-allowed;
+}
+
 .form-elements {
     font-size: 20px;
     /* Dimensione del carattere */

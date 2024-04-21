@@ -5,31 +5,28 @@
 {%block content%}
 
 <h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
-<div id="save_results_section">
-    <button id="save_results" style="display: none;">Save Results</button>
+<div id="save_results_section" style="display: none;">
+    <div id="save_results_message_section">
+        <button id="save_results" {% if save_disabled %}disabled{% endif %}>Save Results</button>
+    </div>
+
+    <form method="post">
+        <input type="hidden" name="new_scan_requested" value="True">
+        <button type="submit">New Scan</button>
+    </form>
 </div>
 
 <div id="results">
-    {% if unsaved_past_scan_available %}
-        <form method="post">
-            <input type="hidden" name="new_scan_requested" value="True">
-            <button type="submit">New Scan</button>
-        </form>
-
-        {{ scan_result | safe }}
-    {% elif not past_scan_available %}
-        <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
-            otherwise the scan will be lost!</p>
-
-        <button id="abort_scan" style="display:none;">Abort Scan</button>
-        <div>
-            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
-        </div>
+    {% if past_scan_available %}
+    {{ scan_result | safe }}
     {% else %}
-        <form method="get">
-            <button type="submit">New Scan</button>
-        </form>
-        {{ scan_result | safe }}
+    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
+        otherwise the scan will be lost!</p>
+
+    <button id="abort_scan" style="display:none;">Abort Scan</button>
+    <div>
+        <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+    </div>
     {% endif %}
 </div>
 
@@ -46,9 +43,9 @@
         var abortBtn = $('#abort_scan');
         var saveBtn = $('#save_results');
         var saveResultsDiv = $('#save_results_section');
+        var saveResultsMessageDiv = $('#save_results_message_section');
 
         var pastScanAvailable = "{{ past_scan_available }}";
-        var unsavedPastScanAvailable = "{{ unsaved_past_scan_available }}"
 
         var stopRequested = false
 
@@ -79,7 +76,7 @@
                 url: "{{ url_for(current_section + '.results') }}",
                 success: function (data) {
                     resultsDiv.html(data);
-                    saveBtn.show();
+                    saveResultsDiv.show();
                     abortBtn.hide();
                 },
                 error: function (xhr, status, error) {
@@ -110,7 +107,7 @@
                 url: "{{ url_for(current_section + '.save_results') }}",
                 data: {},
                 success: function (response) {
-                    saveResultsDiv.html(response)
+                    saveResultsMessageDiv.html(response)
                 },
                 error: function (xhr, status, error) {
                     console.error('Error stopping scan:', error);
@@ -119,10 +116,10 @@
             });
         });
 
-        if(unsavedPastScanAvailable === "True") {
-            saveBtn.show()
-        }
-        if (pastScanAvailable === "False") {
+
+        if (pastScanAvailable === "True") {
+            saveResultsDiv.show()
+        } else {
             abortBtn.show()
             // Start by checking the scan status
             checkScanStatus();

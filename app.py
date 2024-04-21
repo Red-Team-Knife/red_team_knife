@@ -24,12 +24,10 @@ from models.scan import Scan
 from utils import *
 import os
 from utils.html_format_util import render_dictionary
-from views.view_thread import BaseBlueprint
+from views.view import BaseBlueprint
 from current_scan import CurrentScan
 
 app = Flask(__name__, static_url_path="/static")
-
-# TODO creare cartella tmp ad inizio esecuzione
 
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
@@ -37,6 +35,8 @@ TEMP_FOLDER = "tmp"
 
 INTERFACE_TEMPLATE = "interface_base.html"
 RESULTS_TEMPLATE = "results_base.html"
+
+BLUEPRINTS = []
 
 SECTIONS = {
     "Reconnaissance": [
@@ -87,6 +87,9 @@ def register_blueprints(app):
         SECTIONS,
     )
 
+    global BLUEPRINTS
+
+    BLUEPRINTS = [nmap_blueprint, the_harvester_blueprint, feroxbuster_blueprint]
     """
     w4af_audit_blueprint = BaseBlueprint(
         "w4af_audit",
@@ -99,10 +102,8 @@ def register_blueprints(app):
     )
     """
 
-    app.register_blueprint(nmap_blueprint)
-    app.register_blueprint(the_harvester_blueprint)
-    app.register_blueprint(feroxbuster_blueprint)
-    # app.register_blueprint(w4af_audit_blueprint)
+    for blueprint in BLUEPRINTS:
+        app.register_blueprint(blueprint)
 
 
 def create_folders():
