@@ -1,8 +1,12 @@
 import subprocess
 from flask import *
-from controllers.nmap import (
+from controllers.nmap_scan import (
     NmapController,
     scan_options as nmap_scan_options,
+)
+from controllers.nmap_vuln import (
+    NmapVulnController,
+    script_options as nmap_vuln_script_options
 )
 from controllers.the_harvester import (
     TheHarvesterController,
@@ -44,7 +48,8 @@ SECTIONS = {
         ("theHarvester", "the_harvester"),
         ("Feroxbuster", "feroxbuster"),
     ],
-    "Weaponization": [("w4af-Audit", "nmap")],
+    "Weaponization": [("w4af-Audit", "nmap"),
+                      ("Nmap-Vuln Scanner", "nmap_vuln")],
     "Delivery": [("None", "nmap")],
     "Exploitation": [("None", "nmap")],
     "Installation": [("None", "nmap")],
@@ -62,6 +67,17 @@ def register_blueprints(app):
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         nmap_scan_options,
+        SECTIONS
+    )
+
+    nmap_vuln_blueprint = BaseBlueprint(
+        "nmap_vuln",
+        __name__,
+        NmapVulnController(),
+        "Nmap-Vuln Scanner",
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        nmap_vuln_script_options,
         SECTIONS
     )
 
@@ -89,7 +105,7 @@ def register_blueprints(app):
 
     global BLUEPRINTS
 
-    BLUEPRINTS = [nmap_blueprint, the_harvester_blueprint, feroxbuster_blueprint]
+    BLUEPRINTS = [nmap_blueprint, the_harvester_blueprint, feroxbuster_blueprint, nmap_vuln_blueprint]
     """
     w4af_audit_blueprint = BaseBlueprint(
         "w4af_audit",

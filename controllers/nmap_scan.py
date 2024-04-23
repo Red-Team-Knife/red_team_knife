@@ -160,6 +160,11 @@ scan_options = [
     ("Show Only Open or Possilbly Open Ports", "checkbox", PRINT_ONLY_OPEN, ""),
 ]
 
+
+script_options = [
+
+]
+
 class NmapController(Controller):
     def __init__(self):       
         self.last_scan_result = None
@@ -425,8 +430,7 @@ class NmapController(Controller):
 
             os.remove(TEMP_FILE_NAME)
 
-            with open("test.json", "w") as file:
-                print(json.dumps(json_objects), file=file)
+
 
             self.last_scan_result = json_objects
 
