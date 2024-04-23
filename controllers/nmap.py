@@ -434,6 +434,142 @@ class NmapController(Controller):
     
 
     def __format_html__(self):
+
+        if self.last_scan_result.get('os', False):
+            return self.__format_os_scan__()
+        elif self.last_scan_result.get('ports', False):
+            return self.__format_port_scan__()
+
+    
+
+    def __format_os_scan__(self):
+        html_string = ''
+                
+        # build extraports table
+        if self.last_scan_result['ports'].get('extraports'):
+            html_string += '<b>OS scan</b><br>'
+            extraports = self.last_scan_result['ports'].get('extraports')
+
+            html_string += '<b>Extraports</b><br>'
+            html_string += '<table>'
+            html_string += '<tr>'
+
+            # build table headers
+            for key in extraports:
+                html_string += '<th>{}</th>'.format(key.replace("@", ""))
+            html_string += "</tr>\n"
+            
+            html_string += "<tr>"
+
+            # fill table
+            for row in extraports:
+                if isinstance(extraports[row], dict):
+                    html_string += '<td>'
+                    # fill field with subdictionary values
+                    for subkey in extraports[row]:
+                        html_string += f'<b>{subkey.replace("@", "")}: </b>'
+                        html_string += f'{extraports[row][subkey]} <br>'
+                    html_string += '</td>'
+            html_string += '</table><br>\n'
+
+        # build port table
+        if self.last_scan_result['ports'].get('port', False):
+            port = self.last_scan_result['ports'].get('port')
+
+            html_string += '<b>Ports</b><br>'
+            html_string += '<table>'
+            html_string += '<tr>'
+
+            # build table headers
+            for key in port[0].keys():
+                html_string += '<th>{}</th>'.format(key.replace("@", ""))
+            html_string += "</tr>\n"  
+
+            # fill table
+            for row in port:
+
+                # check if it is printing a port
+                if row.get("state"):
+                    # check if port is open to highlight row
+                    if row['state']['@state'] == 'open':
+                        html_string += "<tr class = open>"
+                else:
+                    html_string += '<tr>'
+
+                for key in row:                        
+                    # check subdictionary
+                    if type(row[key]) is dict:
+                        html_string += '<td>'
+                        # fill field with subdictionary values
+                        for subkey in row[key]:
+                            html_string += f'<b>{subkey.replace("@", "")}: </b>'
+                            html_string += f'{row[key][subkey]} <br>'
+                        html_string += '</td>'
+                    else:
+                        html_string += '<td>{}</td>'.format(row[key])
+                html_string += "</tr>\n"
+            html_string += '</table><br>\n'
+
+
+        if self.last_scan_result['os'].get('portused'):
+            # build portused table
+            portused = self.last_scan_result['os'].get('portused')
+            html_string += '<b>Ports Used</b><br>'
+            html_string += '<table>'
+            html_string += '<tr>'
+            
+            # build table headers
+            for key in portused[0].keys():
+                html_string += '<th>{}</th>'.format(key.replace("@", ""))
+            html_string += "</tr>\n"  
+            
+            for row in portused:
+
+                if row['@state'] == 'open':
+                    html_string += "<tr class = open>"
+                else: html_string += "<tr>"
+
+                # fill row
+                for key in row:
+                    html_string += '<td>{}</td>'.format(row[key])
+                html_string += "</tr>\n"
+            html_string += '</table><br>\n'
+
+        if self.last_scan_result['os'].get('osmatch', False):
+            # build osmatch table
+            osmatch = self.last_scan_result['os'].get('osmatch')
+            html_string += '<b>Os Match</b><br>'
+            html_string += '<table>'
+            html_string += '<tr>'
+
+            for key in osmatch.keys():
+                html_string += '<th>{}</th>'.format(key.replace("@", ""))
+            html_string += "</tr>\n"  
+
+
+            #TODO: verificare se ci sono più osmatch
+            html_string += '<tr>'
+            # fill table
+            for row in osmatch:
+                # check subdictionary
+                if type(osmatch[row]) is dict:
+                    html_string += '<td>'
+                    # fill field with subdictionary values
+                    for subkey in osmatch[row]:
+                        html_string += f'<b>{subkey.replace("@", "")}: </b>'
+                        html_string += f'{osmatch[row][subkey]} <br>'
+                    html_string += '</td>'
+                else:
+                    html_string += '<td>{}</td>'.format(osmatch[row])
+            html_string += "</tr>\n"
+            html_string += '</table><br>\n'
+        else:
+            html_string += '<b> No Result Fond </b>'
+        return html_string
+    
+
+    # old general method, works for port scan results
+    def __format_port_scan__(self):
         html_string = ''
 
         # print a table for type of scan
@@ -443,54 +579,39 @@ class NmapController(Controller):
             
             # fetch headers of table
             for scan_subject in self.last_scan_result[type_scan]:
-                
-                # check if under scan_subject there is a list or a dict
-                if type(self.last_scan_result[type_scan][scan_subject]) is list:
-
-                    # build table headers
-                    for key in self.last_scan_result[type_scan][scan_subject][0].keys():
-                        html_string += '<th>{}</th>'.format(key.replace("@", ""))
-                    html_string += "</tr>\n"  
-                elif type(self.last_scan_result[type_scan][scan_subject]) is dict:
-
-                    # build table headers
-                    html_string += "<tr>"
-                    for key in self.last_scan_result[type_scan][scan_subject].keys():
-                        html_string += '<th>{}</th>'.format(key.replace("@", ""))
-                    html_string += "</tr>\n" 
+                # build table headers
+                for key in self.last_scan_result[type_scan][scan_subject][0].keys():
+                    html_string += '<th>{}</th>'.format(key.replace("@", ""))
+                html_string += "</tr>\n"  
             
             for scan_subject in self.last_scan_result[type_scan]:
                 # add rows in table
                 for row in self.last_scan_result[type_scan][scan_subject]:
-                    if isinstance(row, str):
-                        html_string += "<tr>"
-                        html_string += '<td>{}</td>'.format(row)
-                        html_string += "</tr>"
+                    # check if it is printing a port
+                    if row.get("state"):
+                        # check if port is open to highlight row
+                        if row['state']['@state'] == 'open':
+                            html_string += "<tr class = open>"
                     else:
-                        # check if it is printing a port
-                        if row.get("state"):
-                            # check if port is open to highlight row
-                            if row['state']['@state'] == 'open':
-                                html_string += "<tr class = open>"
-                        elif row.get("@state"):
-                            if row['@state'] == 'open':
-                                html_string += "<tr class = open>"
-                        else:
-                            html_string += "<tr>"
+                        html_string += "<tr>"
 
-                        for key in row:                        
-                            # check subdictionary
-                            if type(row[key]) is dict:
-                                html_string += '<td>'
-                                # fill field with subdictionary values
-                                for subkey in row[key]:
-                                    html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                                    html_string += f'{row[key][subkey]} <br>'
-                                html_string += '</td>'
-                            else:
-                                html_string += '<td>{}</td>'.format(row[key])
+                    for key in row:                        
+                        # check subdictionary
+                        if type(row[key]) is dict:
+                            html_string += '<td>'
+                            # fill field with subdictionary values
+                            for subkey in row[key]:
+                                html_string += f'<b>{subkey.replace("@", "")}: </b>'
+                                html_string += f'{row[key][subkey]} <br>'
+                            html_string += '</td>'
+                        else:
+                            html_string += '<td>{}</td>'.format(row[key])
                     html_string += "</tr>\n"
             html_string += "</table><br>\n"
 
         return html_string
-    
+
+
+
+
+
