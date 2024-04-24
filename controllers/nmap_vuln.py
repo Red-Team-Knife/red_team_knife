@@ -56,6 +56,7 @@ class NmapVulnController(Controller):
                 json_string = json.dumps(xml_dict)
 
                 json_objects = json.loads(json_string)
+                json_objects = json_objects["nmaprun"]["host"]["ports"]["port"]
             
             os.remove(TEMP_FILE_NAME)
 
@@ -65,4 +66,28 @@ class NmapVulnController(Controller):
             self.last_scan_result = json_objects
 
         return f'<p>{self.last_scan_result}</p>'
-    
+
+
+    def __format_html__(self):
+        html_string = ''
+
+        # build port details table
+        for port_table in self.last_scan_result:
+            html_string += '<table>'
+            html_string += '<tr>'
+            port_table.pop("script")
+
+            # build table headers
+            for header in port_table.keys():
+                html_string += '<th>{}</th>'.format(header.replace("@", ""))
+            html_string += '</tr>\n'
+
+            # add rows
+            for row in port_table:
+                html_string += '<tr>'
+
+            
+
+
+        
+
