@@ -36,6 +36,7 @@ class CommandThread(threading.Thread):
         self._stop_event = threading.Event()
         self.caller = caller
         self.tool_name = caller.tool_name
+        self.process = None
 
     # Override if needed. Call super().run() and then do cleanup if only cleanup operations are needed.
     def run(self):
@@ -59,8 +60,12 @@ class CommandThread(threading.Thread):
         self.caller.is_scan_in_progress = False
 
     def stop(self):
-        self.process.terminate()
+        if self.process:
+            self.process.terminate()
         self.caller.last_scan_result = None
-        print(self.tool_name + " scan stopped.")
+        print(self.tool_name + " scan stop requested.")
         self.caller.is_scan_in_progress = False
         self._stop_event.set()
+
+    def print_stop_completed_message(self):
+        print(self.tool_name + " scan stop completed.")

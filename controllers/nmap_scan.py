@@ -1,6 +1,5 @@
 import threading
 import subprocess, os, json, shutil, time
-import nmap3
 from utils.commands import build_command_string
 from controllers.controller_thread import Controller, CommandThread
 import xmltodict
@@ -124,7 +123,12 @@ scan_options = [
     ("Top Ports", "number", TOP_PORTS, ""),
     ("Set Port Ratio", "number", PORT_RATIO, ""),
     ("Discover Services Info for Ports", "checkbox", DISCOVER_INFO_PORTS, ""),
-    ("Set Intensity Level", "number", VERSION_INTENSITY, "0(Light), 9 (Tty all probes)"),
+    (
+        "Set Intensity Level",
+        "number",
+        VERSION_INTENSITY,
+        "0(Light), 9 (Tty all probes)",
+    ),
     ("Enable Os Detection", "checkbox", OS_DETECTION, ""),
     ("Limit OS Detection to Promising Targets", "checkbox", LIMIT_OS, ""),
     ("Guess OS more Aggressively", "checkbox", GUESS_OS, ""),
@@ -139,7 +143,12 @@ scan_options = [
     ("Set Max Hostgroup", "number", MAX_HOSTGROUP, "10"),
     ("Set Min Roundtrip Time Timeout", "number", MIN_RTT_TIMEOUT, "5s, 10m, 3h"),
     ("Set Max Roundtrip Time Timeout", "number", MAX_RTT_TIMEOUT, "5s, 10m, 3h"),
-    ("Set Initial Roundtrip Time Timeout", "number", INITIAL_RTT_TIMEOUT, "5s, 10m, 3h"),
+    (
+        "Set Initial Roundtrip Time Timeout",
+        "number",
+        INITIAL_RTT_TIMEOUT,
+        "5s, 10m, 3h",
+    ),
     ("Set Timing Template", "number", TIMING_TEMPLATE, "0-5 (high is faster)"),
     ("Use Tiny Packets", "checkbox", TINY_PACKETS, ""),
     ("Cloak a Scan with Decoys", "text", CLOAK_DECOY, ""),
@@ -161,17 +170,16 @@ scan_options = [
 ]
 
 
-script_options = [
+script_options = []
 
-]
 
 class NmapController(Controller):
-    def __init__(self):       
+    def __init__(self):
         self.last_scan_result = None
         self.is_scan_in_progress = False
         self.tool_name = TOOL_NAME
 
-    def run(self, target, options:dict):
+    def run(self, target, options: dict):
         self.last_scan_result = None
 
         command = [
@@ -183,32 +191,32 @@ class NmapController(Controller):
         # composite settings
         # host discovery
         if options.get(LIST_SCAN, False):
-            command.append("-sL")            
+            command.append("-sL")
         if options.get(NO_PORT_SCAN, False):
             command.append("-sn")
         if options.get(SKIP_DISCOVERY, False):
             command.append("-Pn")
         if options.get(PING_TCP_SYN, False):
             command.append("-PS")
-            command.append('[' + ','.join(map(str, options[PING_TCP_SYN])) + ']')
+            command.append("[" + ",".join(map(str, options[PING_TCP_SYN])) + "]")
         if options.get(PING_TCP_ACK, False):
             command.append("-PA")
-            command.append('[' + ','.join(map(str, options[PING_TCP_ACK])) + ']')
+            command.append("[" + ",".join(map(str, options[PING_TCP_ACK])) + "]")
         if options.get(PING_UDP, False):
             command.append("-PU")
-            command.append('[' + ','.join(map(str, options[PING_UDP])) + ']')
+            command.append("[" + ",".join(map(str, options[PING_UDP])) + "]")
         if options.get(PING_SCTP_INIT, False):
             command.append("-PY")
-            command.append('[' + ','.join(map(str, options[PING_SCTP_INIT])) + ']')
+            command.append("[" + ",".join(map(str, options[PING_SCTP_INIT])) + "]")
         if options.get(ICMP_ECHO, False):
-            command.append("-PE")         
+            command.append("-PE")
         if options.get(ICMP_TIMESTAMP, False):
             command.append("-PP")
         if options.get(ICMP_MASK, False):
             command.append("-PM")
         if options.get(IP_PROTOCOL_PING, False):
             command.append("-PO")
-            command.append('[' + ','.join(map(str, options[IP_PROTOCOL_PING])) + ']')
+            command.append("[" + ",".join(map(str, options[IP_PROTOCOL_PING])) + "]")
         if options.get(RADIO_DNS_RESOLUTION, False):
             if options[RADIO_DNS_RESOLUTION] == DISABLE_DNS:
                 command.append("-n")
@@ -217,7 +225,7 @@ class NmapController(Controller):
         if options.get(TRACEROUTE, False):
             command.append("--traceroute")
 
-        # scan techniques    
+        # scan techniques
         if options.get(RADIO_SCAN_TYPE, False):
             if options[RADIO_SCAN_TYPE] == TCP_SYN_SCAN:
                 command.append("-sS")
@@ -269,14 +277,14 @@ class NmapController(Controller):
         if options.get(PORT_RATIO, False):
             command.append("--port-ratio")
             command.append(options[PORT_RATIO])
-        
+
         # service/version detection
         if options.get(DISCOVER_INFO_PORTS, False):
             command.append("-sV")
         if options.get(VERSION_INTENSITY, False):
             command.append("--version-intensity")
             command.append(options[VERSION_INTENSITY])
-        
+
         # os detection
         if options.get(OS_DETECTION, False):
             command.append("-O")
@@ -331,7 +339,7 @@ class NmapController(Controller):
             command.append("-f")
         if options.get(CLOAK_DECOY, False):
             command.append("-D")
-            command.append(','.join(map(str, options[CLOAK_DECOY])))
+            command.append(",".join(map(str, options[CLOAK_DECOY])))
         if options.get(SPOOF_SOURCE, False):
             command.append("-S")
             command.append(options[SPOOF_SOURCE])
@@ -343,7 +351,7 @@ class NmapController(Controller):
             command.append(options[SOURCE_PORT])
         if options.get(SET_PROXIES, False):
             command.append("--proxies")
-            command.append(','.join(map(str, options[SET_PROXIES])))
+            command.append(",".join(map(str, options[SET_PROXIES])))
         if options.get(SET_HEX_PAYLOAD, False):
             command.append("--data")
             command.append(options[SET_HEX_PAYLOAD])
@@ -388,7 +396,6 @@ class NmapController(Controller):
 
         # create temp file to save scan details
 
-
         class NmapCommandThread(CommandThread):
             def run(self):
                 super().run()
@@ -398,13 +405,16 @@ class NmapController(Controller):
                     except:
                         print("Couldn't remove temp Nmap file.")
 
+            def stop(self):
+                super().stop()
+                self.print_stop_completed_message()
+
         self.thread = NmapCommandThread(command, self)
         self.thread.start()
 
     def __format_result__(self):
 
         if not self.last_scan_result:
-            
 
             with open(TEMP_FILE_NAME, "r") as file:
                 # converting xml to dict
@@ -414,80 +424,74 @@ class NmapController(Controller):
                 json_string = json.dumps(xml_dict)
 
                 # convert to json
-                json_objects:dict = json.loads(json_string)
+                json_objects: dict = json.loads(json_string)
 
                 # extract only meaningful data
-                json_objects = json_objects['nmaprun']['host']
+                json_objects = json_objects["nmaprun"]["host"]
                 json_objects.pop("@starttime")
                 json_objects.pop("@endtime")
                 json_objects.pop("address")
                 json_objects.pop("status")
                 json_objects.pop("hostnames")
                 json_objects.pop("times")
-                if 'extraports' in json_objects['ports']:
-                    json_objects['ports'].pop("extraports")
-
+                if "extraports" in json_objects["ports"]:
+                    json_objects["ports"].pop("extraports")
 
             os.remove(TEMP_FILE_NAME)
-
-
 
             self.last_scan_result = json_objects
 
         return self.__format_html__()
-    
 
     def __format_html__(self):
 
-        if self.last_scan_result.get('os', False):
+        if self.last_scan_result.get("os", False):
             return self.__format_os_scan__()
-        elif self.last_scan_result.get('ports', False):
+        elif self.last_scan_result.get("ports", False):
             return self.__format_port_scan__()
 
-    
-
     def __format_os_scan__(self):
-        html_string = ''
-                
-        # build extraports table
-        if self.last_scan_result['ports'].get('extraports'):
-            html_string += '<b>OS scan</b><br>'
-            extraports = self.last_scan_result['ports'].get('extraports')
+        html_string = ""
 
-            html_string += '<b>Extraports</b><br>'
-            html_string += '<table>'
-            html_string += '<tr>'
+        # build extraports table
+        if self.last_scan_result["ports"].get("extraports"):
+            html_string += "<b>OS scan</b><br>"
+            extraports = self.last_scan_result["ports"].get("extraports")
+
+            html_string += "<b>Extraports</b><br>"
+            html_string += "<table>"
+            html_string += "<tr>"
 
             # build table headers
             for key in extraports:
-                html_string += '<th>{}</th>'.format(key.replace("@", ""))
+                html_string += "<th>{}</th>".format(key.replace("@", ""))
             html_string += "</tr>\n"
-            
+
             html_string += "<tr>"
 
             # fill table
             for row in extraports:
                 if isinstance(extraports[row], dict):
-                    html_string += '<td>'
+                    html_string += "<td>"
                     # fill field with subdictionary values
                     for subkey in extraports[row]:
                         html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                        html_string += f'{extraports[row][subkey]} <br>'
-                    html_string += '</td>'
-            html_string += '</table><br>\n'
+                        html_string += f"{extraports[row][subkey]} <br>"
+                    html_string += "</td>"
+            html_string += "</table><br>\n"
 
         # build port table
-        if self.last_scan_result['ports'].get('port', False):
-            port = self.last_scan_result['ports'].get('port')
+        if self.last_scan_result["ports"].get("port", False):
+            port = self.last_scan_result["ports"].get("port")
 
-            html_string += '<b>Ports</b><br>'
-            html_string += '<table>'
-            html_string += '<tr>'
+            html_string += "<b>Ports</b><br>"
+            html_string += "<table>"
+            html_string += "<tr>"
 
             # build table headers
             for key in port[0].keys():
-                html_string += '<th>{}</th>'.format(key.replace("@", ""))
-            html_string += "</tr>\n"  
+                html_string += "<th>{}</th>".format(key.replace("@", ""))
+            html_string += "</tr>\n"
 
             # fill table
             for row in port:
@@ -495,127 +499,120 @@ class NmapController(Controller):
                 # check if it is printing a port
                 if row.get("state"):
                     # check if port is open to highlight row
-                    if row['state']['@state'] == 'open':
+                    if row["state"]["@state"] == "open":
                         html_string += "<tr class = open>"
                 else:
-                    html_string += '<tr>'
+                    html_string += "<tr>"
 
-                for key in row:                        
+                for key in row:
                     # check subdictionary
                     if type(row[key]) is dict:
-                        html_string += '<td>'
+                        html_string += "<td>"
                         # fill field with subdictionary values
                         for subkey in row[key]:
                             html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                            html_string += f'{row[key][subkey]} <br>'
-                        html_string += '</td>'
+                            html_string += f"{row[key][subkey]} <br>"
+                        html_string += "</td>"
                     else:
-                        html_string += '<td>{}</td>'.format(row[key])
+                        html_string += "<td>{}</td>".format(row[key])
                 html_string += "</tr>\n"
-            html_string += '</table><br>\n'
+            html_string += "</table><br>\n"
 
-
-        if self.last_scan_result['os'].get('portused'):
+        if self.last_scan_result["os"].get("portused"):
             # build portused table
-            portused = self.last_scan_result['os'].get('portused')
-            html_string += '<b>Ports Used</b><br>'
-            html_string += '<table>'
-            html_string += '<tr>'
-            
+            portused = self.last_scan_result["os"].get("portused")
+            html_string += "<b>Ports Used</b><br>"
+            html_string += "<table>"
+            html_string += "<tr>"
+
             # build table headers
             for key in portused[0].keys():
-                html_string += '<th>{}</th>'.format(key.replace("@", ""))
-            html_string += "</tr>\n"  
-            
+                html_string += "<th>{}</th>".format(key.replace("@", ""))
+            html_string += "</tr>\n"
+
             for row in portused:
 
-                if row['@state'] == 'open':
+                if row["@state"] == "open":
                     html_string += "<tr class = open>"
-                else: html_string += "<tr>"
+                else:
+                    html_string += "<tr>"
 
                 # fill row
                 for key in row:
-                    html_string += '<td>{}</td>'.format(row[key])
+                    html_string += "<td>{}</td>".format(row[key])
                 html_string += "</tr>\n"
-            html_string += '</table><br>\n'
+            html_string += "</table><br>\n"
 
-        if self.last_scan_result['os'].get('osmatch', False):
+        if self.last_scan_result["os"].get("osmatch", False):
             # build osmatch table
-            osmatch = self.last_scan_result['os'].get('osmatch')
-            html_string += '<b>Os Match</b><br>'
-            html_string += '<table>'
-            html_string += '<tr>'
+            osmatch = self.last_scan_result["os"].get("osmatch")
+            html_string += "<b>Os Match</b><br>"
+            html_string += "<table>"
+            html_string += "<tr>"
 
             for key in osmatch.keys():
-                html_string += '<th>{}</th>'.format(key.replace("@", ""))
-            html_string += "</tr>\n"  
+                html_string += "<th>{}</th>".format(key.replace("@", ""))
+            html_string += "</tr>\n"
 
-
-            #TODO: verificare se ci sono più osmatch
-            html_string += '<tr>'
+            # TODO: verificare se ci sono più osmatch
+            html_string += "<tr>"
             # fill table
             for row in osmatch:
                 # check subdictionary
                 if type(osmatch[row]) is dict:
-                    html_string += '<td>'
+                    html_string += "<td>"
                     # fill field with subdictionary values
                     for subkey in osmatch[row]:
                         html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                        html_string += f'{osmatch[row][subkey]} <br>'
-                    html_string += '</td>'
+                        html_string += f"{osmatch[row][subkey]} <br>"
+                    html_string += "</td>"
                 else:
-                    html_string += '<td>{}</td>'.format(osmatch[row])
+                    html_string += "<td>{}</td>".format(osmatch[row])
             html_string += "</tr>\n"
-            html_string += '</table><br>\n'
+            html_string += "</table><br>\n"
         else:
-            html_string += '<b> No Result Fond </b>'
+            html_string += "<b> No Result Fond </b>"
         return html_string
-    
 
     # old general method, works for port scan results
     def __format_port_scan__(self):
-        html_string = ''
+        html_string = ""
 
         # print a table for type of scan
         for type_scan in self.last_scan_result:
-            html_string += f'<b>{type_scan}</b>'
+            html_string += f"<b>{type_scan}</b>"
             html_string += "<table>\n"
-            
+
             # fetch headers of table
             for scan_subject in self.last_scan_result[type_scan]:
                 # build table headers
                 for key in self.last_scan_result[type_scan][scan_subject][0].keys():
-                    html_string += '<th>{}</th>'.format(key.replace("@", ""))
-                html_string += "</tr>\n"  
-            
+                    html_string += "<th>{}</th>".format(key.replace("@", ""))
+                html_string += "</tr>\n"
+
             for scan_subject in self.last_scan_result[type_scan]:
                 # add rows in table
                 for row in self.last_scan_result[type_scan][scan_subject]:
                     # check if it is printing a port
                     if row.get("state"):
                         # check if port is open to highlight row
-                        if row['state']['@state'] == 'open':
+                        if row["state"]["@state"] == "open":
                             html_string += "<tr class = open>"
                     else:
                         html_string += "<tr>"
 
-                    for key in row:                        
+                    for key in row:
                         # check subdictionary
                         if type(row[key]) is dict:
-                            html_string += '<td>'
+                            html_string += "<td>"
                             # fill field with subdictionary values
                             for subkey in row[key]:
                                 html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                                html_string += f'{row[key][subkey]} <br>'
-                            html_string += '</td>'
+                                html_string += f"{row[key][subkey]} <br>"
+                            html_string += "</td>"
                         else:
-                            html_string += '<td>{}</td>'.format(row[key])
+                            html_string += "<td>{}</td>".format(row[key])
                     html_string += "</tr>\n"
             html_string += "</table><br>\n"
 
         return html_string
-
-
-
-
-

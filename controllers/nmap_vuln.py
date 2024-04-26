@@ -1,6 +1,6 @@
 import threading
 import subprocess, os, json, shutil, time
-import nmap3
+
 from utils.commands import build_command_string
 from controllers.controller_thread import Controller, CommandThread
 import xmltodict

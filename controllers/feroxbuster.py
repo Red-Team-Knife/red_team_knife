@@ -297,6 +297,11 @@ class FeroxbusterController(Controller):
                         os.remove(TEMP_FILE_NAME)
                     except:
                         print("Couldn't remove temp Feroxbuster file.")
+
+            def stop(self):
+                super().stop()
+                self.print_stop_completed_message()
+            
             
         self.thread = FeroxbusterCommandThread(command, self)
         self.thread.start()

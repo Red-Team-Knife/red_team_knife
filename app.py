@@ -17,12 +17,12 @@ from controllers.feroxbuster import (
     scan_options as feroxbuster_scan_options,
 )
 
-"""
+
 from controllers.w4af_audit import (
     W4afAuditController,
     scan_options as w4af_audit_scan_options,
 )
-"""
+
 import utils.hyperlink_constants as hyperlink_constants
 from models.scan import Scan
 from utils import *
@@ -48,7 +48,7 @@ SECTIONS = {
         ("theHarvester", "the_harvester"),
         ("Feroxbuster", "feroxbuster"),
     ],
-    "Weaponization": [("w4af-Audit", "nmap"),
+    "Weaponization": [("w4af-Audit", "w4af_audit"),
                       ("Nmap-Vuln Scanner", "nmap_vuln")],
     "Delivery": [("None", "nmap")],
     "Exploitation": [("None", "nmap")],
@@ -102,21 +102,22 @@ def register_blueprints(app):
         feroxbuster_scan_options,
         SECTIONS,
     )
-
-    global BLUEPRINTS
-
-    BLUEPRINTS = [nmap_blueprint, the_harvester_blueprint, feroxbuster_blueprint, nmap_vuln_blueprint]
-    """
+    
     w4af_audit_blueprint = BaseBlueprint(
         "w4af_audit",
         __name__,
         W4afAuditController(),
         "w4af_audit",
-        "w4af_audit/interface.html",
-        "w4af_audit/results.html",
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
         w4af_audit_scan_options,
+        SECTIONS,
     )
-    """
+    
+    global BLUEPRINTS
+
+    BLUEPRINTS = [nmap_blueprint, the_harvester_blueprint, feroxbuster_blueprint, nmap_vuln_blueprint, w4af_audit_blueprint]
+
 
     for blueprint in BLUEPRINTS:
         app.register_blueprint(blueprint)

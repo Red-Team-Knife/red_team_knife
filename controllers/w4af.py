@@ -1,5 +1,5 @@
 import requests
-from controllers.controller import Controller
+from controllers.controller_thread import Controller
 from controllers.w4af_audit import W4afAuditController
 
 

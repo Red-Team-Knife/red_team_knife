@@ -171,7 +171,11 @@ class TheHarvesterController(Controller):
                         os.remove(TEMP_FILE_NAME + ".xml")
                     except:
                         print("Couldn't remove temp theHarvester file.")
-            
+
+            def stop(self):
+                super().stop()
+                self.print_stop_completed_message()
+
         self.thread = TheHarvesterCommandThread(command, self)
         self.thread.start()
 

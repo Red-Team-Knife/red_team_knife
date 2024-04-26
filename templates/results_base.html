@@ -89,6 +89,7 @@
 
         abortBtn.on('click', function () {
             stopRequested = true
+            resultsDiv.html('<p>Stopping...</p>');
             $.ajax({
                 type: 'GET',
                 url: "{{ url_for(current_section + '.stop_scan') }}",
