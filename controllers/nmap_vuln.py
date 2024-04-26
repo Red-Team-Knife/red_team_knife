@@ -70,10 +70,9 @@ class NmapVulnController(Controller):
 
     def __format_html__(self):
         html_string = ''
-        i = 0
         # build port details table
         for port_table in self.last_scan_result:
-            i += 1
+            html_string += '<b>Port:</b>'
             html_string += '<table>'
             html_string += '<tr>'
 
@@ -109,19 +108,16 @@ class NmapVulnController(Controller):
             # build cve table
             if script_table:
 
+                # initializing table
                 if type(script_table) is list:
                     filtered_list = []
 
                     for element in script_table:
                         if element.get("table", False):
                             filtered_list.append(element)
-                    
+                    html_string += '<b>Vulns:</b>'
                     html_string += "<table>"    
                     html_string += '<tr>'
-
-                    print(filtered_list)
-                    print(type(filtered_list))
-                    print(i)
 
                     cve_table = filtered_list[0]["table"]
                     cve_table = cve_table.get("table")
@@ -131,11 +127,14 @@ class NmapVulnController(Controller):
                     break
 
                 else:
+                    html_string += '<b>Vulns:</b>'
                     html_string += "<table>"    
                     html_string += '<tr>'
                     cve_table = script_table["table"]
                     cve_table = cve_table.get("table")
 
+                # sort cve list for "is_exploit" attr
+                cve_table = sorted(cve_table, key=lambda x: next(item['#text'] for item in x['elem'] if item['@key'] == 'is_exploit'), reverse=True)
 
                 # build headers
                 for header in cve_table[0]["elem"]:
@@ -143,7 +142,12 @@ class NmapVulnController(Controller):
                 html_string += '</tr>'
 
                 for row in cve_table:
-                    html_string += '<tr>'
+
+                    # highlighting row if attr is_exploit is true
+                    if next(elem['#text'] for elem in row['elem'] if elem['@key'] == 'is_exploit') == "true":
+                        html_string += '<tr class = open>'
+                    else:
+                        html_string += '<tr>'
 
                     for elem in row['elem']:
                          html_string += '<td>{}</td>'.format(elem["#text"])
@@ -152,6 +156,8 @@ class NmapVulnController(Controller):
                 html_string += '</table><br><br>'
                             
         return html_string           
+
+
 
             
 
