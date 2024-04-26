@@ -65,17 +65,19 @@ class NmapVulnController(Controller):
 
             self.last_scan_result = json_objects
 
-        return f'<p>{self.last_scan_result}</p>'
+        return self.__format_html__()
 
 
     def __format_html__(self):
         html_string = ''
-
         # build port details table
         for port_table in self.last_scan_result:
+            html_string += '<b>Port:</b>'
             html_string += '<table>'
             html_string += '<tr>'
-            port_table.pop("script")
+
+            if port_table.get("script", False):
+                script_table = port_table.pop("script")
 
             # build table headers
             for header in port_table.keys():
@@ -83,8 +85,79 @@ class NmapVulnController(Controller):
             html_string += '</tr>\n'
 
             # add rows
+            html_string += '<tr>'
             for row in port_table:
-                html_string += '<tr>'
+
+                # check subdictionary
+                if type(port_table[row]) is dict:
+                    html_string += '<td>'
+                    # fill field with subdictionary values
+                    for subkey in port_table[row]:
+                        html_string += f'<b>{subkey.replace("@", "")}: </b>'
+
+                        if type(port_table[row][subkey]) is list:
+                            html_string += f"{ ', '.join(port_table[row][subkey])} <br>"
+                        else:
+                            html_string += f'{port_table[row][subkey]} <br>'
+                    html_string += '</td>'
+                else:
+                    html_string += '<td>{}</td>'.format(port_table[row])    
+            html_string += "</tr>\n"
+            html_string += '</table><br>\n'
+
+            # build cve table
+            if script_table:
+
+                # initializing table
+                if type(script_table) is list:
+                    filtered_list = []
+
+                    for element in script_table:
+                        if element.get("table", False):
+                            filtered_list.append(element)
+                    html_string += '<b>Vulns:</b>'
+                    html_string += "<table>"    
+                    html_string += '<tr>'
+
+                    cve_table = filtered_list[0]["table"]
+                    cve_table = cve_table.get("table")
+                
+                elif not script_table.get("table"):
+                    html_string += "<b>No Vulns Found</b><br><br>"
+                    break
+
+                else:
+                    html_string += '<b>Vulns:</b>'
+                    html_string += "<table>"    
+                    html_string += '<tr>'
+                    cve_table = script_table["table"]
+                    cve_table = cve_table.get("table")
+
+                # sort cve list for "is_exploit" attr
+                cve_table = sorted(cve_table, key=lambda x: next(item['#text'] for item in x['elem'] if item['@key'] == 'is_exploit'), reverse=True)
+
+                # build headers
+                for header in cve_table[0]["elem"]:
+                    html_string += '<th>{}</th>'.format(header['@key'].replace("@", ""))
+                html_string += '</tr>'
+
+                for row in cve_table:
+
+                    # highlighting row if attr is_exploit is true
+                    if next(elem['#text'] for elem in row['elem'] if elem['@key'] == 'is_exploit') == "true":
+                        html_string += '<tr class = open>'
+                    else:
+                        html_string += '<tr>'
+
+                    for elem in row['elem']:
+                         html_string += '<td>{}</td>'.format(elem["#text"])
+
+                    html_string += '</tr>' 
+                html_string += '</table><br><br>'
+                            
+        return html_string           
+
+
 
             
 
