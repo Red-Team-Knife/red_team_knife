@@ -18,7 +18,7 @@ class BaseBlueprint(Blueprint):
         options_list: list,
         sections: dict,
     ):
-        super().__init__(name, import_name, url_prefix="/" + tool_name)
+        super().__init__(name, import_name, url_prefix="/" + name)
         self.sections = sections
         self.controller = controller
         self.tool_name = tool_name

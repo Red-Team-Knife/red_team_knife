@@ -6,7 +6,7 @@ from controllers.nmap_scan import (
 )
 from controllers.nmap_vuln import (
     NmapVulnController,
-    script_options as nmap_vuln_script_options
+    script_options as nmap_vuln_script_options,
 )
 from controllers.the_harvester import (
     TheHarvesterController,
@@ -16,12 +16,11 @@ from controllers.feroxbuster import (
     FeroxbusterController,
     scan_options as feroxbuster_scan_options,
 )
-
-
 from controllers.w4af_audit import (
     W4afAuditController,
     scan_options as w4af_audit_scan_options,
 )
+from controllers.searchsploit import SearchsploitController
 
 import utils.hyperlink_constants as hyperlink_constants
 from models.scan import Scan
@@ -48,8 +47,7 @@ SECTIONS = {
         ("theHarvester", "the_harvester"),
         ("Feroxbuster", "feroxbuster"),
     ],
-    "Weaponization": [("w4af-Audit", "w4af_audit"),
-                      ("Nmap-Vuln Scanner", "nmap_vuln")],
+    "Weaponization": [("w4af-Audit", "w4af_audit"), ("Nmap-Vuln Scanner", "nmap_vuln")],
     "Delivery": [("None", "nmap")],
     "Exploitation": [("None", "nmap")],
     "Installation": [("None", "nmap")],
@@ -67,7 +65,7 @@ def register_blueprints(app):
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         nmap_scan_options,
-        SECTIONS
+        SECTIONS,
     )
 
     nmap_vuln_blueprint = BaseBlueprint(
@@ -76,9 +74,9 @@ def register_blueprints(app):
         NmapVulnController(),
         "Nmap-Vuln Scanner",
         INTERFACE_TEMPLATE,
-        RESULTS_TEMPLATE,
+        'nmap_vuln/results.html',
         nmap_vuln_script_options,
-        SECTIONS
+        SECTIONS,
     )
 
     the_harvester_blueprint = BaseBlueprint(
@@ -102,7 +100,7 @@ def register_blueprints(app):
         feroxbuster_scan_options,
         SECTIONS,
     )
-    
+
     w4af_audit_blueprint = BaseBlueprint(
         "w4af_audit",
         __name__,
@@ -113,11 +111,28 @@ def register_blueprints(app):
         w4af_audit_scan_options,
         SECTIONS,
     )
-    
+
+    searchsploit_blueprint = BaseBlueprint(
+        "Searchsploit",
+        __name__,
+        SearchsploitController(),
+        "searchsploit",
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        [],
+        SECTIONS,
+    )
+
     global BLUEPRINTS
 
-    BLUEPRINTS = [nmap_blueprint, the_harvester_blueprint, feroxbuster_blueprint, nmap_vuln_blueprint, w4af_audit_blueprint]
-
+    BLUEPRINTS = [
+        nmap_blueprint,
+        the_harvester_blueprint,
+        feroxbuster_blueprint,
+        nmap_vuln_blueprint,
+        w4af_audit_blueprint,
+        searchsploit_blueprint,
+    ]
 
     for blueprint in BLUEPRINTS:
         app.register_blueprint(blueprint)
@@ -125,7 +140,6 @@ def register_blueprints(app):
 
 def create_folders():
     global SCANS_PATH
-
 
     SCANS_PATH = os.path.abspath(SCANS_FOLDER)
     if not os.path.exists(SCANS_PATH):

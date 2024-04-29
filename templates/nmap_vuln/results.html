@@ -1,0 +1,50 @@
+{% extends 'results_base.html' %}
+
+{% block extra_script %}
+<div class="modal">
+    <!-- Modal Content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modalBody"></p>
+    </div>
+</div>
+
+<script>
+    function afterResultsScript() {// Get all tables
+        var tables = document.querySelectorAll('table.vuln_table');
+        console.log(tables)
+        console.log(1)
+        // Loop through each table
+        tables.forEach(function (table) {
+            // Get all rows of current table
+            var rows = table.querySelectorAll('tr');
+
+            // Check if there are any rows
+            if (rows.length > 0) {
+                // Add click event to each row
+                rows.forEach(function (row) {
+                    row.addEventListener('click', function () {
+                        // Set modal content based on clicked row
+                        var modalContent = row.innerHTML;
+                        document.getElementById('modalBody').innerHTML = modalContent;
+                        document.querySelector('.modal').style.display = 'block';
+                    });
+                });
+            }
+        });
+
+        // Close modal when close icon is clicked
+        document.querySelector('.close').addEventListener('click', function () {
+            document.querySelector('.modal').style.display = 'none';
+        });
+
+        // Close modal when user clicks outside modal
+        window.addEventListener('click', function (event) {
+            var modal = document.querySelector('.modal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
