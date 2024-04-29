@@ -6,7 +6,6 @@ from controllers.controller_thread import Controller, CommandThread
 
 
 RUNNING_MESSAGE = "Running Searchsploit DB with command: "
-TEMP_FILE_NAME = "tmp/searchsploit-temp"
 TOOL_NAME = "searchsploit-DB"
 EDB = "EDB-ID"
 CVE = "CVE"
@@ -24,7 +23,7 @@ class SearchsploitController(Controller):
     def run(self, query, options):
         print("QUERY", query)
         self.last_scan_result = None
-        self.__query_formatter__(query)
+        self.__format_query__(query)
 
         command = ["searchsploit", "-w", "-j", self.query]
 
@@ -86,7 +85,7 @@ class SearchsploitController(Controller):
 
         return self.__format_html__()
 
-    def __query_formatter__(self, query):
+    def __format_query__(self, query):
 
         if EDB in query:
 
@@ -99,6 +98,8 @@ class SearchsploitController(Controller):
 
             self.type_query = CVE
             self.query = query
+        else: 
+            self.query = None
 
     def __format_html__(self):
         html_string = ""
@@ -120,7 +121,7 @@ class SearchsploitController(Controller):
 
                         html_string += "<p><b>Url: </b>"
                         html_string += (
-                            f'<a href= "{result["URL"]}">{result["URL"]}</a></p><br>'
+                            f'<a href= "{result["URL"]}" target="_blank">{result["URL"]}</a></p><br>'
                         )
 
         elif self.type_query == CVE:

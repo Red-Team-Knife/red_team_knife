@@ -10,41 +10,85 @@
 </div>
 
 <script>
-    function afterResultsScript() {// Get all tables
-        var tables = document.querySelectorAll('table.vuln_table');
-        console.log(tables)
-        console.log(1)
-        // Loop through each table
-        tables.forEach(function (table) {
-            // Get all rows of current table
-            var rows = table.querySelectorAll('tr');
+    function afterResultsScript() {
+        function checkUrlStatus() {
+            $.ajax({
+                type: 'GET',
+                url: "{{ url_for('searchsploit.is_scan_in_progress') }}",
+                success: function (response) {
+                    if (response.scan_in_progress) {
+                        // If scan is still in progress, wait 1 second and check again
+                        setTimeout(checkUrlStatus, 1000);
+                    } else {
+                        // If scan is complete, get the results
+                        getUrl();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error checking scan status:', error);
+                }
+            });
+        }
 
-            // Check if there are any rows
-            if (rows.length > 0) {
-                // Add click event to each row
-                rows.forEach(function (row) {
-                    row.addEventListener('click', function () {
-                        // Set modal content based on clicked row
-                        var modalContent = row.innerHTML;
-                        document.getElementById('modalBody').innerHTML = modalContent;
-                        document.querySelector('.modal').style.display = 'block';
-                    });
-                });
-            }
+        function getUrl() {
+            $.ajax({
+                type: 'GET',
+                url: "{{ url_for('searchsploit.results') }}",
+                success: function (data) {
+                    // Update the modal body with the fetched data
+                    $('#modalBody').html(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching results:', error);
+                    // Update the modal body with an error message
+                    $('#modalBody').html('<p>Error fetching results. Check terminal for more information.</p>');
+                }
+            });
+        }
+
+        // Add click event to each row
+        $('table.vuln_table').on('click', 'tr.exploit-available', function () {
+            // Display modal with loading indicator
+            $('#modalBody').html('<div class="loader">Loading...</div>');
+            $('.modal').css('display', 'block');
+
+            // Get the content of the last cell of the clicked row
+            var vulnerabilityCode = $(this).find('.vuln-code').text().trim();
+            // Make AJAX request to /searchsploit using jQuery
+            $.ajax({
+                url: '/searchsploit',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ target: vulnerabilityCode }),
+                success: function (response) {
+                    // Update the modal body with the fetched data
+                    $('#modalBody').html(response);
+                    // Check the status after updating modal body
+                    checkUrlStatus();
+                },
+                error: function () {
+                    console.error('Error: Unable to fetch vulnerability reference.');
+                    // Update the modal body with an error message
+                    $('#modalBody').html('Error: Unable to fetch vulnerability reference.');
+                }
+            });
         });
 
         // Close modal when close icon is clicked
-        document.querySelector('.close').addEventListener('click', function () {
-            document.querySelector('.modal').style.display = 'none';
+        $('.close').on('click', function () {
+            $('.modal').css('display', 'none');
         });
 
         // Close modal when user clicks outside modal
-        window.addEventListener('click', function (event) {
-            var modal = document.querySelector('.modal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
+        $(window).on('click', function (event) {
+            var modal = $('.modal');
+            if ($(event.target).is(modal)) {
+                modal.css('display', 'none');
             }
         });
     }
 </script>
+
+
+
 {% endblock %}

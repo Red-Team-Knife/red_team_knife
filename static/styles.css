@@ -2,6 +2,7 @@
     --white: #dddddd;
     --background-white: #f2f2f2;
     --yellow-highlighting: #ffff0087;
+    --orange-highlighting: #ff7b0087;
     --main-color: #f44336;
     --main-color-hover: #a8190f;
 }
@@ -68,6 +69,10 @@ table {
     width: 100%;
 }
 
+table.vuln_table tr.exploit-available {
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
 th,
 td {
     border: 1px solid var(--white);
@@ -81,9 +86,10 @@ th {
 
 .open {
     background-color: var(--yellow-highlighting);
-    /* Highlight color for open ports */
 }
-
+.exploit-available {
+    background-color: var(--orange-highlighting);
+}
 .no-underline-link {
     text-decoration: none;
 }
@@ -195,22 +201,6 @@ button:disabled {
     text-decoration: none;
     /* Colore del testo */
     /* Altri stili che desideri applicare */
-}
-
-a:link {
-    text-decoration: none;
-}
-
-a:visited {
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: none;
-}
-
-a:active {
-    text-decoration: none;
 }
 
 .container {

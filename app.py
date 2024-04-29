@@ -28,6 +28,7 @@ from utils import *
 import os
 from utils.html_format_util import render_dictionary
 from views.view import BaseBlueprint
+from views.searchslpoit.headless_view import HeadlessBlueprint
 from current_scan import CurrentScan
 
 app = Flask(__name__, static_url_path="/static")
@@ -112,11 +113,11 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    searchsploit_blueprint = BaseBlueprint(
-        "Searchsploit",
+    searchsploit_blueprint = HeadlessBlueprint(
+        "searchsploit",
         __name__,
         SearchsploitController(),
-        "searchsploit",
+        "Searchsploit",
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         [],

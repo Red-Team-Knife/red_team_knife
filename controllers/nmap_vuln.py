@@ -69,11 +69,10 @@ class NmapVulnController(Controller):
 
         return self.__format_html__()
 
-    # TODO show click hover
-    # TODO ajax request in modal to get link from searchsploit
     def __format_html__(self):
         last_scan_result = copy.deepcopy(self.last_scan_result)
-
+        with open('temptest.json', 'w') as file:
+            json.dump(last_scan_result, file)
         html_string = ""
         # build port details table
         for port_table in last_scan_result:
@@ -156,24 +155,34 @@ class NmapVulnController(Controller):
                 html_string += "</tr>"
 
                 for row in cve_table:
-
-                    # highlighting row if attr is_exploit is true
-                    if (
-                        next(
-                            elem["#text"]
-                            for elem in row["elem"]
-                            if elem["@key"] == "is_exploit"
-                        )
-                        == "true"
-                    ):
-                        html_string += f"<tr class = open>"
-                    else:
-                        html_string += f"<tr>"
-
+                    # Check if the row contains an element with the key "is_exploit"
+                    is_exploit = False
+                    exploit_available = False
                     for elem in row["elem"]:
-                        html_string += "<td>{}</td>".format(elem["#text"])
+                        if elem["@key"] == "id":
+                            exploit_available = 'EDB' in elem["#text"] or 'CVE' in elem["#text"] 
+                        if elem["@key"] == "is_exploit":
+                            is_exploit = elem["#text"] == "true"
+                    
+                    # Construct the opening tag for the table row
+                    if is_exploit:
+                        if exploit_available:
+                            html_string += "<tr class='exploit-available'>"
+                        else:
+                            html_string += "<tr class='open'>"
+                    else:
+                        html_string += "<tr>"
 
+                    # Construct table cells for each element in the row
+                    for elem in row["elem"]:
+                        if elem["@key"] == "id":
+                            html_string += "<td class='vuln-code'>{}</td>".format(elem["#text"])
+                        else:
+                            html_string += "<td>{}</td>".format(elem["#text"])
+
+                    # Close the table row
                     html_string += "</tr>"
+
 
                 html_string += "</table><br><br>"
 
