@@ -3,6 +3,7 @@ import subprocess, os, json, shutil, time
 
 from utils.commands import build_command_string
 from controllers.controller_thread import Controller, CommandThread
+from controllers.searchsploit import SearchsploitController
 import xmltodict
 
 script_options = []
@@ -10,6 +11,8 @@ RUNNING_MESSAGE = "Running Nmap vulnerability scan with command: "
 TOOL_NAME = "Nmap-Vuln Scan"
 SCRIPT_PATH= "nmap-vulners/"
 TEMP_FILE_NAME = "tmp/nmap_vuln-temp"
+
+searchsploit_controller = SearchsploitController()
 
 
 class NmapVulnController(Controller):
@@ -60,8 +63,10 @@ class NmapVulnController(Controller):
             
             os.remove(TEMP_FILE_NAME)
 
-            with open("test.json", "w") as file:
-                print(json.dumps(json_objects), file=file)
+            with open("tmp.json", "w") as file:
+                print(json.dumps(self.last_scan_result), file=file)
+
+
 
             self.last_scan_result = json_objects
 
@@ -69,7 +74,10 @@ class NmapVulnController(Controller):
 
 
     def __format_html__(self):
+
         html_string = ''
+        vuln_table_count = 1
+        modal_string = ''
         # build port details table
         for port_table in self.last_scan_result:
             html_string += '<b>Port:</b>'
@@ -108,6 +116,8 @@ class NmapVulnController(Controller):
             # build cve table
             if script_table:
 
+                row_vuln_count = 1
+
                 # initializing table
                 if type(script_table) is list:
                     filtered_list = []
@@ -116,7 +126,7 @@ class NmapVulnController(Controller):
                         if element.get("table", False):
                             filtered_list.append(element)
                     html_string += '<b>Vulns:</b>'
-                    html_string += "<table>"    
+                    html_string += '<table class="vuln_table">'    
                     html_string += '<tr>'
 
                     cve_table = filtered_list[0]["table"]
@@ -128,13 +138,15 @@ class NmapVulnController(Controller):
 
                 else:
                     html_string += '<b>Vulns:</b>'
-                    html_string += "<table>"    
+                    html_string += '<table class="vuln_table">'  
                     html_string += '<tr>'
                     cve_table = script_table["table"]
                     cve_table = cve_table.get("table")
 
-                # sort cve list for "is_exploit" attr
-                cve_table = sorted(cve_table, key=lambda x: next(item['#text'] for item in x['elem'] if item['@key'] == 'is_exploit'), reverse=True)
+                vuln_table_count += 1
+
+                # sort vuln list for "is_exploit" attr
+                cve_table = sorted(cve_table, key=lambda x: 0 if next(item['#text'] for item in x['elem'] if item['@key'] == 'is_exploit') == "true" else 1)
 
                 # build headers
                 for header in cve_table[0]["elem"]:
@@ -145,17 +157,43 @@ class NmapVulnController(Controller):
 
                     # highlighting row if attr is_exploit is true
                     if next(elem['#text'] for elem in row['elem'] if elem['@key'] == 'is_exploit') == "true":
-                        html_string += '<tr class = open>'
+                        html_string += f'<tr class = open>'
                     else:
-                        html_string += '<tr>'
+                        html_string += f'<tr>'
 
                     for elem in row['elem']:
-                         html_string += '<td>{}</td>'.format(elem["#text"])
+                        html_string += '<td>{}</td>'.format(elem["#text"])
 
+                        # check if cve id attr
+                        if (elem["@key"] == 'id'):
+                            if "CVE" in elem["#text"] or "EDB" in elem["#text"]:
+                                modal_string += self.__build_modal__(modal_string, elem['#text'], vuln_table_count, row_vuln_count)
+                    
                     html_string += '</tr>' 
+                    row_vuln_count += 1
+
                 html_string += '</table><br><br>'
                             
-        return html_string           
+        return html_string          
+
+    def __build_modal__(self, modal_string, query, vuln_table_count, row_vuln_count):
+        modal_string += f'<div id= vuln_table_{vuln_table_count}_vuln_row_{row_vuln_count} class="modal">\t'
+        modal_string += '<div class = "modal-content> <span class = "close">&times;</span>'
+
+        print(query)
+
+        searchsploit_controller.run(query)
+
+        '''while (searchsploit_controller.is_scan_in_progress):
+            print("Waiting for Vulnerability detail")
+            time.sleep(1)'''
+        
+        content = searchsploit_controller.get_formatted_results()
+
+        modal_string += content
+        modal_string += '</div> </div>\n'
+
+        return modal_string 
 
 
 
