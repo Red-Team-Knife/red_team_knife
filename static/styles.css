@@ -287,3 +287,24 @@ button:disabled {
     text-decoration: none;
     cursor: pointer;
 }
+
+.content {
+    margin-left:350px;
+    margin-right:40px;
+    margin-top:70px;
+}
+
+
+#topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    text-align: center;
+}
+
+#mySidebar {
+    z-index:3;
+    width:300px;
+    font-weight:bold;
+}
+

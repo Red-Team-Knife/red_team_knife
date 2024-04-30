@@ -1,13 +1,9 @@
-
-// Open and close sidebar
 function index_open() {
-
     document.getElementById("mySidebar").style.display = "block";
     document.getElementById("myOverlay").style.display = "block";
 }
 
 function index_close() {
-
     document.getElementById("mySidebar").style.display = "none";
     document.getElementById("myOverlay").style.display = "none";
 }
@@ -25,3 +21,4 @@ function showItem(element) {
         item.classList.add("collapsed");
     }
 }
+
