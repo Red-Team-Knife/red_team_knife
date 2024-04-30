@@ -90,11 +90,11 @@ th {
 .exploit-available {
     background-color: var(--orange-highlighting);
 }
-.no-underline-link {
+.title {
     text-decoration: none;
 }
 
-.no-underline-link-hover {
+.title:hover {
     text-decoration: none;
 }
 

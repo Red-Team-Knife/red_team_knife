@@ -69,12 +69,12 @@ class NmapVulnController(Controller):
 
         return self.__format_html__()
 
-    # TODO center modal and fix template
-    # TODO sort table headers
+
+    # TODO implement links for other vulns
     def __format_html__(self):
+
         last_scan_result = copy.deepcopy(self.last_scan_result)
-        with open("temptest.json", "w") as file:
-            json.dump(last_scan_result, file)
+
         html_string = ""
         # build port details table
         for port_table in last_scan_result:
@@ -150,6 +150,19 @@ class NmapVulnController(Controller):
                         else 1
                     ),
                 )
+
+
+                # reorder dictionaries
+                cve_table = [
+                        {
+                            'elem': 
+                                sorted(
+                                        item['elem'], 
+                                        key=lambda x: 
+                                            ["id", "type", "is_exploit", "cvss"].index(x["@key"])
+                                    )
+                            } for item in cve_table
+                        ]
 
                 # build headers
                 for header in cve_table[0]["elem"]:

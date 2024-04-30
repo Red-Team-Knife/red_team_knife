@@ -40,20 +40,21 @@
 
     </nav>
 
-    <header class="w3-container w3-top w3-red w3-xlarge w3-padding" id="topBar">
+    <header class="w3-container w3-top w3-red w3-xlarge w3-padding" id="topBar"
+        style="margin-left:auto; display: flex; justify-content: center; align-items: center;">
         <a href="javascript:void(0)" class="w3-button w3-red w3-hide-large w3-left" style="margin-right: auto;"
             onclick="index_open()">☰</a>
         <div style="display: flex; align-items: center;">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Loading..."
                 style="height: 1.5em; margin-right: 10px;">
-            <a href="/" class="no-underline-link"><span>Red Team Knife</span></a>
+            <a href="/" class="title"><span>Red Team Knife</span></a>
         </div>
-
     </header>
+
     <div class="w3-overlay w3-hide-large" onclick="index_close()" style="cursor:pointer" title="close side menu"
         id="myOverlay"></div>
 
-    <div class="content" >
+    <div class="content">
         <section>
             {% block content %}
             {% endblock %}
@@ -63,18 +64,5 @@
 
 </body>
 
-
-<script>
-    window.addEventListener('DOMContentLoaded', function() {
-        var sidebarWidth = document.querySelector('#mySidebar').offsetWidth;
-        var content = document.querySelector('.content');
-        content.style.marginLeft = (sidebarWidth + 20) + 'px';
-    });
-    window.addEventListener('resize', function() {
-        var sidebarWidth = document.querySelector('#mySidebar').offsetWidth;
-        var content = document.querySelector('.content');
-        content.style.marginLeft = (sidebarWidth + 20) + 'px';
-    });
-</script>
 
 </html>
