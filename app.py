@@ -22,7 +22,6 @@ from controllers.w4af_audit import (
 )
 from controllers.searchsploit import SearchsploitController
 
-import utils.hyperlink_constants as hyperlink_constants
 from models.scan import Scan
 from utils import *
 import os
@@ -108,7 +107,7 @@ def register_blueprints(app):
         W4afAuditController(),
         "w4af_audit",
         INTERFACE_TEMPLATE,
-        RESULTS_TEMPLATE,
+        'w4af_audit/results.html',
         w4af_audit_scan_options,
         SECTIONS,
     )

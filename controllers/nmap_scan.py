@@ -198,7 +198,7 @@ class NmapController(Controller):
             command.append("-Pn")
         if options.get(PING_TCP_SYN, False):
             command.append("-PS")
-            command.append("[" + ",".join(map(str, options[PING_TCP_SYN])) + "]")
+            command.append("[" + ",".join(map(str, options[PING_TCP_SYN])) + "]") #TODO util list
         if options.get(PING_TCP_ACK, False):
             command.append("-PA")
             command.append("[" + ",".join(map(str, options[PING_TCP_ACK])) + "]")

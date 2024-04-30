@@ -69,9 +69,11 @@ class NmapVulnController(Controller):
 
         return self.__format_html__()
 
+    # TODO center modal and fix template
+    # TODO sort table headers
     def __format_html__(self):
         last_scan_result = copy.deepcopy(self.last_scan_result)
-        with open('temptest.json', 'w') as file:
+        with open("temptest.json", "w") as file:
             json.dump(last_scan_result, file)
         html_string = ""
         # build port details table
@@ -160,10 +162,12 @@ class NmapVulnController(Controller):
                     exploit_available = False
                     for elem in row["elem"]:
                         if elem["@key"] == "id":
-                            exploit_available = 'EDB' in elem["#text"] or 'CVE' in elem["#text"] 
+                            exploit_available = (
+                                "EDB" in elem["#text"] or "CVE" in elem["#text"]
+                            )
                         if elem["@key"] == "is_exploit":
                             is_exploit = elem["#text"] == "true"
-                    
+
                     # Construct the opening tag for the table row
                     if is_exploit:
                         if exploit_available:
@@ -176,13 +180,14 @@ class NmapVulnController(Controller):
                     # Construct table cells for each element in the row
                     for elem in row["elem"]:
                         if elem["@key"] == "id":
-                            html_string += "<td class='vuln-code'>{}</td>".format(elem["#text"])
+                            html_string += "<td class='vuln-code'>{}</td>".format(
+                                elem["#text"]
+                            )
                         else:
                             html_string += "<td>{}</td>".format(elem["#text"])
 
                     # Close the table row
                     html_string += "</tr>"
-
 
                 html_string += "</table><br><br>"
 

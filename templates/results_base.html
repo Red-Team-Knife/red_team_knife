@@ -20,8 +20,7 @@
     {% if past_scan_available %}
     {{ scan_result | safe }}
     {% else %}
-    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading, please don't close or refresh the window,
-        otherwise the scan will be lost!</p>
+    <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading...</p>
 
     <button id="abort_scan" style="display:none;">Abort Scan</button>
     <div>

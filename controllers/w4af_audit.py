@@ -33,6 +33,8 @@ class W4afAuditController(Controller):
         self.is_scan_in_progress = False
         self.tool_name = TOOL_NAME
 
+        self.scan_id = None
+
     def run(self, target, options: dict):
         profile_content = ""
 
@@ -56,34 +58,26 @@ class W4afAuditController(Controller):
                     data=json.dumps(data),
                     headers={"content-type": "application/json"},
                 )
-
-                try:
-                    self.scan_id = response.json()["id"]
-                    print(self.tool_name + " scan ID: " + self.scan_id)
-                except:
-                    print(response.text)
-
-                while not self._stop_event.is_set():
+                while True:
                     try:
-                        res = requests.get(self.base_url + f"{self.scan_id}/status")
-                        print(
-                            self.tool_name
-                            + " scan is running: "
-                            + str(res.json().get("is_running", "Starting"))
-                        )
-                        time.sleep(1)
-                        # TODO capire quando la scan ha finito
+                        self.caller.scan_id = response.json().get("id")
+                        print(self.tool_name + " scan ID: " + str(self.caller.scan_id))
+                        break
                     except Exception as e:
-                        print(e)
-                        time.sleep(1)
+                        print('Error:', e)
+                        time.sleep(2)
+
+                self.caller.is_scan_in_progress = False
+                print('here')
+
 
             def stop(self):
                 super().stop()
 
-                res = requests.get(self.base_url + f"{self.scan_id}/stop")
+                res = requests.get(self.base_url + f"{self.caller.scan_id}/stop")
                 while True:
                     try:
-                        res = requests.get(self.base_url + f"{self.scan_id}/status")
+                        res = requests.get(self.base_url + f"{self.caller.scan_id}/status")
 
                         paused = res.json().get("is_running")
                         time.sleep(1)
@@ -91,9 +85,16 @@ class W4afAuditController(Controller):
                             break
                     except:
                         pass
-                res = requests.delete(self.base_url + f"{self.scan_id}")
+                res = requests.delete(self.base_url + f"{self.caller.scan_id}")
 
                 self.print_stop_completed_message()
 
         self.thread = W4afCommandThread(self)
         self.thread.start()
+        self.thread.join()
+
+    def __format_result__(self):
+        print('here')
+        res = requests.get(f"http://127.0.0.1:{W4AF_PORT}/scans/{self.scan_id}/kb").text
+        print(res)
+        return res
