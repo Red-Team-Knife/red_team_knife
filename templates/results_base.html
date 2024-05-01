@@ -23,15 +23,17 @@
     <p><i class="fas fa-spinner fa-spin"></i> Scan results are loading...</p>
 
     <button id="abort_scan" style="display:none;">Abort Scan</button>
-    <div>
-        <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+    <div class="loading-container">
+        <div class="loading-gif">
+            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+        </div>
     </div>
     {% endif %}
 </div>
 
 {% block extra_script %}
 <script>
-    function afterResultsScript() {}
+    function afterResultsScript() { }
 </script>
 {% endblock %}
 
@@ -39,7 +41,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 
 <script>
-    
+
     $(document).ready(function () {
         var target = "{{ target }}";
         var options = "{{ options }}";

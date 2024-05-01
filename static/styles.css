@@ -390,7 +390,8 @@ button:disabled {
     align-items: center;
     justify-content: space-between;
     text-align: center;
-    height: 60px; /* Set a fixed height for the top bar */
+    height: 60px;
+    /* Set a fixed height for the top bar */
 }
 
 #mySidebar {
@@ -420,9 +421,22 @@ button:disabled {
 
 @media screen and (max-width: 0px) {
     .top-bar-content {
-        position:relative;
-        top:0;
-        left:0;
+        position: relative;
+        top: 0;
+        left: 0;
         transform: none;
     }
+}
+
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.loading-gif img {
+    max-width: 100%;
+    max-height: 100%;
 }
