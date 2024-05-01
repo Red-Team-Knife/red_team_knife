@@ -44,10 +44,12 @@
         style="margin-left:auto; display: flex; justify-content: center; align-items: center;">
         <a href="javascript:void(0)" class="w3-button w3-red w3-hide-large w3-left" style="margin-right: auto;"
             onclick="index_open()">☰</a>
-        <div style="display: flex; align-items: center;">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Loading..."
-                style="height: 1.5em; margin-right: 10px;">
-            <a href="/" class="title"><span>Red Team Knife</span></a>
+        <div class="top-bar-content" style="display: flex; align-items: center;">
+            <div class="centered-content">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Loading..."
+                    style="height: 1.5em; margin-right: 10px;">
+                <a href="/" class="title"><span>Red Team Knife</span></a>
+            </div>
         </div>
     </header>
 

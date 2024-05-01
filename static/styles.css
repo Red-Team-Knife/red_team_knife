@@ -105,6 +105,8 @@ th {
 
 .title {
     text-decoration: none;
+    display: flex;
+    align-items: center;
 }
 
 .title:hover {
@@ -324,10 +326,14 @@ button:disabled {
     /* Center the modal vertically */
     padding: 10px;
     border: 1px solid #888;
-    width: auto; /* Set the width of the modal content based on its content */
-    max-width: 50%; /* Limit the maximum width */
-    display: flex; /* Use flexbox */
-    justify-content: space-between; /* Center horizontally */
+    width: auto;
+    /* Set the width of the modal content based on its content */
+    max-width: 50%;
+    /* Limit the maximum width */
+    display: flex;
+    /* Use flexbox */
+    justify-content: space-between;
+    /* Center horizontally */
 }
 
 /* Close button styles */
@@ -384,10 +390,39 @@ button:disabled {
     align-items: center;
     justify-content: space-between;
     text-align: center;
+    height: 60px; /* Set a fixed height for the top bar */
 }
 
 #mySidebar {
     z-index: 3;
     width: 300px;
     font-weight: bold;
+}
+
+
+.centered-content {
+    float: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.centered-content {
+    display: flex;
+    align-items: center;
+}
+
+.centered-content img {
+    height: 1.5em;
+    margin-right: 10px;
+}
+
+@media screen and (max-width: 0px) {
+    .top-bar-content {
+        position:relative;
+        top:0;
+        left:0;
+        transform: none;
+    }
 }
