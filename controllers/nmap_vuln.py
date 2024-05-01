@@ -176,7 +176,8 @@ class NmapVulnController(Controller):
                     for elem in row["elem"]:
                         if elem["@key"] == "id":
                             exploit_available = (
-                                "EDB" in elem["#text"] or "CVE" in elem["#text"]
+                                ("EDB" in elem["#text"] or "CVE" in elem["#text"])
+                                and "MSF" not in elem["#text"]
                             )
                         if elem["@key"] == "is_exploit":
                             is_exploit = elem["#text"] == "true"
@@ -194,6 +195,10 @@ class NmapVulnController(Controller):
                     for elem in row["elem"]:
                         if elem["@key"] == "id":
                             html_string += "<td class='vuln-code'>{}</td>".format(
+                                elem["#text"]
+                            )
+                        elif elem["@key"] == "type":
+                            html_string += "<td class='vuln-type'>{}</td>".format(
                                 elem["#text"]
                             )
                         else:

@@ -54,12 +54,13 @@
 
             // Get the content of the last cell of the clicked row
             var vulnerabilityCode = $(this).find('.vuln-code').text().trim();
+            var vulnerabilityType = $(this).find('.vuln-type').text().trim();
             
             $.ajax({
                 url: "{{ url_for('search_exploit.interface') }}",
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ target: vulnerabilityCode }),
+                data: JSON.stringify({ target: vulnerabilityCode, options: vulnerabilityType }),
                 success: function (response) {
                     // Update the modal body with the fetched data
                     $('#modalBody').html(response);
