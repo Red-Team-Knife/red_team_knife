@@ -4,7 +4,7 @@ import copy
 
 from utils.commands import build_command_string
 from controllers.controller_thread import Controller, CommandThread
-from controllers.searchsploit import SearchsploitController
+from controllers.searchexploit import SearchsploitController
 import xmltodict
 
 script_options = []
@@ -69,12 +69,11 @@ class NmapVulnController(Controller):
 
         return self.__format_html__()
 
-    # TODO center modal and fix template
-    # TODO sort table headers
+
     def __format_html__(self):
+
         last_scan_result = copy.deepcopy(self.last_scan_result)
-        with open("temptest.json", "w") as file:
-            json.dump(last_scan_result, file)
+
         html_string = ""
         # build port details table
         for port_table in last_scan_result:
@@ -151,6 +150,19 @@ class NmapVulnController(Controller):
                     ),
                 )
 
+
+                # reorder dictionaries
+                cve_table = [
+                        {
+                            'elem': 
+                                sorted(
+                                        item['elem'], 
+                                        key=lambda x: 
+                                            ["id", "type", "is_exploit", "cvss"].index(x["@key"])
+                                    )
+                            } for item in cve_table
+                        ]
+
                 # build headers
                 for header in cve_table[0]["elem"]:
                     html_string += "<th>{}</th>".format(header["@key"].replace("@", ""))
@@ -173,7 +185,7 @@ class NmapVulnController(Controller):
                         if exploit_available:
                             html_string += "<tr class='exploit-available'>"
                         else:
-                            html_string += "<tr class='open'>"
+                            html_string += "<tr class='exploit-less-details'>"
                     else:
                         html_string += "<tr>"
 

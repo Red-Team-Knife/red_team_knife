@@ -22,3 +22,13 @@ function showItem(element) {
     }
 }
 
+
+function editWindow(){
+    var sidebarWidth = document.querySelector('#mySidebar').offsetWidth;
+    var content = document.querySelector('.content');
+    content.style.marginLeft = (sidebarWidth + 40) + 'px';
+}
+
+window.addEventListener('DOMContentLoaded', editWindow);
+window.addEventListener('resize', editWindow);
+

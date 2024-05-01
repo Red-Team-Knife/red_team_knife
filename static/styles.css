@@ -72,6 +72,9 @@ table {
 table.vuln_table tr.exploit-available {
     cursor: pointer; /* Change cursor to pointer on hover */
 }
+table.vuln_table tr.exploit-less-details {
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
 
 th,
 td {
@@ -87,14 +90,19 @@ th {
 .open {
     background-color: var(--yellow-highlighting);
 }
+
+.exploit-less-details{
+    background-color: var(--yellow-highlighting);
+
+}
 .exploit-available {
     background-color: var(--orange-highlighting);
 }
-.no-underline-link {
+.title {
     text-decoration: none;
 }
 
-.no-underline-link-hover {
+.title:hover {
     text-decoration: none;
 }
 
