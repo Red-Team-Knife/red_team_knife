@@ -1,8 +1,10 @@
 import json
 import os
 import time
+from uuid import UUID
+import uuid
 
-from flask import jsonify
+from flask import jsonify, send_from_directory, url_for
 import requests
 from controllers.controller_thread import CommandThread, Controller
 
@@ -13,6 +15,7 @@ TARGET_URLS = "target_urls"
 W4AF_PORT = 5001
 TOOL_NAME = "w4af (Audit)"
 BASE_URL = f"http://127.0.0.1:{W4AF_PORT}"
+TMP_FOLDER = "tmp"
 
 if os.path.exists(PROFILE_RELATIVE_PATH) and os.path.isdir(PROFILE_RELATIVE_PATH):
     filenames = os.listdir(PROFILE_RELATIVE_PATH)
@@ -37,6 +40,7 @@ class W4afAuditController(Controller):
 
         self.is_scan_in_background = False
         self.scan_id = None
+        self.status = None
 
     def run(self, target, options: dict):
         profile_content = ""
@@ -79,6 +83,12 @@ class W4afAuditController(Controller):
             except Exception as e:
                 print(e)
 
+        status = requests.get(BASE_URL + f"/scans/{self.scan_id}/status")
+
+        if status.status_code == 200:
+            self.status = status.json()
+
+        self.last_scan_result["status"] = self.status
         self.is_scan_in_background = False
 
     def delete_scan(self):
@@ -89,10 +99,16 @@ class W4afAuditController(Controller):
         self.scan_id = None
 
     def __format_result__(self):
-        self.last_scan_result = requests.get(
-            BASE_URL + f"/scans/{self.scan_id}/kb"
-        ).json()
-        status = requests.get(BASE_URL + f"/scans/{self.scan_id}/status").json()
+        status = requests.get(BASE_URL + f"/scans/{self.scan_id}/status")
+
+        if status.status_code == 200:
+            self.status = status.json()
+
+        if self.is_scan_in_background:
+            self.last_scan_result = requests.get(
+                BASE_URL + f"/scans/{self.scan_id}/kb"
+            ).json()
+            self.last_scan_result["status"] = self.status
 
         try:
             html_table = "<table>\n"
@@ -105,15 +121,82 @@ class W4afAuditController(Controller):
                     f'<tr><td>{item["id"]}</td>'
                     + f'<td>{item["name"]}</td>'
                     + f'<td>{item["url"]}</td>'
-                    + f'<td><a href="{BASE_URL + item["href"]}" target="_blank">{item["href"]}</a></td></tr>\n'
                 )
+                if item.get("info"):
+                    description_file_path, description_file_name = (
+                        self.__create_temp_description_file__(item)
+                    )
+                    html_table += f'<td><a href="/{description_file_name}" target="_blank">Read more</a></td></tr>\n'
+                else:
+                    html_table += f'<td><a href="{BASE_URL + item["href"]}" target="_blank">Read more</a></td></tr>\n'
 
             html_table += "</table>"
 
-            return {"status": status, "results": html_table}
-        except:
-            return "<p>Fetching results...</p>"
+            return {
+                "status": self.__create_dictionary_html__(self.status),
+                "results": html_table,
+                "progress": self.status.get("progress"),
+            }
+        except Exception as e:
+            print(e)
+            return {
+                "status": "<p>Fetching results...</p>",
+                "results": "<p>Fetching results...</p>",
+                "progress": 0,
+            }
 
     def __retrieve_complete_scan__(self):
         for item in self.last_scan_result["items"]:
             item["info"] = requests.get(BASE_URL + item["href"]).json()
+
+    def __create_temp_description_file__(self, item):
+        random_uuid = uuid.uuid4()
+        # Convert UUID to a string and remove dashes
+        random_filename = str(random_uuid).replace("-", "")
+        file_path = os.path.join(TMP_FOLDER, random_filename + ".html")
+        with open(file_path, "w") as file:
+
+            print(self.__generate_description_html_page__(item["info"]), file=file)
+
+            return file_path, file_path
+
+    def __create_dictionary_html__(self, dictionary: dict, indent=""):
+        html = ""
+        for key, value in dictionary.items():
+            if isinstance(value, dict):
+                html += (
+                    f"<tr><th>{indent}{key}</th><td><table>"
+                    + self.__create_dictionary_html__(value, indent + "&nbsp;&nbsp;")
+                    + "</table></td></tr>"
+                )
+            else:
+                html += f"<tr><th>{indent}{key}</th><td>{value}</td></tr>"
+        return html
+
+    def __generate_description_html_page__(self, data):
+        html_content = f"""
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Vulnerability Description</title>
+                <link rel="stylesheet" href="{url_for('static', filename='styles.css')}">
+            </head>
+            <body>
+                <table border="1">
+                    {self.__create_dictionary_html__(data)}
+                </table>
+            </body>
+            </html>
+            """
+
+        return html_content
+
+    def restore_last_scan(self):
+        self.status = self.last_scan_result.get("status")
+        return self.__format_result__()
+
+    def get_formatted_results(self):
+        if not self.is_scan_in_progress:
+            return self.__format_result__()

@@ -7,8 +7,9 @@
 <h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
 <div id="save_results_section" style="display: flex; align-items: center;">
 
-    <div id="save_results_message_section">
+    <div class="tooltip" id="save_results_message_section">
         <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save Results</button>
+        <span class="tooltiptext" id="tooltipText">Stop the scan to save results</span>
     </div>
 
     <form method="post" style="padding: 10px;">
@@ -33,8 +34,9 @@
 
 <div class="status_modal">
     <div class="status_modal_content">
+        <div id="modalBody" style='padding: 10px'></div>
         <span class="status_modal_close">&times;</span>
-        <div id="modalBody"></div>
+        
     </div>
 </div>
 
@@ -48,6 +50,7 @@
 <script>
 
     $(document).ready(function () {
+        var saveTooltip = document.getElementById('tooltipText');
         var resultsDiv = $('#results');
         var statusDiv = $('#status');
         var progressDiv = $('#progress');
@@ -58,57 +61,50 @@
         var statusModalContent = $('#modalBody')
         var saveResultsMessageDiv = $('#save_results_message_section');
         var infoDiv = $('#info');
-        var paused = false;
-        var stopRequested = false;
+        var stopRequested;
+
+        if ("{{ stopped }}" === "True") {
+            stopRequested = true;
+        } else {
+            stopRequested = false;
+        }
+
         var spinner = '<i class=\"fas fa-spinner fa-spin\"></i>   '
         var refreshTime = 2000;
 
         function checkScanStatus() {
             if (!stopRequested) {
                 infoDiv.html("<p>" + spinner + "Refreshing...</p>")
-                setTimeout(function () {
-                    $.ajax({
-                        type: 'GET',
-                        url: "{{ url_for(current_section + '.results') }}",
-                        success: function(response) {
-                            var status = response.status;
-
-                            var progress = response.status.progress
-                            
-                            // Function to recursively build HTML for nested objects
-                            function buildHtml(obj, indent) {
-                                var html = '';
-                                for (var key in obj) {
-                                    var value = obj[key];
-                                    if (typeof value === 'object' && value !== null) {
-                                        html += '<tr><th>' + indent + key + '</th><td><table>' + buildHtml(value, indent + '&nbsp;&nbsp;') + '</table></td></tr>';
-                                    } else {
-                                        html += '<tr><th>' + indent + key + '</th><td>' + value + '</td></tr>';
-                                    }
-                                }
-                                return html;
-                            }
-
-                            progressDiv.html('<p>Progress: ' + progress + '%</p>')
-                    
-                            // Build HTML for nested objects
-                            var progressHtml = buildHtml(status, '');
-                    
-                            // Update the table with HTML content
-                            statusModalContent.html(progressHtml);
-                    
-                            infoDiv.html("");
-                            resultsDiv.html(response.results);
-                            setTimeout(checkScanStatus, refreshTime);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error fetching results:', error);
-                            infoDiv.html('<p>Error fetching results. Check terminal for more information.</p>');
-                        }
-                    });
-                }, 1000)
+                setTimeout(updateResults, 1000)
+            } else {
+                enableSaveButton()
             }
         }
+
+        function updateResults() {
+            $.ajax({
+                type: 'GET',
+                url: "{{ url_for(current_section + '.results') }}",
+                success: function (response) {
+                    var status = response.status;
+
+                    var progress = response.progress
+
+                    progressDiv.html('<p>Progress: ' + progress + '%</p>')
+
+                    statusModalContent.html(status);
+
+                    infoDiv.html("");
+                    resultsDiv.html(response.results);
+                    setTimeout(checkScanStatus, refreshTime);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching results:', error);
+                    infoDiv.html('<p>Error fetching results. Check terminal for more information.</p>');
+                }
+            });
+        }
+
         showStatusButton.on('click', function () {
             $('.status_modal').css('display', 'block');
         });
@@ -134,6 +130,7 @@
                 url: "{{ url_for(current_section + '.stop_scan') }}",
                 success: function (data) {
                     infoDiv.html(data);
+                    updateResults()
                 },
             });
         });
@@ -144,8 +141,10 @@
                 url: "{{ url_for(current_section + '.save_results') }}",
                 data: {},
                 success: function (response) {
-                    saveResultsMessageDiv.html(response)
-                    setTimeout(restoreSaveButton, 2000)
+                    infoDiv.html(response)
+                    setTimeout(function () {
+                        infoDiv.html('')
+                    }, 2000)
                 },
                 error: function (xhr, status, error) {
                     console.error('Error saving results:', error);
@@ -154,13 +153,34 @@
             });
         });
 
-        function restoreSaveButton() {
-            saveResultsMessageDiv.html('<button id="save_results" {% if save_disabled %}disabled{% endif %}>Save Results</button>')
+        saveTooltip.style.visibility = 'hidden';
+        // Show tooltip only when the button is disabled
+        saveButton.on('mouseenter', function () {
+            if (this.disabled) {
+                saveTooltip.style.visibility = 'visible';
+            }
+        });
+
+        saveButton.on('mouseleave', function () {
+            saveTooltip.style.visibility = 'hidden';
+        });
+
+        function disableSaveButton() {
+            saveButton.prop('disabled', true);
         }
 
-        stopButton.show()
-        checkScanStatus();
+        function enableSaveButton() {
+            saveButton.prop('disabled', false);
+        }
 
+
+        if (stopRequested) {
+            enableSaveButton()
+            updateResults()
+        } else {
+            disableSaveButton()
+            checkScanStatus();
+        }
     });
 
 </script>

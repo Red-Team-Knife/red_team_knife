@@ -230,6 +230,19 @@ def scan_detail():
     CurrentScan.scan = Scan(file_source=SCANS_PATH + "/" + scan_file_name)
     return redirect(url_for("index"))
 
+@app.route('/tmp/<path:filename>')
+def temp_file(filename):
+    print(url_for("temp_file", filename='test'))
+    filepath = os.path.join(TEMP_FOLDER, filename)
+
+    # Check if the file exists
+    if os.path.isfile(filepath):
+        # Serve the file
+        return send_from_directory(TEMP_FOLDER, filename)
+    else:
+        # File not found
+        return 'File not found', 404
+
 
 # Execute setup functions
 start_w4af_server_api()

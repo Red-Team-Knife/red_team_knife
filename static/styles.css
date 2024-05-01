@@ -70,10 +70,13 @@ table {
 }
 
 table.vuln_table tr.exploit-available {
-    cursor: pointer; /* Change cursor to pointer on hover */
+    cursor: pointer;
+    /* Change cursor to pointer on hover */
 }
+
 table.vuln_table tr.exploit-less-details {
-    cursor: pointer; /* Change cursor to pointer on hover */
+    cursor: pointer;
+    /* Change cursor to pointer on hover */
 }
 
 th,
@@ -91,13 +94,15 @@ th {
     background-color: var(--yellow-highlighting);
 }
 
-.exploit-less-details{
+.exploit-less-details {
     background-color: var(--yellow-highlighting);
 
 }
+
 .exploit-available {
     background-color: var(--orange-highlighting);
 }
+
 .title {
     text-decoration: none;
 }
@@ -297,23 +302,32 @@ button:disabled {
 }
 
 .status_modal {
-    display: none; /* Hide the modal by default */
-    position: fixed; /* Position the modal */
-    z-index: 1000; /* Ensure it's above other content */
+    display: none;
+    /* Hide the modal by default */
+    position: fixed;
+    /* Position the modal */
+    z-index: 1000;
+    /* Ensure it's above other content */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
     overflow: auto;
 }
 
 .status_modal_content {
-    background-color: #fefefe; /* White background for the modal content */
-    margin: 15% auto; /* Center the modal vertically and horizontally */
-    padding: 20px;
+    background-color: #fefefe;
+    /* White background for the modal content */
+    margin: 5% auto;
+    /* Center the modal vertically */
+    padding: 10px;
     border: 1px solid #888;
-    width: 80%; /* Set the width of the modal content */
+    width: auto; /* Set the width of the modal content based on its content */
+    max-width: 50%; /* Limit the maximum width */
+    display: flex; /* Use flexbox */
+    justify-content: space-between; /* Center horizontally */
 }
 
 /* Close button styles */
@@ -331,23 +345,49 @@ button:disabled {
     cursor: pointer;
 }
 
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
 .content {
-    margin-left:350px;
-    margin-right:40px;
-    margin-top:70px;
+    margin-left: 350px;
+    margin-right: 40px;
+    margin-top: 70px;
 }
 
 
 #topBar {
     display: flex;
     align-items: center;
-    justify-content: space-between; 
+    justify-content: space-between;
     text-align: center;
 }
 
 #mySidebar {
-    z-index:3;
-    width:300px;
-    font-weight:bold;
+    z-index: 3;
+    width: 300px;
+    font-weight: bold;
 }
-
