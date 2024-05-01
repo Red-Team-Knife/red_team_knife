@@ -47,7 +47,7 @@
         }
 
         // Add click event to each row
-        $('table.vuln_table').on('click', 'tr.exploit-available', function () {
+        $('table.vuln_table').on('click', 'tr.exploit-available, tr.exploit-less-details', function () {
             // Display modal with loading indicator
             $('#modalBody').html('<div class="loader">Loading...</div>');
             $('.modal').css('display', 'block');

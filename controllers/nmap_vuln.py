@@ -4,7 +4,7 @@ import copy
 
 from utils.commands import build_command_string
 from controllers.controller_thread import Controller, CommandThread
-from controllers.searchsploit import SearchsploitController
+from controllers.searchexploit import SearchsploitController
 import xmltodict
 
 script_options = []
@@ -70,7 +70,6 @@ class NmapVulnController(Controller):
         return self.__format_html__()
 
 
-    # TODO implement links for other vulns
     def __format_html__(self):
 
         last_scan_result = copy.deepcopy(self.last_scan_result)
@@ -186,7 +185,7 @@ class NmapVulnController(Controller):
                         if exploit_available:
                             html_string += "<tr class='exploit-available'>"
                         else:
-                            html_string += "<tr class='open'>"
+                            html_string += "<tr class='exploit-less-details'>"
                     else:
                         html_string += "<tr>"
 

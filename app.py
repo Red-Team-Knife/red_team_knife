@@ -20,7 +20,7 @@ from controllers.w4af_audit import (
     W4afAuditController,
     scan_options as w4af_audit_scan_options,
 )
-from controllers.searchsploit import SearchsploitController
+from controllers.searchexploit import SearchsploitController
 
 from models.scan import Scan
 from utils import *
@@ -31,6 +31,8 @@ from views.searchslpoit.headless_view import HeadlessBlueprint
 from current_scan import CurrentScan
 
 app = Flask(__name__, static_url_path="/static")
+
+#TODO centrare il titolo nella finestra ridimensionata
 
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
