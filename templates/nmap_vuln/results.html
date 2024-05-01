@@ -14,7 +14,7 @@
         function checkUrlStatus() {
             $.ajax({
                 type: 'GET',
-                url: "{{ url_for('searchsploit.is_scan_in_progress') }}",
+                url: "{{ url_for('search_exploit.is_scan_in_progress') }}",
                 success: function (response) {
                     if (response.scan_in_progress) {
                         // If scan is still in progress, wait 1 second and check again
@@ -33,7 +33,7 @@
         function getUrl() {
             $.ajax({
                 type: 'GET',
-                url: "{{ url_for('searchsploit.results') }}",
+                url: "{{ url_for('search_exploit.results') }}",
                 success: function (data) {
                     // Update the modal body with the fetched data
                     $('#modalBody').html(data);
@@ -54,9 +54,9 @@
 
             // Get the content of the last cell of the clicked row
             var vulnerabilityCode = $(this).find('.vuln-code').text().trim();
-            // Make AJAX request to /searchsploit using jQuery
+            
             $.ajax({
-                url: '/searchsploit',
+                url: "{{ url_for('search_exploit.interface') }}",
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ target: vulnerabilityCode }),

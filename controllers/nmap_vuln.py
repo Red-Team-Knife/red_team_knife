@@ -4,7 +4,7 @@ import copy
 
 from utils.commands import build_command_string
 from controllers.controller_thread import Controller, CommandThread
-from controllers.searchexploit import SearchsploitController
+from controllers.search_exploit import SearchExploitController
 import xmltodict
 
 script_options = []
@@ -13,8 +13,9 @@ TOOL_NAME = "Nmap-Vuln Scan"
 SCRIPT_PATH = "nmap-vulners/"
 TEMP_FILE_NAME = "tmp/nmap_vuln-temp"
 
-searchsploit_controller = SearchsploitController()
+search_exploit_controller = SearchExploitController()
 
+#TODO levare stringhe hardcodate dal template
 
 class NmapVulnController(Controller):
     def __init__(self):

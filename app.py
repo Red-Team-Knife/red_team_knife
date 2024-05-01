@@ -21,7 +21,7 @@ from controllers.w4af_audit import (
     W4afAuditController,
     scan_options as w4af_audit_scan_options,
 )
-from controllers.searchexploit import SearchsploitController
+from controllers.search_exploit import SearchExploitController
 
 from models.scan import Scan
 from utils import *
@@ -116,11 +116,11 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    searchsploit_blueprint = HeadlessBlueprint(
-        "searchsploit",
+    search_exploit_blueprint = HeadlessBlueprint(
+        "search_exploit",
         __name__,
-        SearchsploitController(),
-        "Searchsploit",
+        SearchExploitController(),
+        "Search Exploit",
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         [],
@@ -135,7 +135,7 @@ def register_blueprints(app):
         feroxbuster_blueprint,
         nmap_vuln_blueprint,
         w4af_audit_blueprint,
-        searchsploit_blueprint,
+        search_exploit_blueprint,
     ]
 
     for blueprint in BLUEPRINTS:
