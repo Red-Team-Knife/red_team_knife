@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 from flask import *
 from controllers.nmap_scan import (
@@ -29,6 +30,7 @@ from utils.html_format_util import render_dictionary
 from views.view import BaseBlueprint
 from views.searchslpoit.headless_view import HeadlessBlueprint
 from current_scan import CurrentScan
+from views.w4af_audit.view import W4afBlueprint
 
 app = Flask(__name__, static_url_path="/static")
 
@@ -74,7 +76,7 @@ def register_blueprints(app):
         NmapVulnController(),
         "Nmap-Vuln Scanner",
         INTERFACE_TEMPLATE,
-        'nmap_vuln/results.html',
+        "nmap_vuln/results.html",
         nmap_vuln_script_options,
         SECTIONS,
     )
@@ -101,13 +103,13 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    w4af_audit_blueprint = BaseBlueprint(
+    w4af_audit_blueprint = W4afBlueprint(
         "w4af_audit",
         __name__,
         W4afAuditController(),
         "w4af_audit",
         INTERFACE_TEMPLATE,
-        'w4af_audit/results.html',
+        "w4af_audit/results.html",
         w4af_audit_scan_options,
         SECTIONS,
     )
@@ -137,7 +139,7 @@ def register_blueprints(app):
     for blueprint in BLUEPRINTS:
         app.register_blueprint(blueprint)
 
-
+# TODO permessi directory sudo
 def create_folders():
     global SCANS_PATH
 
@@ -150,6 +152,9 @@ def create_folders():
     if not os.path.exists(TEMP_PATH):
         os.makedirs(TEMP_FOLDER)
         os.path.abspath(TEMP_PATH)
+    else: 
+        shutil.rmtree(TEMP_FOLDER)
+        os.makedirs(TEMP_FOLDER)
 
 
 def start_w4af_server_api():
@@ -181,8 +186,7 @@ def start_w4af_server_api():
 def utility_processor():
     return dict(render_dictionary=render_dictionary)
 
-
-# INDEX
+# TODO semplificare visualizzazione scan
 @app.route("/")
 def index():
 

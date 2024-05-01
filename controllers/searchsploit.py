@@ -35,7 +35,7 @@ class SearchsploitController(Controller):
         class SearchsploitCommandThread(CommandThread):
             def run(self):
                 # Set the flag indicating the scan is in progress
-                self.caller.is_scan_in_progress = True
+                self.calling_controller.is_scan_in_progress = True
 
                 # Start the subprocess and capture its output
                 command_output = ""
@@ -55,7 +55,7 @@ class SearchsploitController(Controller):
                 # Print the accumulated output once the command completes
                 command_output = command_output.strip()
                 print(command_output)
-                self.caller.command_output = command_output
+                self.calling_controller.command_output = command_output
 
                 # Terminate the process if it's still running
                 if self.process.poll() is None:
@@ -67,7 +67,7 @@ class SearchsploitController(Controller):
 
                 # Wait for the process to terminate
                 # self.process.wait()
-                self.caller.is_scan_in_progress = False
+                self.calling_controller.is_scan_in_progress = False
 
         self.thread = SearchsploitCommandThread(command, self)
         self.thread.start()

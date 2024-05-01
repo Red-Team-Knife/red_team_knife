@@ -30,17 +30,17 @@ class Controller:
 
 
 class CommandThread(threading.Thread):
-    def __init__(self, command: list, caller: Controller):
+    def __init__(self, command: list, calling_controller: Controller):
         super().__init__()
         self.command = command
         self._stop_event = threading.Event()
-        self.caller = caller
-        self.tool_name = caller.tool_name
+        self.calling_controller = calling_controller
+        self.tool_name = calling_controller.tool_name
         self.process = None
 
     # Override if needed. Call super().run() and then do cleanup if only cleanup operations are needed.
     def run(self):
-        self.caller.is_scan_in_progress = True
+        self.calling_controller.is_scan_in_progress = True
 
         self.process = subprocess.Popen(
             self.command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
@@ -57,14 +57,14 @@ class CommandThread(threading.Thread):
 
         # Wait for the process to terminate
         self.process.wait()
-        self.caller.is_scan_in_progress = False
+        self.calling_controller.is_scan_in_progress = False
 
     def stop(self):
         if self.process:
             self.process.terminate()
-        self.caller.last_scan_result = None
+        self.calling_controller.last_scan_result = None
         print(self.tool_name + " scan stop requested.")
-        self.caller.is_scan_in_progress = False
+        self.calling_controller.is_scan_in_progress = False
         self._stop_event.set()
 
     def print_stop_completed_message(self):

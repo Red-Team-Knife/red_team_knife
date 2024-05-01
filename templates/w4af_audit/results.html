@@ -5,29 +5,42 @@
 {%block content%}
 
 <h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
-<div id="save_results_section" style="display: none;">
+<div id="save_results_section" style="display: flex; align-items: center;">
+
     <div id="save_results_message_section">
-        <button id="save_results" {% if save_disabled %}disabled{% endif %}>Save Results</button>
+        <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save Results</button>
     </div>
 
-    <form method="post">
+    <form method="post" style="padding: 10px;">
         <input type="hidden" name="new_scan_requested" value="True">
         <button type="submit">New Scan</button>
     </form>
-</div>
 
-<div id="results">
-    {% if past_scan_available %}
-    {{ scan_result | safe }}
-    {% else %}
-    <p><i class="fas fa-spinner fa-spin"></i> Scan results will refresh every few seconds...</p>
+    <button id="stop_scan" style="padding: 10px;">Stop Scan</button>
 
-    <button id="abort_scan" style="display:none;">Abort Scan</button>
-    <div>
-        <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+    <div id="progress" style="padding: 10px;">
     </div>
-    {% endif %}
+
+    <button id="show_status" style="padding: 10px;">Show full status</button>
+
 </div>
+<div id="status" style="padding: 10px; display: none;">
+</div>
+<div id="info" style="padding: 10px;"></div>
+
+<div id="results" style="padding: 10px;">
+</div>
+
+<div class="status_modal">
+    <div class="status_modal_content">
+        <span class="status_modal_close">&times;</span>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<style>
+
+</style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
@@ -35,55 +48,97 @@
 <script>
 
     $(document).ready(function () {
-        var target = "{{ target }}";
-        var options = "{{ options }}";
-
         var resultsDiv = $('#results');
-        var loadingMsg = $('#loading_msg');
-        var abortBtn = $('#abort_scan');
-        var saveBtn = $('#save_results');
-        var saveResultsDiv = $('#save_results_section');
+        var statusDiv = $('#status');
+        var progressDiv = $('#progress');
+        var pauseResumeButton = $('#pause_resume_scan');
+        var stopButton = $('#stop_scan');
+        var saveButton = $('#save_results');
+        var showStatusButton = $('#show_status')
+        var statusModalContent = $('#modalBody')
         var saveResultsMessageDiv = $('#save_results_message_section');
-
-        var pastScanAvailable = "{{ past_scan_available }}";
-
+        var infoDiv = $('#info');
+        var paused = false;
         var stopRequested = false;
+        var spinner = '<i class=\"fas fa-spinner fa-spin\"></i>   '
+        var refreshTime = 2000;
 
         function checkScanStatus() {
             if (!stopRequested) {
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ url_for(current_section + '.results') }}",
-                    success: function (response) {
-                        console.log('success')
-                        resultsDiv.html(response);
-                        setTimeout(checkScanStatus, 1000);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error fetching results:', error);
-                        resultsDiv.html('<p>Error fetching results. Check terminal for more information.</p>');
-                        abortBtn.hide();
-                    }
-                });
+                infoDiv.html("<p>" + spinner + "Refreshing...</p>")
+                setTimeout(function () {
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ url_for(current_section + '.results') }}",
+                        success: function(response) {
+                            var status = response.status;
+
+                            var progress = response.status.progress
+                            
+                            // Function to recursively build HTML for nested objects
+                            function buildHtml(obj, indent) {
+                                var html = '';
+                                for (var key in obj) {
+                                    var value = obj[key];
+                                    if (typeof value === 'object' && value !== null) {
+                                        html += '<tr><th>' + indent + key + '</th><td><table>' + buildHtml(value, indent + '&nbsp;&nbsp;') + '</table></td></tr>';
+                                    } else {
+                                        html += '<tr><th>' + indent + key + '</th><td>' + value + '</td></tr>';
+                                    }
+                                }
+                                return html;
+                            }
+
+                            progressDiv.html('<p>Progress: ' + progress + '%</p>')
+                    
+                            // Build HTML for nested objects
+                            var progressHtml = buildHtml(status, '');
+                    
+                            // Update the table with HTML content
+                            statusModalContent.html(progressHtml);
+                    
+                            infoDiv.html("");
+                            resultsDiv.html(response.results);
+                            setTimeout(checkScanStatus, refreshTime);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching results:', error);
+                            infoDiv.html('<p>Error fetching results. Check terminal for more information.</p>');
+                        }
+                    });
+                }, 1000)
             }
         }
+        showStatusButton.on('click', function () {
+            $('.status_modal').css('display', 'block');
+        });
 
-        abortBtn.on('click', function () {
+        // Close modal when close icon is clicked
+        $('.status_modal_close').on('click', function () {
+            $('.status_modal').css('display', 'none');
+        });
+
+        // Close modal when user clicks outside modal
+        $(window).on('click', function (event) {
+            var modal = $('.status_modal');
+            if ($(event.target).is(modal)) {
+                modal.css('display', 'none');
+            }
+        });
+
+        stopButton.on('click', function () {
             stopRequested = true
-            resultsDiv.html('<p>Stopping...</p>');
+            infoDiv.html('<p>' + spinner + 'Stopping...</p>');
             $.ajax({
                 type: 'GET',
                 url: "{{ url_for(current_section + '.stop_scan') }}",
                 success: function (data) {
-                    resultsDiv.html(data);
-                    setTimeout(function () {
-                        window.location.href = "{{ url_for(current_section + '.interface') }}";
-                    }, 1000);
+                    infoDiv.html(data);
                 },
             });
         });
 
-        saveBtn.on('click', function () {
+        saveButton.on('click', function () {
             $.ajax({
                 type: 'POST',
                 url: "{{ url_for(current_section + '.save_results') }}",
@@ -93,18 +148,19 @@
                     setTimeout(restoreSaveButton, 2000)
                 },
                 error: function (xhr, status, error) {
-                    console.error('Error stopping scan:', error);
-                    alert('Error stopping scan:', error);
+                    console.error('Error saving results:', error);
+                    alert('Error saving results:', error);
                 }
             });
         });
+
         function restoreSaveButton() {
             saveResultsMessageDiv.html('<button id="save_results" {% if save_disabled %}disabled{% endif %}>Save Results</button>')
         }
-        saveResultsDiv.show()
-        abortBtn.show()
+
+        stopButton.show()
         checkScanStatus();
-        
+
     });
 
 </script>
