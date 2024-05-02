@@ -31,8 +31,7 @@ body {
     opacity: 1
 }
 
-/* Subitems style settings */
-.sidebar-item {
+.sidebar_item {
     margin-left: 20px;
     font-size: 14px;
     overflow: hidden;
@@ -40,11 +39,11 @@ body {
     max-height: 0;
 }
 
-.sidebar-item.collapsed {
+.sidebar_item.collapsed {
     max-height: 0;
 }
 
-.sidebar-item.expanded {
+.sidebar_item.expanded {
     max-height: 1000px;
 }
 
@@ -69,14 +68,12 @@ table {
     width: 100%;
 }
 
-table.vuln_table tr.exploit-available {
+table.vuln_table tr.exploit_available {
     cursor: pointer;
-    /* Change cursor to pointer on hover */
 }
 
-table.vuln_table tr.exploit-less-details {
+table.vuln_table tr.exploit_less_details {
     cursor: pointer;
-    /* Change cursor to pointer on hover */
 }
 
 th,
@@ -94,12 +91,12 @@ th {
     background-color: var(--yellow-highlighting);
 }
 
-.exploit-less-details {
+.exploit_less_details {
     background-color: var(--yellow-highlighting);
 
 }
 
-.exploit-available {
+.exploit_available {
     background-color: var(--orange-highlighting);
 }
 
@@ -113,7 +110,7 @@ th {
     text-decoration: none;
 }
 
-.scan-item {
+.scan_item {
     text-decoration: none;
     display: block;
     padding: 10px;
@@ -127,7 +124,7 @@ th {
     /* margine per separare gli elementi */
 }
 
-.past-scan {
+.past_scan {
     width: 50%;
     margin: 100px auto;
     border: 2px solid #aaa;
@@ -279,8 +276,7 @@ button:disabled {
     /* Black w/ opacity */
 }
 
-/* Modal Content */
-.modal-content {
+.modal_content {
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
@@ -288,7 +284,6 @@ button:disabled {
     width: 80%;
 }
 
-/* The Close Button */
 .close {
     color: #aaaaaa;
     float: right;
@@ -305,17 +300,13 @@ button:disabled {
 
 .status_modal {
     display: none;
-    /* Hide the modal by default */
     position: fixed;
-    /* Position the modal */
     z-index: 1000;
-    /* Ensure it's above other content */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Semi-transparent background */
     overflow: auto;
 }
 
@@ -328,6 +319,7 @@ button:disabled {
     border: 1px solid #888;
     width: auto;
     /* Set the width of the modal content based on its content */
+    min-width: 50%;
     max-width: 50%;
     /* Limit the maximum width */
     display: flex;
@@ -385,23 +377,22 @@ button:disabled {
 }
 
 
-#topBar {
+#top_bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     text-align: center;
     height: 60px;
-    /* Set a fixed height for the top bar */
 }
 
-#mySidebar {
+#rtk_sidebar {
     z-index: 3;
     width: 300px;
     font-weight: bold;
 }
 
 
-.centered-content {
+.centered_content {
     float: none;
     position: absolute;
     top: 50%;
@@ -409,18 +400,18 @@ button:disabled {
     transform: translate(-50%, -50%);
 }
 
-.centered-content {
+.centered_content {
     display: flex;
     align-items: center;
 }
 
-.centered-content img {
+.centered_content img {
     height: 1.5em;
     margin-right: 10px;
 }
 
 @media screen and (max-width: 0px) {
-    .top-bar-content {
+    .top_bar_content {
         position: relative;
         top: 0;
         left: 0;
@@ -429,14 +420,21 @@ button:disabled {
 }
 
 
-.loading-container {
+.loading_container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
 }
 
-.loading-gif img {
+.loading_gif img {
     max-width: 100%;
     max-height: 100%;
+}
+
+.loading_small {
+    display: inline-block;
+    width: 160px;
+    height: 100px;
+    background-size: cover;
 }

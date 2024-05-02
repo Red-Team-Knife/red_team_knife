@@ -1,31 +1,29 @@
 {% extends "base.html" %}
 
 {% block title %}
-{{scan_name}}
+{{ scan_name }}
 {% endblock %}
 
 {% block content %}
 <button id="new_scan_button">New Scan</button>
 
 <script>
-    document.getElementById("new_scan_button").addEventListener("click", function () {
-        fetch('/new_scan', {
+    $('#new_scan_button').on('click', function() {
+        $.ajax({
+            url: '{{ url_for("new_scan") }}',
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
+            contentType: 'application/json',
+            success: function(data) {
                 console.log(data);
-            })
-            .catch(error => {
-                console.error('Errore nella richiesta:', error);
-            });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error in request:', error);
+            }
+        });
     });
 </script>
 
-<div class="past-scan">
+<div class="past_scan">
     {{ render_dictionary(scan) | safe }}
 </div>
 {% endblock %}

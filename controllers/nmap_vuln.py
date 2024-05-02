@@ -11,11 +11,10 @@ script_options = []
 RUNNING_MESSAGE = "Running Nmap vulnerability scan with command: "
 TOOL_NAME = "Nmap-Vuln Scan"
 SCRIPT_PATH = "nmap-vulners/"
-TEMP_FILE_NAME = "tmp/nmap_vuln-temp"
+TEMP_FILE_NAME = "tmp/nmap-vuln-temp"
 
 search_exploit_controller = SearchExploitController()
 
-#TODO levare stringhe hardcodate dal template
 
 class NmapVulnController(Controller):
     def __init__(self):
@@ -36,9 +35,7 @@ class NmapVulnController(Controller):
             target,
         ]
 
-        command_string = build_command_string(command)
-
-        print(RUNNING_MESSAGE + command_string[:-1])
+        self.__log_running_message__(command)
 
         class NmapCommandThread(CommandThread):
             def run(self):
@@ -69,7 +66,6 @@ class NmapVulnController(Controller):
             self.last_scan_result = json_objects
 
         return self.__format_html__()
-
 
     def __format_html__(self):
 
@@ -151,18 +147,18 @@ class NmapVulnController(Controller):
                     ),
                 )
 
-
                 # reorder dictionaries
                 cve_table = [
-                        {
-                            'elem': 
-                                sorted(
-                                        item['elem'], 
-                                        key=lambda x: 
-                                            ["id", "type", "is_exploit", "cvss"].index(x["@key"])
-                                    )
-                            } for item in cve_table
-                        ]
+                    {
+                        "elem": sorted(
+                            item["elem"],
+                            key=lambda x: ["id", "type", "is_exploit", "cvss"].index(
+                                x["@key"]
+                            ),
+                        )
+                    }
+                    for item in cve_table
+                ]
 
                 # build headers
                 for header in cve_table[0]["elem"]:
@@ -176,29 +172,28 @@ class NmapVulnController(Controller):
                     for elem in row["elem"]:
                         if elem["@key"] == "id":
                             exploit_available = (
-                                ("EDB" in elem["#text"] or "CVE" in elem["#text"])
-                                and "MSF" not in elem["#text"]
-                            )
+                                "EDB" in elem["#text"] or "CVE" in elem["#text"]
+                            ) and "MSF" not in elem["#text"]
                         if elem["@key"] == "is_exploit":
                             is_exploit = elem["#text"] == "true"
 
                     # Construct the opening tag for the table row
                     if is_exploit:
                         if exploit_available:
-                            html_string += "<tr class='exploit-available'>"
+                            html_string += "<tr class='exploit_available'>"
                         else:
-                            html_string += "<tr class='exploit-less-details'>"
+                            html_string += "<tr class='exploit_less_details'>"
                     else:
                         html_string += "<tr>"
 
                     # Construct table cells for each element in the row
                     for elem in row["elem"]:
                         if elem["@key"] == "id":
-                            html_string += "<td class='vuln-code'>{}</td>".format(
+                            html_string += "<td class='vuln_code'>{}</td>".format(
                                 elem["#text"]
                             )
                         elif elem["@key"] == "type":
-                            html_string += "<td class='vuln-type'>{}</td>".format(
+                            html_string += "<td class='vuln_type'>{}</td>".format(
                                 elem["#text"]
                             )
                         else:

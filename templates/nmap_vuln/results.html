@@ -2,14 +2,27 @@
 
 {% block extra_script %}
 <div class="modal">
-    <!-- Modal Content -->
-    <div class="modal-content">
+    <div class="modal_content">
         <span class="close">&times;</span>
-        <p id="modalBody"></p>
+        <p id="modal_body"></p>
     </div>
 </div>
 
 <script>
+    var modalBody = $('#modal_body');
+    var modal = $('.modal');
+
+    $('.close').on('click', function () {
+        modal.css('display', 'none');
+    });
+
+    $(window).on('click', function (event) {
+
+        if ($(event.target).is(modal)) {
+            modal.css('display', 'none');
+        }
+    });
+
     function afterResultsScript() {
         function checkUrlStatus() {
             $.ajax({
@@ -17,10 +30,8 @@
                 url: "{{ url_for('search_exploit.is_scan_in_progress') }}",
                 success: function (response) {
                     if (response.scan_in_progress) {
-                        // If scan is still in progress, wait 1 second and check again
                         setTimeout(checkUrlStatus, 1000);
                     } else {
-                        // If scan is complete, get the results
                         getUrl();
                     }
                 },
@@ -35,57 +46,36 @@
                 type: 'GET',
                 url: "{{ url_for('search_exploit.results') }}",
                 success: function (data) {
-                    // Update the modal body with the fetched data
-                    $('#modalBody').html(data);
+                    modalBody.html(data);
                 },
                 error: function (xhr, status, error) {
                     console.error('Error fetching results:', error);
-                    // Update the modal body with an error message
-                    $('#modalBody').html('<p>Error fetching results. Check terminal for more information.</p>');
+                    modalBody.html('<p>Error fetching results. Check terminal for more information.</p>');
                 }
             });
         }
 
-        // Add click event to each row
-        $('table.vuln_table').on('click', 'tr.exploit-available, tr.exploit-less-details', function () {
-            // Display modal with loading indicator
-            $('#modalBody').html('<div class="loader">Loading...</div>');
-            $('.modal').css('display', 'block');
+        $('table.vuln_table').on('click', 'tr.exploit_available, tr.exploit_less_details', function () {
+            modalBody.html('<div class="loader">Loading...</div>');
+            modal.css('display', 'block');
 
-            // Get the content of the last cell of the clicked row
-            var vulnerabilityCode = $(this).find('.vuln-code').text().trim();
-            var vulnerabilityType = $(this).find('.vuln-type').text().trim();
-            
+            var vulnerabilityCode = $(this).find('.vuln_code').text().trim();
+            var vulnerabilityType = $(this).find('.vuln_type').text().trim();
+
             $.ajax({
                 url: "{{ url_for('search_exploit.interface') }}",
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ target: vulnerabilityCode, options: vulnerabilityType }),
                 success: function (response) {
-                    // Update the modal body with the fetched data
-                    $('#modalBody').html(response);
-                    // Check the status after updating modal body
+                    modalBody.html(response);
                     checkUrlStatus();
                 },
                 error: function () {
                     console.error('Error: Unable to fetch vulnerability reference.');
-                    // Update the modal body with an error message
-                    $('#modalBody').html('Error: Unable to fetch vulnerability reference.');
+                    modalBody.html('Error: Unable to fetch vulnerability reference.');
                 }
             });
-        });
-
-        // Close modal when close icon is clicked
-        $('.close').on('click', function () {
-            $('.modal').css('display', 'none');
-        });
-
-        // Close modal when user clicks outside modal
-        $(window).on('click', function (event) {
-            var modal = $('.modal');
-            if ($(event.target).is(modal)) {
-                modal.css('display', 'none');
-            }
         });
     }
 </script>

@@ -7,6 +7,7 @@ import uuid
 from flask import jsonify, send_from_directory, url_for
 import requests
 from controllers.controller_thread import CommandThread, Controller
+from utils.html_format_util import render_dictionary_as_table
 
 PROFILE = "profile"
 PROFILE_RELATIVE_PATH = "w4af/profiles/"
@@ -133,7 +134,7 @@ class W4afAuditController(Controller):
             html_table += "</table>"
 
             return {
-                "status": self.__create_dictionary_html__(self.status),
+                "status": self.__create_dictionary_html_table__(self.status),
                 "results": html_table,
                 "progress": self.status.get("progress"),
             }
@@ -160,13 +161,13 @@ class W4afAuditController(Controller):
 
             return file_path, file_path
 
-    def __create_dictionary_html__(self, dictionary: dict, indent=""):
+    def __create_dictionary_html_table__(self, dictionary: dict, indent=""):
         html = ""
         for key, value in dictionary.items():
             if isinstance(value, dict):
                 html += (
                     f"<tr><th>{indent}{key}</th><td><table>"
-                    + self.__create_dictionary_html__(value, indent + "&nbsp;&nbsp;")
+                    + render_dictionary_as_table(value, indent + "&nbsp;&nbsp;")
                     + "</table></td></tr>"
                 )
             else:
@@ -185,7 +186,7 @@ class W4afAuditController(Controller):
             </head>
             <body>
                 <table border="1">
-                    {self.__create_dictionary_html__(data)}
+                    {render_dictionary_as_table(data)}
                 </table>
             </body>
             </html>

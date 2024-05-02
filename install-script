@@ -13,3 +13,4 @@
 # start w4af:	pipenv shell
 #			./w4af_console
 # install nmap script nmap-vulners https://github.com/vulnersCom/nmap-vulners
+# pip install loguru

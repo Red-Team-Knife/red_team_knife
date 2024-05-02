@@ -1,11 +1,11 @@
 function index_open() {
-    document.getElementById("mySidebar").style.display = "block";
-    document.getElementById("myOverlay").style.display = "block";
+    document.getElementById("rtk_sidebar").style.display = "block";
+    document.getElementById("rtk_overlay").style.display = "block";
 }
 
 function index_close() {
-    document.getElementById("mySidebar").style.display = "none";
-    document.getElementById("myOverlay").style.display = "none";
+    document.getElementById("rtk_sidebar").style.display = "none";
+    document.getElementById("rtk_overlay").style.display = "none";
 }
 
 // Show subelements with transition
@@ -24,7 +24,7 @@ function showItem(element) {
 
 
 function editWindow(){
-    var sidebarWidth = document.querySelector('#mySidebar').offsetWidth;
+    var sidebarWidth = document.querySelector('#rtk_sidebar').offsetWidth;
     var content = document.querySelector('.content');
     content.style.marginLeft = (sidebarWidth + 40) + 'px';
 }

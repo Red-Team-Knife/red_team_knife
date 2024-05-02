@@ -6,20 +6,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block additional_headers %} {% endblock %}
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='w3.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/png">
+
     <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
 
 </head>
 
 <body>
-
-    <!-- Sidebar/menu -->
-    <nav class="w3-sidebar w3-red w3-collapse w3-top w3-large w3-padding" id="mySidebar">
+    <nav class="w3-sidebar w3-red w3-collapse w3-top w3-large w3-padding" id="rtk_sidebar">
         <a href="javascript:void(0)" onclick="index_close()" class="w3-button w3-hide-large w3-display-topleft"
             style="width:100%;font-size:22px">Tools Index</a>
         <div class="w3-container">
@@ -30,7 +29,7 @@
             {% for section, subsections in sections.items() %}
             <a href="#{{ section }}" onclick="showItem(this)" class="w3-bar-item w3-button w3-hover-white">{{ section
                 }}</a>
-            <div class="sidebar-item collapsed">
+            <div class="sidebar_item collapsed">
                 {% for subsection_key, subsection_value in subsections %}
                 <p><a href="{{ url_for(subsection_value + '.interface') }}">{{ subsection_key }}</a></p>
                 {% endfor %}
@@ -40,12 +39,12 @@
 
     </nav>
 
-    <header class="w3-container w3-top w3-red w3-xlarge w3-padding" id="topBar"
+    <header class="w3-container w3-top w3-red w3-xlarge w3-padding" id="top_bar"
         style="margin-left:auto; display: flex; justify-content: center; align-items: center;">
         <a href="javascript:void(0)" class="w3-button w3-red w3-hide-large w3-left" style="margin-right: auto;"
             onclick="index_open()">☰</a>
-        <div class="top-bar-content" style="display: flex; align-items: center;">
-            <div class="centered-content">
+        <div class="top_bar_content" style="display: flex; align-items: center;">
+            <div class="centered_content">
                 <img src="{{ url_for('static', filename='logo.png') }}" alt="Loading..."
                     style="height: 1.5em; margin-right: 10px;">
                 <a href="/" class="title"><span>Red Team Knife</span></a>
@@ -54,7 +53,7 @@
     </header>
 
     <div class="w3-overlay w3-hide-large" onclick="index_close()" style="cursor:pointer" title="close side menu"
-        id="myOverlay"></div>
+        id="rtk_overlay"></div>
 
     <div class="content">
         <section>
@@ -65,6 +64,5 @@
 
 
 </body>
-
 
 </html>

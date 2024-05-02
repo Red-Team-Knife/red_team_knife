@@ -1,8 +1,7 @@
-import threading
-import subprocess, os, json, shutil, time
-from utils.commands import build_command_string
+import json
 from controllers.controller_thread import Controller, CommandThread
 import xmltodict
+from loguru import logger as l
 
 TOOL_NAME = "Nmap"
 LIST_SCAN = "list_scan"
@@ -170,11 +169,9 @@ scan_options = [
 ]
 
 
-script_options = []
-
-
 class NmapController(Controller):
     def __init__(self):
+        super().__init__()
         self.last_scan_result = None
         self.is_scan_in_progress = False
         self.tool_name = TOOL_NAME
@@ -198,7 +195,9 @@ class NmapController(Controller):
             command.append("-Pn")
         if options.get(PING_TCP_SYN, False):
             command.append("-PS")
-            command.append("[" + ",".join(map(str, options[PING_TCP_SYN])) + "]") #TODO util list
+            command.append(
+                "[" + ",".join(map(str, options[PING_TCP_SYN])) + "]"
+            )  # TODO util list
         if options.get(PING_TCP_ACK, False):
             command.append("-PA")
             command.append("[" + ",".join(map(str, options[PING_TCP_ACK])) + "]")
@@ -390,9 +389,7 @@ class NmapController(Controller):
         # set target
         command.append(target)
 
-        command_string = build_command_string(command)
-
-        print(RUNNING_MESSAGE + command_string[:-1])
+        self.__log_running_message__(command)
 
         # create temp file to save scan details
 
@@ -400,10 +397,7 @@ class NmapController(Controller):
             def run(self):
                 super().run()
                 if self._stop_event.is_set():
-                    try:
-                        os.remove(TEMP_FILE_NAME)
-                    except:
-                        print("Couldn't remove temp Nmap file.")
+                    self.calling_controller.__remove_temp_file__(TEMP_FILE_NAME)
 
             def stop(self):
                 super().stop()
@@ -417,6 +411,8 @@ class NmapController(Controller):
         if not self.last_scan_result:
 
             with open(TEMP_FILE_NAME, "r") as file:
+                l.info(f"Parsing {self.tool_name} temp file...")
+
                 # converting xml to dict
                 xml_dict = xmltodict.parse(file.read())
 
@@ -436,19 +432,24 @@ class NmapController(Controller):
                 json_objects.pop("times")
                 if "extraports" in json_objects["ports"]:
                     json_objects["ports"].pop("extraports")
+                l.success("File parsed successfully.")
 
-            os.remove(TEMP_FILE_NAME)
+            self.__remove_temp_file__(TEMP_FILE_NAME)
 
             self.last_scan_result = json_objects
 
         return self.__format_html__()
 
     def __format_html__(self):
-
+        l.info(f'Generating html for {self.tool_name} results...')
+        html = ''
         if self.last_scan_result.get("os", False):
-            return self.__format_os_scan__()
+            html = self.__format_os_scan__()
         elif self.last_scan_result.get("ports", False):
-            return self.__format_port_scan__()
+            html = self.__format_port_scan__()
+        
+        l.success('Html generated successfully.')
+        return html
 
     def __format_os_scan__(self):
         html_string = ""
@@ -574,7 +575,7 @@ class NmapController(Controller):
             html_string += "<b> No Result Fond </b>"
         return html_string
 
-    # old general method, works for port scan results
+    # general method, works for port scan results
     def __format_port_scan__(self):
         html_string = ""
 

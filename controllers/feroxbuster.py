@@ -1,9 +1,8 @@
-import subprocess, os, json, shutil
-import threading
-import time
+import os, json
 from utils.commands import build_command_string
 from utils.html_format_util import *
 from controllers.controller_thread import Controller, CommandThread
+from loguru import logger as l
 
 BURP = "burp"
 BURP_REPLAY = "burp-replay"
@@ -52,8 +51,9 @@ ADD_CRITICAL_WORDS = "add_critical_words"
 IGNORE_EXTENSIONS = "ignore_extensions"
 
 TEMP_FILE_NAME = "tmp/feroxbuster-temp"
-RUNNING_MESSAGE = "Running Feroxbuster with command: "
 TOOL_NAME = "Feroxbuster"
+RUNNING_MESSAGE = f"Running {TOOL_NAME} with command: "
+
 
 scan_options = [
     ("Set Burp", "checkbox", BURP, ""),
@@ -113,9 +113,11 @@ scan_options = [
     ("Ignore Extensions", "text", IGNORE_EXTENSIONS, ""),
 ]
 
+
 class FeroxbusterController(Controller):
 
     def __init__(self):
+        super().__init__()
         self.last_scan_result = None
         self.is_scan_in_progress = False
         self.tool_name = TOOL_NAME
@@ -285,27 +287,26 @@ class FeroxbusterController(Controller):
         if options.get(ADD_CRITICAL_WORDS, False):
             command.append("-g")
 
-        command_string = build_command_string(command)
-
-        print(RUNNING_MESSAGE + command_string[:-1])
+        self.__log_running_message__(command)
 
         class FeroxbusterCommandThread(CommandThread):
             def run(self):
                 super().run()
                 if self._stop_event.is_set():
-                    try:
-                        os.remove(TEMP_FILE_NAME)
-                    except:
-                        print("Couldn't remove temp Feroxbuster file.")
+                    self.calling_controller.__remove_temp_file__(TEMP_FILE_NAME)
 
             def stop(self):
                 super().stop()
                 self.print_stop_completed_message()
-            
-            
+
         self.thread = FeroxbusterCommandThread(command, self)
         self.thread.start()
 
+    # TODO metodo generale __format_result__ con
+    # def ...
+    #      l.info inizio
+    #      formattazione vera
+    #       l.info fine
     def __format_result__(self):
 
         if not self.last_scan_result:
@@ -314,19 +315,27 @@ class FeroxbusterController(Controller):
 
             # Read the file line by line and parse JSON
             with open(TEMP_FILE_NAME, "r") as file:
+                l.info(f"Parsing {self.tool_name} temp file...")
                 for line in file:
                     try:
+
                         # Parse the JSON from the line
                         json_object = json.loads(line.strip())
                         # Append the parsed JSON object to the list
                         json_objects.append(json_object)
+                        l.success("File parsed successfully.")
                     except json.JSONDecodeError as e:
-                        print(f"Error parsing JSON: {e}")
+                        l.error("Error parsing temp JSON file.")
+                        print(e)
 
-            os.remove(TEMP_FILE_NAME)
+            self.__remove_temp_file__(TEMP_FILE_NAME)
 
             self.last_scan_result = json_objects
-        
+
+        l.info(f"Generating html for {self.tool_name} results...")
+        # Create a dict with the following structure:
+        # { code1 : [resource1, resource2, ...],
+        #   code2: [resource11, resource12, ...]}
         sorted = {}
         for i in self.last_scan_result:
             if i.get("status", False):
@@ -336,6 +345,7 @@ class FeroxbusterController(Controller):
                 else:
                     sorted[status] = [i]
 
+        # Extract status codes and build a string
         status_codes = ""
         for code in list(sorted.keys()):
             status_codes += str(code)
@@ -357,10 +367,11 @@ class FeroxbusterController(Controller):
 
             items = ""
             for i in sorted[key]:
-                items += "<tr><td>"
-                items += render_dictionary(i)
-                items += "</td></tr>"
+                items += "<tr><td><table>"
+                items += render_dictionary_as_table(i)
+                items += "</table></td></tr>"
 
             html_output += items
         html_output += "</table>"
+        l.success("Html generated successfully.")
         return html_output

@@ -8,7 +8,7 @@ Home
     <div class="w3-container"
         style="display: inline-block; width: 45%; border-right: 1px solid black; padding-right: 10px; padding-top: 100px;">
         <h2 class="w3-xxxlarge w3-text-red"><b>New Scan</b></h2>
-        <form action="/new_scan" method="post">
+        <form action="{{url_for('new_scan')}}" method="post">
             <label for="input_text">Scan name:</label>
             <br>
             <input type="text" id="input_text" name="scan_name" required>
@@ -17,7 +17,7 @@ Home
             <br>
             <input type="text" id="input_text" name="scan_host" required>
             <br><br>
-            <input type="submit" value="Invia">
+            <button type="submit">Save Target</button>
         </form>
     </div>
 
@@ -28,7 +28,7 @@ Home
             style="width: calc(100% - 20px); height: calc(100% - 20px); border: 1px solid #aaa; background-color: #e0e0e0; margin: 10px; overflow: auto;">
             {% if scan_list %}
             {% for key in scan_list.keys() %}
-            <a href="{{ url_for('scan_detail', scan_file_name=key) }}" class="scan-item">{{ scan_list.get(key) }}</a>
+            <a href="{{ url_for('scan_detail', scan_file_name=key) }}" class="scan_item">{{ scan_list.get(key) }}</a>
             {% endfor %}
 
             {% else %}

@@ -4,37 +4,44 @@ from flask import *
 from controllers.nmap_scan import (
     NmapController,
     scan_options as nmap_scan_options,
+    TOOL_NAME as NMAP_SCAN,
 )
 from controllers.nmap_vuln import (
     NmapVulnController,
     script_options as nmap_vuln_script_options,
+    TOOL_NAME as NMAP_VULN,
 )
 from controllers.the_harvester import (
     TheHarvesterController,
     scan_options as the_harvester_scan_options,
+    TOOL_NAME as THE_HARVESTER,
 )
 from controllers.feroxbuster import (
     FeroxbusterController,
     scan_options as feroxbuster_scan_options,
+    TOOL_NAME as FEROXBUSTER,
 )
 from controllers.w4af_audit import (
     W4afAuditController,
     scan_options as w4af_audit_scan_options,
+    TOOL_NAME as W4AF_AUDIT,
 )
-from controllers.search_exploit import SearchExploitController
+from controllers.search_exploit import (
+    SearchExploitController,
+    TOOL_NAME as SEARCH_EXPLOIT,
+)
 
 from models.scan import Scan
 from utils import *
 import os
 from utils.html_format_util import render_dictionary
+from utils.log import debug_route
 from views.view import BaseBlueprint
-from views.searchslpoit.headless_view import HeadlessBlueprint
+from views.headless_view import HeadlessBlueprint
 from current_scan import CurrentScan
 from views.w4af_audit.view import W4afBlueprint
-
-app = Flask(__name__, static_url_path="/static")
-
-#TODO centrare il titolo nella finestra ridimensionata
+import logging
+from loguru import logger as l
 
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
@@ -42,6 +49,9 @@ TEMP_FOLDER = "tmp"
 
 INTERFACE_TEMPLATE = "interface_base.html"
 RESULTS_TEMPLATE = "results_base.html"
+
+W4AF_ADDRESS = "localhost"
+W4AF_PORT = 5001
 
 BLUEPRINTS = []
 
@@ -59,13 +69,17 @@ SECTIONS = {
     "Action": [("None", "nmap")],
 }
 
+app = Flask("red_team_knife", static_url_path="/static")
+
 
 def register_blueprints(app):
+    l.info("Registering blueprints.")
+
     nmap_blueprint = BaseBlueprint(
         "nmap",
         __name__,
         NmapController(),
-        "Nmap",
+        NMAP_SCAN,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         nmap_scan_options,
@@ -76,7 +90,7 @@ def register_blueprints(app):
         "nmap_vuln",
         __name__,
         NmapVulnController(),
-        "Nmap-Vuln Scanner",
+        NMAP_VULN,
         INTERFACE_TEMPLATE,
         "nmap_vuln/results.html",
         nmap_vuln_script_options,
@@ -87,7 +101,7 @@ def register_blueprints(app):
         "the_harvester",
         __name__,
         TheHarvesterController(),
-        "theHarvester",
+        THE_HARVESTER,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         the_harvester_scan_options,
@@ -98,7 +112,7 @@ def register_blueprints(app):
         "feroxbuster",
         __name__,
         FeroxbusterController(),
-        "Feroxbuster",
+        FEROXBUSTER,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         feroxbuster_scan_options,
@@ -109,7 +123,7 @@ def register_blueprints(app):
         "w4af_audit",
         __name__,
         W4afAuditController(),
-        "w4af_audit",
+        W4AF_AUDIT,
         INTERFACE_TEMPLATE,
         "w4af_audit/results.html",
         w4af_audit_scan_options,
@@ -120,7 +134,7 @@ def register_blueprints(app):
         "search_exploit",
         __name__,
         SearchExploitController(),
-        "Search Exploit",
+        SEARCH_EXPLOIT,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         [],
@@ -141,8 +155,11 @@ def register_blueprints(app):
     for blueprint in BLUEPRINTS:
         app.register_blueprint(blueprint)
 
+
 # TODO permessi directory sudo
 def create_folders():
+    l.info("Creating folders.")
+
     global SCANS_PATH
 
     SCANS_PATH = os.path.abspath(SCANS_FOLDER)
@@ -154,21 +171,22 @@ def create_folders():
     if not os.path.exists(TEMP_PATH):
         os.makedirs(TEMP_FOLDER)
         os.path.abspath(TEMP_PATH)
-    else: 
+    else:
         shutil.rmtree(TEMP_FOLDER)
         os.makedirs(TEMP_FOLDER)
 
 
 def start_w4af_server_api():
+    l.info(f"Starting w4af server on {W4AF_ADDRESS}:{W4AF_PORT}.")
     # Start w4af api server
-    W4AF_PORT = 5001
+
     W4AF_COMMAND = [
         "pipenv",
         "run",
         "./w4af_api",
         "--i-am-a-developer",
         "--no-ssl",
-        f"localhost:{W4AF_PORT}",
+        f"{W4AF_ADDRESS}:{W4AF_PORT}",
     ]
 
     # Define the directory to change to
@@ -184,13 +202,16 @@ def start_w4af_server_api():
     )
 
 
+# TODO a cosa serve?
 @app.context_processor
 def utility_processor():
     return dict(render_dictionary=render_dictionary)
 
+
 # TODO semplificare visualizzazione scan
 @app.route("/")
 def index():
+    debug_route(request)
 
     if CurrentScan.scan is not None:
         scan = CurrentScan.scan.data_storage.__data__
@@ -210,6 +231,7 @@ def index():
 
 @app.route("/new_scan", methods=["POST", "GET"])
 def new_scan():
+    debug_route(request)
 
     # TODO fixare il redirect
     if request.method == "GET":
@@ -226,13 +248,18 @@ def new_scan():
 
 @app.route("/scan_detail", methods=["GET"])
 def scan_detail():
+    debug_route(request)
+
     scan_file_name = request.args.get("scan_file_name")
     CurrentScan.scan = Scan(file_source=SCANS_PATH + "/" + scan_file_name)
     return redirect(url_for("index"))
 
-@app.route('/tmp/<path:filename>')
+
+@app.route("/tmp/<path:filename>")
 def temp_file(filename):
-    print(url_for("temp_file", filename='test'))
+    debug_route(request)
+
+    print(url_for("temp_file", filename="test"))
     filepath = os.path.join(TEMP_FOLDER, filename)
 
     # Check if the file exists
@@ -241,13 +268,17 @@ def temp_file(filename):
         return send_from_directory(TEMP_FOLDER, filename)
     else:
         # File not found
-        return 'File not found', 404
+        return "File not found", 404
 
 
-# Execute setup functions
-start_w4af_server_api()
-create_folders()
-register_blueprints(app)
+# Disable Flask's built-in logging
+log = logging.getLogger("werkzeug")
+log.disabled = True
 
 if __name__ == "__main__":
+    l.info("Executing setup.")
+    start_w4af_server_api()
+    create_folders()
+    register_blueprints(app)
+
     app.run(debug=True, host="0.0.0.0")

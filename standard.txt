@@ -1,0 +1,6 @@
+python classes: PascalCase
+python variables: snake_case
+temp files: tool-file-temp
+html ids: snake_case
+html classes: snake_case
+js variables: camelCase

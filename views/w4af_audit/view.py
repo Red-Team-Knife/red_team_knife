@@ -1,8 +1,9 @@
-from flask import render_template
+from flask import render_template, request
 from controllers.w4af_audit import W4afAuditController
 from current_scan import CurrentScan
+from utils.log import debug_route
 from views.view import BaseBlueprint
-
+from loguru import logger as l
 
 class W4afBlueprint(BaseBlueprint):
     def __init__(
@@ -73,10 +74,25 @@ class W4afBlueprint(BaseBlueprint):
 
         return super().__get_interface_page_for_post_request__(request)
 
+
+    # Called to save current results that are cached in the controller.
     def save_results(self):
+        debug_route(request)
+        l.info(f"Saving {self.tool_name} results...")
+
         if CurrentScan.scan is not None:
-            self.controller.__retrieve_complete_scan__()
-            CurrentScan.scan.save_scan(self.tool_name, self.controller.last_scan_result)
-            self.controller.last_scan_result = None
-            return "<p>Results successfully saved.</p>"
+            try:
+                self.controller.__retrieve_complete_scan__()
+                CurrentScan.scan.save_scan(
+                    self.tool_name, self.controller.last_scan_result
+                )
+                self.controller.last_scan_result = None
+                l.success(f"{self.tool_name} results saved.")
+                return "<p>Results successfully saved.</p>"
+            except Exception as e:
+                l.error(f"{self.tool_name} results were not saved!")
+                print(e)
+                return "<p>Something went wrong. Check terminal for more information.</p>"
+
+        l.warning(f"No scan was started!")
         return "<p>No scan started.</p>"

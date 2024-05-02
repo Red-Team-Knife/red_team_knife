@@ -4,7 +4,8 @@ from flask import Blueprint, request, render_template, jsonify, url_for
 from utils.dictionary import remove_empty_values
 from current_scan import CurrentScan
 from controllers.controller_thread import Controller
-
+from utils.log import debug_route
+from loguru import logger as l
 
 class HeadlessBlueprint(Blueprint):
     def __init__(
@@ -31,27 +32,38 @@ class HeadlessBlueprint(Blueprint):
         self.route("/scan_in_progress", methods=["GET"])(self.is_scan_in_progress)
         self.route("/stop_scan", methods=["GET"])(self.stop_scan)
 
+    # A scan was requested (run scan)
     def interface(self):
-        # A scan was requested (run scan)
+        debug_route(request)
+
         options = request.json
-        print(options)
 
         target = options["target"]
         options.pop("target")
 
         self.controller.run(target, options)
 
-        no_scan_started = CurrentScan.scan is None
-
         return '<p>Fetching result...</p>'
 
     def is_scan_in_progress(self):
-        print('here')
+        debug_route(request)
+
+        if self.controller.is_scan_in_progress:
+            l.info(f"{self.tool_name} scan in progress...")
+        else:
+            l.info(f"{self.tool_name} scan not in progress.")
+
         return jsonify({"scan_in_progress": self.controller.is_scan_in_progress})
 
     def results(self):
+        debug_route(request)
         return jsonify(self.controller.get_formatted_results())
 
     def stop_scan(self):
-        self.controller.stop_scan()
-        return "<p>Scan stopped.</p>"
+        l.info(f"Stopping {self.tool_name} scan...")
+        try:
+            self.controller.stop_scan()
+            l.success(f"{self.tool_name} scan stopped.")
+            return "<p>Scan stopped.</p>"
+        except Exception as e:
+            return "<p>Something went wrong. Check terminal for more information.</p>"
