@@ -15,7 +15,16 @@ Home
             <br><br>
             <label for="input_text">Target host:</label>
             <br>
-            <input type="text" id="input_text" name="scan_host" required>
+            <input type="text" id="input_text" name="scan_host" placeholder="google.com, 123.123.123.123">
+            <br><br>
+            <input type="radio" id="protocol_radio_http" name="protocol_radio" value="http" required>
+            <label for="http">HTTP</label>
+            <input type="radio" id="protocol_radio_https" name="protocol_radio" value="https">
+            <label for="https">HTTPS</label>
+            <br><br>
+            <label for="input_text">Target Resources:</label>
+            <br>
+            <input type="text" id="input_text" name="scan_resource" placeholder="/text, /site, /file.php" required>
             <br><br>
             <button type="submit">Save Target</button>
         </form>

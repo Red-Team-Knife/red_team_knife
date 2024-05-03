@@ -240,8 +240,10 @@ def new_scan():
 
     scan_name = request.form.get("scan_name")
     scan_host = request.form.get("scan_host")
+    scan_protocol = request.form.get("protocol_radio")
+    scan_resource = request.form.get("scan_resource")
 
-    CurrentScan.scan = Scan(scan_name, scan_host, SCANS_PATH)
+    CurrentScan.scan = Scan(scan_name, scan_host, scan_protocol, scan_resource, SCANS_PATH)
 
     return redirect(url_for("index"))
 
