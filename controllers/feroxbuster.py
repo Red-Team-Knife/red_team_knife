@@ -1,7 +1,10 @@
 import os, json
+from threading import Thread
+from typing import Tuple
 from utils.commands import build_command_string
 from utils.html_format_util import *
-from controllers.controller_thread import Controller, CommandThread
+from controllers.base_controller import Controller
+from controllers.command_thread import CommandThread
 from loguru import logger as l
 
 BURP = "burp"
@@ -117,14 +120,9 @@ scan_options = [
 class FeroxbusterController(Controller):
 
     def __init__(self):
-        super().__init__()
-        self.last_scan_result = None
-        self.is_scan_in_progress = False
-        self.tool_name = TOOL_NAME
+        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
 
-    def run(self, target, options: dict):
-        self.last_scan_result = None
-
+    def __build_command__(self, target: str, options: dict):
         command = [
             "feroxbuster",
             "-u",
@@ -287,55 +285,36 @@ class FeroxbusterController(Controller):
         if options.get(ADD_CRITICAL_WORDS, False):
             command.append("-g")
 
-        self.__log_running_message__(command)
+        return command
 
+    def __run_command__(self, command):
         class FeroxbusterCommandThread(CommandThread):
             def run(self):
                 super().run()
                 if self._stop_event.is_set():
-                    self.calling_controller.__remove_temp_file__(TEMP_FILE_NAME)
+                    self.calling_controller.__remove_temp_file__()
 
-            def stop(self):
-                super().stop()
-                self.print_stop_completed_message()
+        return FeroxbusterCommandThread(command, self)
 
-        self.thread = FeroxbusterCommandThread(command, self)
-        self.thread.start()
+    def __parse_temp_results_file__(self):
+        # List to store parsed JSON objects
+        json_objects = []
 
-    # TODO metodo generale __format_result__ con
-    # def ...
-    #      l.info inizio
-    #      formattazione vera
-    #       l.info fine
-    def __format_result__(self):
+        # Read the file line by line and parse JSON
+        with open(TEMP_FILE_NAME, "r") as file:
+            for line in file:
+                try:
 
-        if not self.last_scan_result:
-            # List to store parsed JSON objects
-            json_objects = []
+                    # Parse the JSON from the line
+                    json_object = json.loads(line.strip())
+                    # Append the parsed JSON object to the list
+                    json_objects.append(json_object)
+                except json.JSONDecodeError as e:
+                    return None, e
 
-            # Read the file line by line and parse JSON
-            with open(TEMP_FILE_NAME, "r") as file:
-                l.info(f"Parsing {self.tool_name} temp file...")
-                for line in file:
-                    try:
+            return json_objects, None
 
-                        # Parse the JSON from the line
-                        json_object = json.loads(line.strip())
-                        # Append the parsed JSON object to the list
-                        json_objects.append(json_object)
-                        l.success("File parsed successfully.")
-                    except json.JSONDecodeError as e:
-                        l.error("Error parsing temp JSON file.")
-                        print(e)
-
-            self.__remove_temp_file__(TEMP_FILE_NAME)
-
-            self.last_scan_result = json_objects
-
-        l.info(f"Generating html for {self.tool_name} results...")
-        # Create a dict with the following structure:
-        # { code1 : [resource1, resource2, ...],
-        #   code2: [resource11, resource12, ...]}
+    def __format_html__(self):
         sorted = {}
         for i in self.last_scan_result:
             if i.get("status", False):
@@ -373,5 +352,4 @@ class FeroxbusterController(Controller):
 
             html_output += items
         html_output += "</table>"
-        l.success("Html generated successfully.")
         return html_output

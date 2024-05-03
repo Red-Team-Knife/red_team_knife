@@ -1,8 +1,11 @@
-import subprocess, os, json, shutil
+import os, json, shutil
+from loguru import logger as l
+from threading import Thread
 import time
 from utils.dictionary import remove_empty_values
 from utils.commands import build_command_string
-from controllers.controller_thread import Controller, CommandThread
+from controllers.base_controller import Controller
+from controllers.command_thread import CommandThread
 
 LIMIT = "result_limit"
 LIMIT_ENABLE = "result_limit_enable"
@@ -89,14 +92,13 @@ scan_options = [
 
 class TheHarvesterController(Controller):
     def __init__(self):
-        self.last_scan_result = None
-        self.is_scan_in_progress = False
-        self.tool_name = TOOL_NAME
+        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
 
-    def run(self, target, options: dict):
-        self.last_scan_result = None
-
+    def run(self, target: str, options: dict):
         self.screenshot_saved = False
+        super().run(target, options)
+
+    def __build_command__(self, target, options: dict):
 
         # check screenshot folder existance
         screenshot_folder = os.path.abspath(SCREENSHOTS_DIRECTORY)
@@ -156,47 +158,46 @@ class TheHarvesterController(Controller):
         if options.get(SUBDOMAIN_RESOLUTION, False):
             command.append("-r")
 
-        # log command
-        command_string = build_command_string(command)
+        return command
 
-        print(RUNNING_MESSAGE + command_string[:-1])
-
+    def __run_command__(self, command):
         class TheHarvesterCommandThread(CommandThread):
             def run(self):
                 super().run()
                 print("\033[0m")
                 if self._stop_event.is_set():
-                    try:
-                        os.remove(TEMP_FILE_NAME + ".json")
-                        os.remove(TEMP_FILE_NAME + ".xml")
-                    except:
-                        print("Couldn't remove temp theHarvester file.")
+                    self.calling_controller.__remove_temp_file__()
 
-            def stop(self):
-                super().stop()
-                self.print_stop_completed_message()
+        return TheHarvesterCommandThread(command, self)
 
-        self.thread = TheHarvesterCommandThread(command, self)
-        self.thread.start()
+    def __remove_temp_file__(self):
+        try:
+            l.info(f"Removing temp {self.tool_name} files...")
+            os.remove(self.temp_file_name + ".json")
+            os.remove(self.temp_file_name + ".xml")
+            l.success("Files removed successfully.")
+        except Exception as e:
+            l.error(f"Couldn't remove temp {self.tool_name} files.")
+            print(e)
 
-    def __format_result__(self):
-        if not self.last_scan_result:
-            with open(TEMP_FILE_NAME + ".json", "r") as file:
+    def __parse_temp_results_file__(self):
+        with open(TEMP_FILE_NAME + ".json", "r") as file:
+            try:
                 data = json.load(file)
 
-            # remove temp files
-            os.remove(TEMP_FILE_NAME + ".json")
-            os.remove(TEMP_FILE_NAME + ".xml")
+                # check if screenshots are available
+                if self.screenshot_saved:
+                    data["screenshots_available"] = True
+                else:
+                    data["screenshots_available"] = False
+            except Exception as e:
+                return None, e
 
-            # check if screenshots are available
-            if self.screenshot_saved:
-                data["screenshots_available"] = True
-            else:
-                data["screenshots_available"] = False
+            return data, None
 
-            self.last_scan_result = remove_empty_values(data)
-
-        if not self.last_scan_result:
+    def __format_html__(self):
+        data = remove_empty_values(self.last_scan_result)
+        if not data:
             return "<p>No Result Found</p>"
 
         html_output = ""

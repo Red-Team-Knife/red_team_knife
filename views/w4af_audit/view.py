@@ -5,6 +5,7 @@ from utils.log import debug_route
 from views.view import BaseBlueprint
 from loguru import logger as l
 
+
 class W4afBlueprint(BaseBlueprint):
     def __init__(
         self,
@@ -34,7 +35,10 @@ class W4afBlueprint(BaseBlueprint):
 
         # Check if an unsaved scan is still stored and
         # the scan has been stopped
-        if self.controller.last_scan_result and not self.controller.is_scan_in_background:
+        if (
+            self.controller.last_scan_result
+            and not self.controller.is_scan_in_background
+        ):
             return render_template(
                 self.results_template,
                 sections=self.sections,
@@ -74,8 +78,6 @@ class W4afBlueprint(BaseBlueprint):
 
         return super().__get_interface_page_for_post_request__(request)
 
-
-    # Called to save current results that are cached in the controller.
     def save_results(self):
         debug_route(request)
         l.info(f"Saving {self.tool_name} results...")
@@ -92,7 +94,9 @@ class W4afBlueprint(BaseBlueprint):
             except Exception as e:
                 l.error(f"{self.tool_name} results were not saved!")
                 print(e)
-                return "<p>Something went wrong. Check terminal for more information.</p>"
+                return (
+                    "<p>Something went wrong. Check terminal for more information.</p>"
+                )
 
         l.warning(f"No scan was started!")
         return "<p>No scan started.</p>"

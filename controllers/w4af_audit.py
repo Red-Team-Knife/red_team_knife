@@ -1,12 +1,13 @@
 import json
 import os
 import time
-from uuid import UUID
+from loguru import logger as l
 import uuid
 
 from flask import jsonify, send_from_directory, url_for
 import requests
-from controllers.controller_thread import CommandThread, Controller
+from controllers.base_controller import Controller
+from controllers.command_thread import CommandThread
 from utils.html_format_util import render_dictionary_as_table
 
 PROFILE = "profile"
@@ -35,9 +36,7 @@ scan_options = [("Set scan profile", "select", PROFILE, options)]
 
 class W4afAuditController(Controller):
     def __init__(self):
-        self.last_scan_result = None
-        self.is_scan_in_progress = False
-        self.tool_name = TOOL_NAME
+        super().__init__(TOOL_NAME, None)
 
         self.is_scan_in_background = False
         self.scan_id = None
@@ -62,16 +61,20 @@ class W4afAuditController(Controller):
         while True:
             try:
                 self.scan_id = response.json().get("id")
-                print(self.tool_name + " scan ID: " + str(self.scan_id))
+                l.info(f"{self.tool_name} scan ID: {str(self.scan_id)}")
                 break
             except Exception as e:
-                print("Error:", e)
+                l.error(f"Something went wrong during {self.tool_name}.")
+                print(e)
                 time.sleep(2)
 
         self.is_scan_in_progress = False
         self.is_scan_in_background = True
 
     def stop_scan(self):
+        l.info(
+            f"Handling stop request for {self.tool_name}, for scan id {self.scan_id}."
+        )
         requests.get(BASE_URL + f"/scans/{self.scan_id}/stop")
         while True:
             try:
@@ -91,15 +94,22 @@ class W4afAuditController(Controller):
 
         self.last_scan_result["status"] = self.status
         self.is_scan_in_background = False
+        l.success(f"Stop completed for scan id {self.scan_id}.")
 
     def delete_scan(self):
+        l.info(
+            f"Handling deletion request for {self.tool_name}, for scan id {self.scan_id}."
+        )
         if self.is_scan_in_background:
             self.stop_scan()
         url = BASE_URL + f"/scans/{self.scan_id}"
         requests.delete(url)
         self.scan_id = None
+        l.success(f"Deletion completed for scan id {self.scan_id}.")
 
     def __format_result__(self):
+        l.info(f"Generating HTML for {self.tool_name} results...")
+
         status = requests.get(BASE_URL + f"/scans/{self.scan_id}/status")
 
         if status.status_code == 200:
@@ -132,7 +142,7 @@ class W4afAuditController(Controller):
                     html_table += f'<td><a href="{BASE_URL + item["href"]}" target="_blank">Read more</a></td></tr>\n'
 
             html_table += "</table>"
-
+            l.success("HTML generated successfully.")
             return {
                 "status": self.__create_dictionary_html_table__(self.status),
                 "results": html_table,

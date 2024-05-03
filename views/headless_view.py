@@ -3,9 +3,10 @@ import json
 from flask import Blueprint, request, render_template, jsonify, url_for
 from utils.dictionary import remove_empty_values
 from current_scan import CurrentScan
-from controllers.controller_thread import Controller
+from controllers.base_controller import Controller
 from utils.log import debug_route
 from loguru import logger as l
+
 
 class HeadlessBlueprint(Blueprint):
     def __init__(
@@ -43,7 +44,7 @@ class HeadlessBlueprint(Blueprint):
 
         self.controller.run(target, options)
 
-        return '<p>Fetching result...</p>'
+        return "<p>Fetching result...</p>"
 
     def is_scan_in_progress(self):
         debug_route(request)

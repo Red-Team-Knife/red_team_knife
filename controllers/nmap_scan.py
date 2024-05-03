@@ -1,5 +1,7 @@
 import json
-from controllers.controller_thread import Controller, CommandThread
+from threading import Thread
+from controllers.base_controller import Controller
+from controllers.command_thread import CommandThread
 import xmltodict
 from loguru import logger as l
 
@@ -171,14 +173,9 @@ scan_options = [
 
 class NmapController(Controller):
     def __init__(self):
-        super().__init__()
-        self.last_scan_result = None
-        self.is_scan_in_progress = False
-        self.tool_name = TOOL_NAME
+        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
 
-    def run(self, target, options: dict):
-        self.last_scan_result = None
-
+    def __build_command__(self, target: str, options: dict):
         command = [
             "nmap",
             "-oX",
@@ -389,66 +386,52 @@ class NmapController(Controller):
         # set target
         command.append(target)
 
-        self.__log_running_message__(command)
+        return command
 
-        # create temp file to save scan details
-
+    def __run_command__(self, command):
         class NmapCommandThread(CommandThread):
             def run(self):
                 super().run()
                 if self._stop_event.is_set():
-                    self.calling_controller.__remove_temp_file__(TEMP_FILE_NAME)
+                    self.calling_controller.__remove_temp_file__()
 
-            def stop(self):
-                super().stop()
-                self.print_stop_completed_message()
+        return NmapCommandThread(command, self)
 
-        self.thread = NmapCommandThread(command, self)
-        self.thread.start()
-
-    def __format_result__(self):
-
+    def __parse_temp_results_file__ (self):
         if not self.last_scan_result:
 
             with open(TEMP_FILE_NAME, "r") as file:
-                l.info(f"Parsing {self.tool_name} temp file...")
+                try:
+                    # converting xml to dict
+                    xml_dict = xmltodict.parse(file.read())
 
-                # converting xml to dict
-                xml_dict = xmltodict.parse(file.read())
+                    # converting bad formatted dict in jsonable
+                    json_string = json.dumps(xml_dict)
 
-                # converting bad formatted dict in jsonable
-                json_string = json.dumps(xml_dict)
+                    # convert to json
+                    json_objects: dict = json.loads(json_string)
 
-                # convert to json
-                json_objects: dict = json.loads(json_string)
+                    # extract only meaningful data
+                    json_objects = json_objects["nmaprun"]["host"]
+                    json_objects.pop("@starttime")
+                    json_objects.pop("@endtime")
+                    json_objects.pop("address")
+                    json_objects.pop("status")
+                    json_objects.pop("hostnames")
+                    json_objects.pop("times")
+                    if "extraports" in json_objects["ports"]:
+                        json_objects["ports"].pop("extraports")
+                except Exception as e:
+                    return None, e
 
-                # extract only meaningful data
-                json_objects = json_objects["nmaprun"]["host"]
-                json_objects.pop("@starttime")
-                json_objects.pop("@endtime")
-                json_objects.pop("address")
-                json_objects.pop("status")
-                json_objects.pop("hostnames")
-                json_objects.pop("times")
-                if "extraports" in json_objects["ports"]:
-                    json_objects["ports"].pop("extraports")
-                l.success("File parsed successfully.")
-
-            self.__remove_temp_file__(TEMP_FILE_NAME)
-
-            self.last_scan_result = json_objects
-
-        return self.__format_html__()
+                return json_objects, None
 
     def __format_html__(self):
-        l.info(f'Generating html for {self.tool_name} results...')
-        html = ''
+        html = ""
         if self.last_scan_result.get("os", False):
             html = self.__format_os_scan__()
         elif self.last_scan_result.get("ports", False):
             html = self.__format_port_scan__()
-        
-        l.success('Html generated successfully.')
         return html
 
     def __format_os_scan__(self):
@@ -575,7 +558,6 @@ class NmapController(Controller):
             html_string += "<b> No Result Fond </b>"
         return html_string
 
-    # general method, works for port scan results
     def __format_port_scan__(self):
         html_string = ""
 

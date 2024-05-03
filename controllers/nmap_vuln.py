@@ -3,7 +3,8 @@ import subprocess, os, json, shutil, time
 import copy
 
 from utils.commands import build_command_string
-from controllers.controller_thread import Controller, CommandThread
+from controllers.base_controller import Controller
+from controllers.command_thread import CommandThread
 from controllers.search_exploit import SearchExploitController
 import xmltodict
 
@@ -18,13 +19,9 @@ search_exploit_controller = SearchExploitController()
 
 class NmapVulnController(Controller):
     def __init__(self):
-        self.last_scan_result = None
-        self.is_scan_in_progress = False
-        self.tool_name = TOOL_NAME
+        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
 
-    def run(self, target, options):
-        self.last_scan_result = None
-
+    def __build_command__(self, target, options):
         command = [
             "nmap",
             "--script",
@@ -34,38 +31,29 @@ class NmapVulnController(Controller):
             TEMP_FILE_NAME,
             target,
         ]
+        return command
 
-        self.__log_running_message__(command)
-
+    def __run_command__(self, command):
         class NmapCommandThread(CommandThread):
             def run(self):
                 super().run()
                 if self._stop_event.is_set():
-                    try:
-                        os.remove(TEMP_FILE_NAME)
-                    except:
-                        print("Couldn't remove temp Nmap file.")
+                    self.calling_controller.__remove_temp_file__(TEMP_FILE_NAME)
 
-        self.thread = NmapCommandThread(command, self)
-        self.thread.start()
+        return NmapCommandThread(command, self)
 
-    def __format_result__(self):
-        if not self.last_scan_result:
-
-            with open(TEMP_FILE_NAME, "r") as file:
-
+    def __parse_temp_results_file__(self):
+        with open(TEMP_FILE_NAME, "r") as file:
+            try:
                 xml_dict = xmltodict.parse(file.read())
 
                 json_string = json.dumps(xml_dict)
 
                 json_objects = json.loads(json_string)
                 json_objects = json_objects["nmaprun"]["host"]["ports"]["port"]
-
-            os.remove(TEMP_FILE_NAME)
-
-            self.last_scan_result = json_objects
-
-        return self.__format_html__()
+            except Exception as e:
+                return None, e
+        return json_objects, None
 
     def __format_html__(self):
 

@@ -4,7 +4,7 @@ from flask import Blueprint, request, render_template, jsonify, url_for
 from utils.log import debug_route
 from utils.dictionary import remove_empty_values
 from current_scan import CurrentScan
-from controllers.controller_thread import Controller
+from controllers.base_controller import Controller
 from loguru import logger as l
 
 
@@ -41,10 +41,17 @@ class BaseBlueprint(Blueprint):
             return self.__get_interface_page_for_post_request__(request)
         return self.__get_interface_page_for_get_request__()
 
-    # GET request means we want to access scan interface.
-    # An unsaved scan result could be present, in that case it will be shown,
-    # giving the opportunity to save it or to request a new scan (reset page).
     def __get_interface_page_for_get_request__(self):
+        """
+        Decides which version of the web page needs to be returned after a GET request.
+
+        GET request implies accessing the scan interface. If an unsaved scan result
+        is present, it will be shown, giving the opportunity to save it or request
+        a new scan (reset page).
+
+        Returns:
+        flask.Response: The version of the web page to be returned.
+        """
         no_scan_started = CurrentScan.scan is None
 
         # Check if a scan is already in progress
@@ -103,12 +110,21 @@ class BaseBlueprint(Blueprint):
             tool=self.tool_name,
         )
 
-    # POST request means that either:
-    #   - a new scan (page reset) is requested
-    #   - a scan is requested (run scan)
-    #   - a past scan needs to be restored
     def __get_interface_page_for_post_request__(self, request):
+        """
+        Determines the version of the web page to return after a POST request.
 
+        A POST request can indicate one of the following:
+        - A new scan (page reset) is requested.
+        - A scan is requested (run scan).
+        - A past scan needs to be restored.
+
+        Args:
+            request (flask.Request): The HTTP request object containing form data.
+
+        Returns:
+            flask.Response: The version of the web page to be returned.
+        """
         # Check if a new scan (page reset) was requested
         if request.form.get("new_scan_requested"):
             l.info(f"{self.tool_name} scan reset requested.")
@@ -157,9 +173,17 @@ class BaseBlueprint(Blueprint):
             tool=self.tool_name,
         )
 
-    # Returns scan status (in progress/not in progress).
-    # Called by results page to check if scan is finished and ask for results.
     def is_scan_in_progress(self):
+        """
+        Returns the status of the scan (in progress or not).
+
+        This method is called by the results page to check if the scan is finished
+        and to request results.
+
+        Returns:
+            flask.Response: JSON response indicating whether the scan is in progress
+            or not.
+        """
         debug_route(request)
 
         if self.controller.is_scan_in_progress:
@@ -169,14 +193,27 @@ class BaseBlueprint(Blueprint):
 
         return jsonify({"scan_in_progress": self.controller.is_scan_in_progress})
 
-    # Returns html-formatted scan results.
     def results(self):
+        """
+        Returns HTML-formatted scan results.
+
+        Returns:
+            flask.Response: response containing the HTML-formatted scan results.
+        """
         debug_route(request)
 
         return jsonify(self.controller.get_formatted_results())
 
-    # Called to save current results that are cached in the controller.
     def save_results(self):
+        """
+        Saves the current results that are cached in the controller.
+
+        This method is called to save the results of the current scan, which are
+        stored in the controller.
+
+        Returns:
+            str: A message indicating the status of the save operation.
+        """
         debug_route(request)
         l.info(f"Saving {self.tool_name} results...")
 
@@ -195,12 +232,21 @@ class BaseBlueprint(Blueprint):
         l.warning(f"No scan was started!")
         return "<p>No scan started.</p>"
 
-    # Called to stop a running scan.
     def stop_scan(self):
+        """
+        Stops a running scan.
+
+        This method is called to stop a running scan associated with the controller.
+
+        Returns:
+            str: A message indicating the status of the stop operation.
+        """
         l.info(f"Stopping {self.tool_name} scan...")
         try:
             self.controller.stop_scan()
             l.success(f"{self.tool_name} scan stopped.")
             return "<p>Scan stopped.</p>"
         except Exception as e:
+            l.error(f"Could not stop {self.tool_name} scan:")
+            print(e)
             return "<p>Something went wrong. Check terminal for more information.</p>"
