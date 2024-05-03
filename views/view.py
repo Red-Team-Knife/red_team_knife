@@ -73,6 +73,8 @@ class BaseBlueprint(Blueprint):
 
         # Check if current scan has a value
         if CurrentScan.scan is not None:
+            
+            target = self.__build_target__()
 
             # Check if a tool scan is present in the current scan
             if CurrentScan.scan.get_tool_scan(self.tool_name):
@@ -89,8 +91,8 @@ class BaseBlueprint(Blueprint):
             return render_template(
                 self.interface_template,
                 sections=self.sections,
-                past_scan_available=False,
-                target=CurrentScan.scan.host,
+                past_scan_available=False, 
+                target=target,
                 options_list=self.options_list,
                 tool=self.tool_name,
             )
@@ -156,6 +158,18 @@ class BaseBlueprint(Blueprint):
             current_section=self.name,
             tool=self.tool_name,
         )
+    
+    # Builds the target for the specific tool
+    #TODO valutare estenione della view per i due tool con parsing del target
+    def __build_target__(self):
+        if self.tool_name == 'Feroxbuster' or self.tool_name == "theHarvester":
+            target = CurrentScan.scan.protocol + '://' + CurrentScan.scan.host + CurrentScan.scan.resource
+        else:
+            target = CurrentScan.scan.host
+        return target
+
+        
+
 
     # Returns scan status (in progress/not in progress).
     # Called by results page to check if scan is finished and ask for results.
