@@ -2,10 +2,13 @@ import json
 from threading import Thread
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
+from utils.dictionary import fill_table_column_dict, fill_table_column_list
+
 import xmltodict
 from loguru import logger as l
 
-TOOL_NAME = "Nmap"
+TOOL_DISPLAY_NAME = "Nmap"
+TOOL_NAME = "nmap"
 LIST_SCAN = "list_scan"
 NO_PORT_SCAN = "no_port_scan"
 SKIP_DISCOVERY = "skip_discovery"
@@ -173,7 +176,7 @@ scan_options = [
 
 class NmapController(Controller):
     def __init__(self):
-        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
 
     def __build_command__(self, target: str, options: dict):
         command = [
@@ -427,12 +430,15 @@ class NmapController(Controller):
                 return json_objects, None
 
     def __format_html__(self):
+
+
         html = ""
         if self.last_scan_result.get("os", False):
             html = self.__format_os_scan__()
         elif self.last_scan_result.get("ports", False):
             html = self.__format_port_scan__()
         return html
+
 
     def __format_os_scan__(self):
         html_string = ""
@@ -456,12 +462,7 @@ class NmapController(Controller):
             # fill table
             for row in extraports:
                 if isinstance(extraports[row], dict):
-                    html_string += "<td>"
-                    # fill field with subdictionary values
-                    for subkey in extraports[row]:
-                        html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                        html_string += f"{extraports[row][subkey]} <br>"
-                    html_string += "</td>"
+                    html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
             html_string += "</table><br>\n"
 
         # build port table
@@ -491,12 +492,7 @@ class NmapController(Controller):
                 for key in row:
                     # check subdictionary
                     if type(row[key]) is dict:
-                        html_string += "<td>"
-                        # fill field with subdictionary values
-                        for subkey in row[key]:
-                            html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                            html_string += f"{row[key][subkey]} <br>"
-                        html_string += "</td>"
+                        html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
                     else:
                         html_string += "<td>{}</td>".format(row[key])
                 html_string += "</tr>\n"
@@ -509,23 +505,38 @@ class NmapController(Controller):
             html_string += "<table>"
             html_string += "<tr>"
 
-            # build table headers
-            for key in portused[0].keys():
-                html_string += "<th>{}</th>".format(key.replace("@", ""))
-            html_string += "</tr>\n"
+        
+            if isinstance(portused, list):
+                for key in portused[0].keys():
+                    html_string += "<th>{}</th>".format(key.replace("@", ""))
+                html_string += "</tr>\n"
+                for row in portused:
 
-            for row in portused:
+                    if row["@state"] == "open":
+                        html_string += "<tr class = open>"
+                    else:
+                        html_string += "<tr>"
 
-                if row["@state"] == "open":
+                    # fill row
+                    for key in row:
+                        html_string += "<td>{}</td>".format(row[key])
+                    html_string += "</tr>\n"
+                
+            else:
+                for key in portused.keys():
+                    html_string += "<th>{}</th>".format(key.replace("@", "")) 
+                html_string += "</tr>\n"
+
+                if portused["@state"] == "open":
                     html_string += "<tr class = open>"
                 else:
                     html_string += "<tr>"
 
-                # fill row
-                for key in row:
-                    html_string += "<td>{}</td>".format(row[key])
+                for key in portused:
+                    html_string += "<td>{}</td>".format(portused[key])
                 html_string += "</tr>\n"
-            html_string += "</table><br>\n"
+
+            html_string += "</table><br>\n"            
 
         if self.last_scan_result["os"].get("osmatch", False):
             # build osmatch table
@@ -534,28 +545,43 @@ class NmapController(Controller):
             html_string += "<table>"
             html_string += "<tr>"
 
-            for key in osmatch.keys():
-                html_string += "<th>{}</th>".format(key.replace("@", ""))
-            html_string += "</tr>\n"
 
-            # TODO: verificare se ci sono più osmatch
-            html_string += "<tr>"
-            # fill table
-            for row in osmatch:
-                # check subdictionary
-                if type(osmatch[row]) is dict:
-                    html_string += "<td>"
-                    # fill field with subdictionary values
-                    for subkey in osmatch[row]:
-                        html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                        html_string += f"{osmatch[row][subkey]} <br>"
-                    html_string += "</td>"
-                else:
-                    html_string += "<td>{}</td>".format(osmatch[row])
-            html_string += "</tr>\n"
+            if isinstance(osmatch, list):
+                for key in osmatch[0].keys():
+                    html_string += "<th>{}</th>".format(key.replace("@", ""))
+                html_string += "</tr>\n"
+
+                for row in osmatch:
+                    html_string += "<tr>"
+
+                    for key in row:
+                        if isinstance(row[key], dict):
+                            html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
+                        elif isinstance(row[key], list):
+                            html_string += '<td>{}</td>'.format(fill_table_column_list(row, key))
+                        else:
+                            html_string += "<td>{}</td>".format(row[key])
+                    html_string += "</tr>"
+
+            else:   
+                for key in osmatch.keys():
+                    html_string += "<th>{}</th>".format(key.replace("@", ""))
+
+                html_string += "</tr>\n"
+
+                html_string += "<tr>"
+                # fill table
+                for row in osmatch:
+                    if isinstance(osmatch[row], dict):
+                        html_string += '<td>{}</td>'.format(fill_table_column_dict(osmatch, row))
+                    elif isinstance(osmatch[row], list):
+                        html_string += '<td>{}</td>'.format(fill_table_column_list(osmatch, row))
+                    else:
+                        html_string += "<td>{}</td>".format(osmatch[row])
+                html_string += "</tr>\n"
             html_string += "</table><br>\n"
         else:
-            html_string += "<b> No Result Fond </b>"
+            html_string += "<b> No OS Result Fond </b>"
         return html_string
 
     def __format_port_scan__(self):
@@ -569,8 +595,12 @@ class NmapController(Controller):
             # fetch headers of table
             for scan_subject in self.last_scan_result[type_scan]:
                 # build table headers
-                for key in self.last_scan_result[type_scan][scan_subject][0].keys():
-                    html_string += "<th>{}</th>".format(key.replace("@", ""))
+                if isinstance(self.last_scan_result[type_scan][scan_subject], list):
+                    for key in self.last_scan_result[type_scan][scan_subject][0].keys():
+                        html_string += "<th>{}</th>".format(key.replace("@", ""))
+                else:
+                    for key in self.last_scan_result[type_scan][scan_subject].keys():
+                        html_string += "<th>{}</th>".format(key.replace("@", ""))
                 html_string += "</tr>\n"
 
             for scan_subject in self.last_scan_result[type_scan]:
@@ -587,15 +617,13 @@ class NmapController(Controller):
                     for key in row:
                         # check subdictionary
                         if type(row[key]) is dict:
-                            html_string += "<td>"
-                            # fill field with subdictionary values
-                            for subkey in row[key]:
-                                html_string += f'<b>{subkey.replace("@", "")}: </b>'
-                                html_string += f"{row[key][subkey]} <br>"
-                            html_string += "</td>"
+                            html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
                         else:
                             html_string += "<td>{}</td>".format(row[key])
                     html_string += "</tr>\n"
             html_string += "</table><br>\n"
 
         return html_string
+    
+
+

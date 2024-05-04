@@ -4,37 +4,42 @@ from flask import *
 from controllers.nmap_scan import (
     NmapController,
     scan_options as nmap_scan_options,
-    TOOL_NAME as NMAP_SCAN,
+    TOOL_DISPLAY_NAME as NMAP_SCAN_DISPLAY_NAME,
+    TOOL_NAME as NMAP_SCAN_NAME,
 )
 from controllers.nmap_vuln import (
     NmapVulnController,
     script_options as nmap_vuln_script_options,
-    TOOL_NAME as NMAP_VULN,
+    TOOL_DISPLAY_NAME as NMAP_VULN_DISPLAY_NAME,
+    TOOL_NAME as NMAP_VULN_NAME,
 )
 from controllers.the_harvester import (
     TheHarvesterController,
     scan_options as the_harvester_scan_options,
-    TOOL_NAME as THE_HARVESTER,
+    TOOL_DISPLAY_NAME as THE_HARVESTER_DISPLAY_NAME,
+    TOOL_NAME as THE_HARVESTER_NAME,
 )
 from controllers.feroxbuster import (
     FeroxbusterController,
     scan_options as feroxbuster_scan_options,
-    TOOL_NAME as FEROXBUSTER,
+    TOOL_DISPLAY_NAME as FEROXBUSTER_DISPLAY_NAME,
+    TOOL_NAME as FEROXBUSTER_NAME,
 )
 from controllers.w4af_audit import (
     W4afAuditController,
     scan_options as w4af_audit_scan_options,
-    TOOL_NAME as W4AF_AUDIT,
+    TOOL_DISPLAY_NAME as W4AF_AUDIT_DISPLAY_NAME,
+    TOOL_NAME as W4AF_AUDIT_NAME,
 )
 from controllers.search_exploit import (
     SearchExploitController,
-    TOOL_NAME as SEARCH_EXPLOIT,
+    TOOL_DISPLAY_NAME as SEARCH_EXPLOIT_DISPLAY_NAME,
 )
 
 from models.scan import Scan
 from utils import *
 import os
-from utils.html_format_util import render_dictionary
+from utils.html_format_util import render_scan_dictionary
 from utils.log import debug_route
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
@@ -55,13 +60,17 @@ W4AF_PORT = 5001
 
 BLUEPRINTS = []
 
+# TODO riempire con costanti
 SECTIONS = {
     "Reconnaissance": [
-        ("Nmap", "nmap"),
-        ("theHarvester", "the_harvester"),
-        ("Feroxbuster", "feroxbuster"),
+        (NMAP_SCAN_DISPLAY_NAME, NMAP_SCAN_NAME),
+        (THE_HARVESTER_DISPLAY_NAME, THE_HARVESTER_NAME),
+        (FEROXBUSTER_DISPLAY_NAME, FEROXBUSTER_NAME),
     ],
-    "Weaponization": [("w4af-Audit", "w4af_audit"), ("Nmap-Vuln Scanner", "nmap_vuln")],
+    "Weaponization": [
+        (W4AF_AUDIT_DISPLAY_NAME, W4AF_AUDIT_NAME),
+        (NMAP_VULN_DISPLAY_NAME, NMAP_VULN_NAME),
+    ],
     "Delivery": [("None", "nmap")],
     "Exploitation": [("None", "nmap")],
     "Installation": [("None", "nmap")],
@@ -79,7 +88,7 @@ def register_blueprints(app):
         "nmap",
         __name__,
         NmapController(),
-        NMAP_SCAN,
+        NMAP_SCAN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         nmap_scan_options,
@@ -90,7 +99,7 @@ def register_blueprints(app):
         "nmap_vuln",
         __name__,
         NmapVulnController(),
-        NMAP_VULN,
+        NMAP_VULN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         "nmap_vuln/results.html",
         nmap_vuln_script_options,
@@ -101,7 +110,7 @@ def register_blueprints(app):
         "the_harvester",
         __name__,
         TheHarvesterController(),
-        THE_HARVESTER,
+        THE_HARVESTER_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         the_harvester_scan_options,
@@ -112,7 +121,7 @@ def register_blueprints(app):
         "feroxbuster",
         __name__,
         FeroxbusterController(),
-        FEROXBUSTER,
+        FEROXBUSTER_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         feroxbuster_scan_options,
@@ -123,7 +132,7 @@ def register_blueprints(app):
         "w4af_audit",
         __name__,
         W4afAuditController(),
-        W4AF_AUDIT,
+        W4AF_AUDIT_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         "w4af_audit/results.html",
         w4af_audit_scan_options,
@@ -134,7 +143,7 @@ def register_blueprints(app):
         "search_exploit",
         __name__,
         SearchExploitController(),
-        SEARCH_EXPLOIT,
+        SEARCH_EXPLOIT_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         [],
@@ -202,13 +211,11 @@ def start_w4af_server_api():
     )
 
 
-# TODO a cosa serve?
 @app.context_processor
 def utility_processor():
-    return dict(render_dictionary=render_dictionary)
+    return dict(render_dictionary=render_scan_dictionary)
 
 
-# TODO semplificare visualizzazione scan
 @app.route("/")
 def index():
     debug_route(request)
@@ -233,7 +240,6 @@ def index():
 def new_scan():
     debug_route(request)
 
-    # TODO fixare il redirect
     if request.method == "GET":
         CurrentScan.scan = None
         return redirect(url_for("index"))
@@ -243,7 +249,9 @@ def new_scan():
     scan_protocol = request.form.get("protocol_radio")
     scan_resource = request.form.get("scan_resource")
 
-    CurrentScan.scan = Scan(scan_name, scan_host, scan_protocol, scan_resource, SCANS_PATH)
+    CurrentScan.scan = Scan(
+        scan_name, scan_host, scan_protocol, scan_resource, SCANS_PATH
+    )
 
     return redirect(url_for("index"))
 

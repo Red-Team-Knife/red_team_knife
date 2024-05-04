@@ -8,22 +8,32 @@
 <button id="new_scan_button">New Scan</button>
 
 <script>
-    $('#new_scan_button').on('click', function() {
-        $.ajax({
-            url: '{{ url_for("new_scan") }}',
-            method: 'GET',
-            contentType: 'application/json',
-            success: function(data) {
-                console.log(data);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error in request:', error);
-            }
+    $(document).ready(function () {
+        $('#new_scan_button').on('click', function () {
+            window.location.href = "{{ url_for('new_scan') }}";
+        });
+
+        $('.scan_reference').click(function (event) {
+            event.preventDefault();
+
+            var id = $(this).attr('id');
+            var url = '/' + id
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: { load_previous_results: 'True' },
+                success: function (response) {
+                    window.location.href = url;
+                },
+                error: function (xhr, status, error) {
+                }
+            });
         });
     });
 </script>
 
 <div class="past_scan">
-    {{ render_dictionary(scan) | safe }}
+    {{ render_dictionary(scan, sections) | safe }}
 </div>
 {% endblock %}

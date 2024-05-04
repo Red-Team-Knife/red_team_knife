@@ -218,6 +218,7 @@ class BaseBlueprint(Blueprint):
 
         return jsonify(self.controller.get_formatted_results())
 
+    #TODO aggiungere controllo su salvataggio di nessun risultato
     def save_results(self):
         """
         Saves the current results that are cached in the controller.

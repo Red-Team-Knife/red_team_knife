@@ -10,7 +10,8 @@ import xmltodict
 
 script_options = []
 RUNNING_MESSAGE = "Running Nmap vulnerability scan with command: "
-TOOL_NAME = "Nmap-Vuln Scan"
+TOOL_DISPLAY_NAME = "Nmap-Vuln Scan"
+TOOL_NAME = "nmap_vuln"
 SCRIPT_PATH = "nmap-vulners/"
 TEMP_FILE_NAME = "tmp/nmap-vuln-temp"
 
@@ -19,7 +20,7 @@ search_exploit_controller = SearchExploitController()
 
 class NmapVulnController(Controller):
     def __init__(self):
-        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
 
     def __build_command__(self, target, options):
         command = [

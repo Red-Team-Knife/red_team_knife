@@ -25,7 +25,8 @@ TEMP_FILE_NAME = "tmp/the-harvester-temp"
 SCREENSHOTS_DIRECTORY = "screenshots"
 
 RUNNING_MESSAGE = "Running theHarvester with command: "
-TOOL_NAME = "theHarvester"
+TOOL_DISPLAY_NAME = "theHarvester"
+TOOL_NAME = "the_harvester"
 
 
 scan_options = [
@@ -92,7 +93,7 @@ scan_options = [
 
 class TheHarvesterController(Controller):
     def __init__(self):
-        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
 
     def run(self, target: str, options: dict):
         self.screenshot_saved = False

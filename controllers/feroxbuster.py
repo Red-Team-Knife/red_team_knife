@@ -2,6 +2,7 @@ import os, json
 from threading import Thread
 from typing import Tuple
 from utils.commands import build_command_string
+from utils.dictionary import render_dictionary_as_table
 from utils.html_format_util import *
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
@@ -54,8 +55,9 @@ ADD_CRITICAL_WORDS = "add_critical_words"
 IGNORE_EXTENSIONS = "ignore_extensions"
 
 TEMP_FILE_NAME = "tmp/feroxbuster-temp"
-TOOL_NAME = "Feroxbuster"
-RUNNING_MESSAGE = f"Running {TOOL_NAME} with command: "
+TOOL_DISPLAY_NAME = "Feroxbuster"
+TOOL_NAME = "feroxbuster"
+RUNNING_MESSAGE = f"Running {TOOL_DISPLAY_NAME} with command: "
 
 
 scan_options = [
@@ -120,7 +122,7 @@ scan_options = [
 class FeroxbusterController(Controller):
 
     def __init__(self):
-        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
 
     def __build_command__(self, target: str, options: dict):
         command = [

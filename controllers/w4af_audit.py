@@ -8,14 +8,15 @@ from flask import jsonify, send_from_directory, url_for
 import requests
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
-from utils.html_format_util import render_dictionary_as_table
+from utils.dictionary import render_dictionary_as_table
 
 PROFILE = "profile"
 PROFILE_RELATIVE_PATH = "w4af/profiles/"
 SCAN_PROFILE = "scan_profile"
 TARGET_URLS = "target_urls"
 W4AF_PORT = 5001
-TOOL_NAME = "w4af (Audit)"
+TOOL_DISPLAY_NAME = "w4af (Audit)"
+TOOL_NAME = "w4af_audit"
 BASE_URL = f"http://127.0.0.1:{W4AF_PORT}"
 TMP_FOLDER = "tmp"
 
@@ -36,7 +37,7 @@ scan_options = [("Set scan profile", "select", PROFILE, options)]
 
 class W4afAuditController(Controller):
     def __init__(self):
-        super().__init__(TOOL_NAME, None)
+        super().__init__(TOOL_DISPLAY_NAME, None)
 
         self.is_scan_in_background = False
         self.scan_id = None
