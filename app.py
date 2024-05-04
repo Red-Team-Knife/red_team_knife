@@ -43,6 +43,7 @@ from utils.html_format_util import render_scan_dictionary
 from utils.log import debug_route
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
+from views.web_target_view import WebTargetBlueprint
 from current_scan import CurrentScan
 from views.w4af_audit.view import W4afBlueprint
 import logging
@@ -60,7 +61,6 @@ W4AF_PORT = 5001
 
 BLUEPRINTS = []
 
-# TODO riempire con costanti
 SECTIONS = {
     "Reconnaissance": [
         (NMAP_SCAN_DISPLAY_NAME, NMAP_SCAN_NAME),
@@ -106,7 +106,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    the_harvester_blueprint = BaseBlueprint(
+    the_harvester_blueprint = WebTargetBlueprint(
         "the_harvester",
         __name__,
         TheHarvesterController(),
@@ -117,7 +117,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    feroxbuster_blueprint = BaseBlueprint(
+    feroxbuster_blueprint = WebTargetBlueprint(
         "feroxbuster",
         __name__,
         FeroxbusterController(),

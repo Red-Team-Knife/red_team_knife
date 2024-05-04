@@ -1,5 +1,4 @@
 
-
 def render_scan_dictionary(dictionary:dict, tools:dict, indent_level=0):
     html = ""
     check_list = []

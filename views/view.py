@@ -178,11 +178,7 @@ class BaseBlueprint(Blueprint):
     # Builds the target for the specific tool
     #TODO valutare estenione della view per i due tool con parsing del target
     def __build_target__(self):
-        if self.tool_name == 'Feroxbuster' or self.tool_name == "theHarvester":
-            target = CurrentScan.scan.protocol + '://' + CurrentScan.scan.host + CurrentScan.scan.resource
-        else:
-            target = CurrentScan.scan.host
-        return target
+        return CurrentScan.scan.host
 
         
 
