@@ -1,6 +1,12 @@
 import shutil
 import subprocess
 from flask import *
+from controllers.dig_controller import (
+    DigController,
+    scan_options as dig_scan_options,
+    TOOL_NAME as DIG_NAME,
+    TOOL_DISPLAY_NAME as DIG_DISPLY_NAME,
+)
 from controllers.nmap_scan import (
     NmapController,
     scan_options as nmap_scan_options,
@@ -9,9 +15,15 @@ from controllers.nmap_scan import (
 )
 from controllers.nmap_vuln import (
     NmapVulnController,
-    script_options as nmap_vuln_script_options,
+    script_options as nmap_vuln_scan_options,
     TOOL_DISPLAY_NAME as NMAP_VULN_DISPLAY_NAME,
     TOOL_NAME as NMAP_VULN_NAME,
+)
+from controllers.smtp_email_spoofer_controller import (
+    SmtpEmailSpooferController,
+    scan_options as smtp_email_spoofer_scan_options,
+    TOOL_NAME as SMTP_EMAIL_SPOOFER_NAME,
+    TOOL_DISPLAY_NAME as SMTP_EMAIL_SPOOFER_DISPLAY_NAME,
 )
 from controllers.the_harvester import (
     TheHarvesterController,
@@ -34,6 +46,7 @@ from controllers.w4af_audit import (
 from controllers.search_exploit import (
     SearchExploitController,
     TOOL_DISPLAY_NAME as SEARCH_EXPLOIT_DISPLAY_NAME,
+    TOOL_NAME as SEARCH_EXPLOIT_NAME,
 )
 
 from models.scan import Scan
@@ -53,8 +66,13 @@ SCANS_PATH = None
 SCANS_FOLDER = "scans"
 TEMP_FOLDER = "tmp"
 
-INTERFACE_TEMPLATE = "interface_base.html"
+INTERFACE_TEMPLATE = "interface_scan_target.html"
 RESULTS_TEMPLATE = "results_base.html"
+
+NMAP_VULN_RESULTS_TEMPLATE = "nmap_vuln/results.html"
+W4AF_RESULTS_TEMPLATE = "w4af_audit/results.html"
+SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
+SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
 
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
@@ -64,6 +82,7 @@ BLUEPRINTS = []
 SECTIONS = {
     "Reconnaissance": [
         (NMAP_SCAN_DISPLAY_NAME, NMAP_SCAN_NAME),
+        (DIG_DISPLY_NAME, DIG_NAME),
         (THE_HARVESTER_DISPLAY_NAME, THE_HARVESTER_NAME),
         (FEROXBUSTER_DISPLAY_NAME, FEROXBUSTER_NAME),
     ],
@@ -71,7 +90,7 @@ SECTIONS = {
         (W4AF_AUDIT_DISPLAY_NAME, W4AF_AUDIT_NAME),
         (NMAP_VULN_DISPLAY_NAME, NMAP_VULN_NAME),
     ],
-    "Delivery": [("None", "nmap")],
+    "Delivery": [(SMTP_EMAIL_SPOOFER_DISPLAY_NAME, SMTP_EMAIL_SPOOFER_NAME)],
     "Exploitation": [("None", "nmap")],
     "Installation": [("None", "nmap")],
     "Command and Control": [("None", "nmap")],
@@ -85,7 +104,7 @@ def register_blueprints(app):
     l.info("Registering blueprints.")
 
     nmap_blueprint = BaseBlueprint(
-        "nmap",
+        NMAP_SCAN_NAME,
         __name__,
         NmapController(),
         NMAP_SCAN_DISPLAY_NAME,
@@ -96,18 +115,29 @@ def register_blueprints(app):
     )
 
     nmap_vuln_blueprint = BaseBlueprint(
-        "nmap_vuln",
+        NMAP_VULN_NAME,
         __name__,
         NmapVulnController(),
         NMAP_VULN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
-        "nmap_vuln/results.html",
-        nmap_vuln_script_options,
+        NMAP_VULN_RESULTS_TEMPLATE,
+        nmap_vuln_scan_options,
+        SECTIONS,
+    )
+
+    dig_blueprint = BaseBlueprint(
+        DIG_NAME,
+        __name__,
+        DigController(),
+        DIG_DISPLY_NAME,
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        dig_scan_options,
         SECTIONS,
     )
 
     the_harvester_blueprint = WebTargetBlueprint(
-        "the_harvester",
+        THE_HARVESTER_NAME,
         __name__,
         TheHarvesterController(),
         THE_HARVESTER_DISPLAY_NAME,
@@ -118,7 +148,7 @@ def register_blueprints(app):
     )
 
     feroxbuster_blueprint = WebTargetBlueprint(
-        "feroxbuster",
+        FEROXBUSTER_NAME,
         __name__,
         FeroxbusterController(),
         FEROXBUSTER_DISPLAY_NAME,
@@ -129,18 +159,18 @@ def register_blueprints(app):
     )
 
     w4af_audit_blueprint = W4afBlueprint(
-        "w4af_audit",
+        W4AF_AUDIT_NAME,
         __name__,
         W4afAuditController(),
         W4AF_AUDIT_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
-        "w4af_audit/results.html",
+        W4AF_RESULTS_TEMPLATE,
         w4af_audit_scan_options,
         SECTIONS,
     )
 
     search_exploit_blueprint = HeadlessBlueprint(
-        "search_exploit",
+        SEARCH_EXPLOIT_NAME,
         __name__,
         SearchExploitController(),
         SEARCH_EXPLOIT_DISPLAY_NAME,
@@ -150,15 +180,28 @@ def register_blueprints(app):
         SECTIONS,
     )
 
+    smtp_email_spoofer_blueprint = WebTargetBlueprint(
+        SMTP_EMAIL_SPOOFER_NAME,
+        __name__,
+        SmtpEmailSpooferController(),
+        SMTP_EMAIL_SPOOFER_DISPLAY_NAME,
+        SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE,
+        SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE,
+        smtp_email_spoofer_scan_options,
+        SECTIONS,
+    )
+
     global BLUEPRINTS
 
     BLUEPRINTS = [
         nmap_blueprint,
+        dig_blueprint,
         the_harvester_blueprint,
         feroxbuster_blueprint,
         nmap_vuln_blueprint,
         w4af_audit_blueprint,
         search_exploit_blueprint,
+        smtp_email_spoofer_blueprint,
     ]
 
     for blueprint in BLUEPRINTS:

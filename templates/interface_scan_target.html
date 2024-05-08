@@ -1,0 +1,17 @@
+{% extends "interface_base.html" %}
+
+{% block restore_scan %}
+{% if past_scan_available %}
+<form method="post">
+    <label for="load_past_scan_results">Past Scan Results Found</label><br>
+    <input type="hidden" name="load_previous_results" value="true">
+    <button type="submit">Load Result</button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block target%}
+<label for="target">Target:</label>
+<input type="text" id="target" name="target" value="{% if target %}{{ target }}{% endif %}" {% if target %} readonly {%
+    endif %} required><br>
+{% endblock %}

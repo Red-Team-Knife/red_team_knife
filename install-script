@@ -14,3 +14,5 @@
 #			./w4af_console
 # install nmap script nmap-vulners https://github.com/vulnersCom/nmap-vulners
 # pip install loguru
+# install smtp_email_spoofer
+#	git clone https://github.com/mikechabot/smtp-email-spoofer-py

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}{{tool}}{% endblock %}
+
+{%block content%}
+
+<h1>{%block header %}{{tool}} Operation Status {% endblock %}</h1>
+<div id="new_scan_section" style="display: none;">
+    <form method="post">
+        <input type="hidden" name="new_scan_requested" value="True">
+        <button type="submit">Send another email</button>
+    </form>
+</div>
+
+<div id="results">
+    {% if past_scan_available %}
+    {{ scan_result | safe }}
+    {% else %}
+    <p>Sending email...</p>
+
+    <button id="abort_scan" style="display:none;">Abort Operation</button>
+    <div class="loading_container">
+        <div class="loading_gif">
+            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        var target = "{{ target }}";
+        var options = "{{ options }}";
+
+        var resultsDiv = $('#results');
+        var loadingMsg = $('#loading_msg');
+        var abortBtn = $('#abort_scan');
+        var newScanDiv = $('#new_scan_section')
+
+        var pastScanAvailable = "{{ past_scan_available }}";
+
+        var stopRequested = false;
+
+        function checkScanStatus() {
+            if (!stopRequested) {
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ url_for(current_section + '.is_scan_in_progress') }}",
+                    success: function (response) {
+                        if (response.scan_in_progress) {
+                            setTimeout(checkScanStatus, 1000);
+                        } else {
+                            getResults();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error checking scan status:', error);
+                    }
+                });
+            }
+        }
+
+        function getResults() {
+            $.ajax({
+                type: 'GET',
+                url: "{{ url_for(current_section + '.results') }}",
+                success: function (data) {
+                    resultsDiv.html(data);
+                    newScanDiv.show()
+                    abortBtn.hide();
+                },
+            });
+        }
+
+        abortBtn.on('click', function () {
+            stopRequested = true
+            resultsDiv.html('<p>Stopping...</p>');
+            $.ajax({
+                type: 'GET',
+                url: "{{ url_for(current_section + '.stop_scan') }}",
+                success: function (data) {
+                    resultsDiv.html(data);
+                    setTimeout(function () {
+                        window.location.href = "{{ url_for(current_section + '.interface') }}";
+                    }, 1000);
+                },
+            });
+        });
+
+
+
+        if (pastScanAvailable === "True") {
+            saveResultsDiv.show()
+            afterResultsScript()
+        } else {
+            abortBtn.show()
+            checkScanStatus();
+        }
+
+    });
+
+</script>
+
+
+{%endblock%}

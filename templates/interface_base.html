@@ -5,19 +5,13 @@
 
 <h2>{% block header %} {{tool}} {% endblock %}</h2>
 
-{% if past_scan_available %}
-<form method="post">
-    <label for="load_past_scan_results">Past Scan Results Found</label><br>
-    <input type="hidden" name="load_previous_results" value="true">
-    <button type="submit">Load Result</button>
-</form>
-{% endif %}
+{% block restore_scan %}
+{% endblock %}
 
 <form method="post">
 
-    <label for="target">Target:</label>
-    <input type="text" id="target" name="target" value="{% if target %}{{ target }}{% endif %}" {% if target %} readonly
-        {% endif %} required><br>
+    {% block target %}
+    {% endblock %}
 
     <label>Options:</label><br>
     {% for option_name, input_type, value, options in options_list %}
@@ -33,6 +27,14 @@
     <label for="{{ value }}">{{ option_name }}</label><br>
     <input type="text" id="{{ value }}" name="{{value}}" placeholder="{{options}}"><br>
 
+    {% elif input_type == "textarea" %}
+    <label for="{{ value }}">{{ option_name }}</label><br>
+    <input type="textarea" id="{{ value }}" name="{{value}}" placeholder="{{options}}"><br>
+
+    {% elif input_type == "password" %}
+    <label for="{{ value }}">{{ option_name }}</label><br>
+    <input type="password" id="{{ value }}" name="{{value}}" placeholder="{{options}}"><br>
+
     {% elif input_type == "number" %}
     <label for="{{ value }}">{{ option_name }}</label><br>
     <input type="number" id="{{ value }}" name="{{value}}" placeholder="{{options}}" min="0"><br>
@@ -46,7 +48,7 @@
     </select><br><br>
     {% endif %}
     {% endfor %}
-    <button type="submit">Scan</button>
+    <button type="submit">Run</button>
 </form>
 
 {% endblock %}
