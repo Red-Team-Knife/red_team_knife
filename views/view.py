@@ -137,12 +137,13 @@ class BaseBlueprint(Blueprint):
         if request.form.get("load_previous_results"):
             if CurrentScan.scan is not None and CurrentScan.scan.get_tool_scan(
                 self.tool_name
-            ):
+            ) is not None:
                 self.controller.last_scan_result = CurrentScan.scan.get_tool_scan(
                     self.tool_name
                 )
                 l.info(f"Loading previous {self.tool_name} scan results.")
-
+                
+            
                 return render_template(
                     self.results_template,
                     sections=self.sections,
@@ -176,7 +177,6 @@ class BaseBlueprint(Blueprint):
         )
     
     # Builds the target for the specific tool
-    #TODO valutare estenione della view per i due tool con parsing del target
     def __build_target__(self):
         return CurrentScan.scan.host
 
@@ -214,7 +214,6 @@ class BaseBlueprint(Blueprint):
 
         return jsonify(self.controller.get_formatted_results())
 
-    #TODO aggiungere controllo su salvataggio di nessun risultato
     def save_results(self):
         """
         Saves the current results that are cached in the controller.

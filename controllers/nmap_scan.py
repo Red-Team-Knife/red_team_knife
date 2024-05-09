@@ -2,10 +2,15 @@ import json
 from threading import Thread
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
-from utils.dictionary import fill_table_column_dict, fill_table_column_list
+from utils.dictionary import (
+    fill_table_column_dict,
+    fill_table_column_list,
+    get_python_style_list_string_from_comma_separated_str,
+)
 
 import xmltodict
 from loguru import logger as l
+
 
 TOOL_DISPLAY_NAME = "Nmap"
 TOOL_NAME = "nmap"
@@ -120,52 +125,52 @@ scan_options = [
     ("IP Protocol Scan", "radio", IP_PROTOCOL_SCAN, RADIO_SCAN_TYPE),
     ("FTP Bounce Scan", "radio", FTP_BOUNCE_SCAN, RADIO_SCAN_TYPE),
     ("", "text", FTP_BOUNCE_HOST, "FTP Relay Host"),
-    ("Port Range", "number", PORT_RANGE, "22, 21-25"),
-    ("Exclude Ports", "number", EXCLUDE_PORTS, "22, 21-25"),
+    ("Port Range", "text", PORT_RANGE, "22, 21-25"),
+    ("Exclude Ports", "text", EXCLUDE_PORTS, "22, 21-25"),
     ("Fast Mode", "checkbox", FAST_MODE, ""),
     ("Set Sequentially Scan", "checkbox", SET_SEQUENTIALLY, ""),
-    ("Top Ports", "number", TOP_PORTS, ""),
-    ("Set Port Ratio", "number", PORT_RATIO, ""),
+    ("Top Ports", "text", TOP_PORTS, ""),
+    ("Set Port Ratio", "text", PORT_RATIO, ""),
     ("Discover Services Info for Ports", "checkbox", DISCOVER_INFO_PORTS, ""),
     (
         "Set Intensity Level",
-        "number",
+        "text",
         VERSION_INTENSITY,
         "0(Light), 9 (Tty all probes)",
     ),
     ("Enable Os Detection", "checkbox", OS_DETECTION, ""),
     ("Limit OS Detection to Promising Targets", "checkbox", LIMIT_OS, ""),
     ("Guess OS more Aggressively", "checkbox", GUESS_OS, ""),
-    ("Set Min Send Rate", "number", MIN_RATE, "<number> per second"),
-    ("Set Max Send Rate", "number", MAX_RATE, "<number> per second"),
-    ("Set Scan delay", "number", SCAN_DELAY, "5s, 10m, 3h"),
-    ("Set Host Timeout", "number", HOST_TIMEOUT, "5s, 10m, 3h"),
-    ("Set Max Number of Retries", "number", MAX_RETRIES, "10"),
-    ("Set Min Parallelism", "number", MIN_PARALLEL, "10"),
-    ("Set Max Parallelism", "number", MAX_PARALLEL, "10"),
-    ("Set Min Hostgroup", "number", MIN_HOSTGROUP, "10"),
-    ("Set Max Hostgroup", "number", MAX_HOSTGROUP, "10"),
-    ("Set Min Roundtrip Time Timeout", "number", MIN_RTT_TIMEOUT, "5s, 10m, 3h"),
-    ("Set Max Roundtrip Time Timeout", "number", MAX_RTT_TIMEOUT, "5s, 10m, 3h"),
+    ("Set Min Send Rate", "text", MIN_RATE, "<number> per second"),
+    ("Set Max Send Rate", "text", MAX_RATE, "<number> per second"),
+    ("Set Scan delay", "text", SCAN_DELAY, "5s, 10m, 3h"),
+    ("Set Host Timeout", "text", HOST_TIMEOUT, "5s, 10m, 3h"),
+    ("Set Max Number of Retries", "text", MAX_RETRIES, "10"),
+    ("Set Min Parallelism", "text", MIN_PARALLEL, "10"),
+    ("Set Max Parallelism", "text", MAX_PARALLEL, "10"),
+    ("Set Min Hostgroup", "text", MIN_HOSTGROUP, "10"),
+    ("Set Max Hostgroup", "text", MAX_HOSTGROUP, "10"),
+    ("Set Min Roundtrip Time Timeout", "text", MIN_RTT_TIMEOUT, "5s, 10m, 3h"),
+    ("Set Max Roundtrip Time Timeout", "text", MAX_RTT_TIMEOUT, "5s, 10m, 3h"),
     (
         "Set Initial Roundtrip Time Timeout",
-        "number",
+        "text",
         INITIAL_RTT_TIMEOUT,
         "5s, 10m, 3h",
     ),
-    ("Set Timing Template", "number", TIMING_TEMPLATE, "0-5 (high is faster)"),
+    ("Set Timing Template", "text", TIMING_TEMPLATE, "0-5 (high is faster)"),
     ("Use Tiny Packets", "checkbox", TINY_PACKETS, ""),
     ("Cloak a Scan with Decoys", "text", CLOAK_DECOY, ""),
     ("Spoof Source Address", "text", SPOOF_SOURCE, "123.123.123.123"),
     ("Use Interface", "text", INTERFACE, ""),
-    ("Use Given port number", "number", SOURCE_PORT, "80"),
+    ("Use Given port number", "text", SOURCE_PORT, "80"),
     ("Set Proxies", "text", SET_PROXIES, "Proxy URL"),
-    ("Set Payload", "number", SET_HEX_PAYLOAD, "Hex string"),
+    ("Set Payload", "text", SET_HEX_PAYLOAD, "Hex string"),
     ("Set ASCII String Payload", "text", SET_ASCII_PAYLOAD, "abcde"),
-    ("Append Random Data", "number", SET_RANDOM_DATA, "Data Lenght"),
+    ("Append Random Data", "text", SET_RANDOM_DATA, "Data Lenght"),
     ("Set Specified IP Options", "text", SET_IP_OPTIONS, "Options"),
-    ("Set IP Time To Live", "number", SET_TTL, "5s, 10m, 3h"),
-    ("Spoof Your Mac Address", "number", SPOOF_MAC, "mac address/prefix/vendor name"),
+    ("Set IP Time To Live", "text", SET_TTL, "5s, 10m, 3h"),
+    ("Spoof Your Mac Address", "text", SPOOF_MAC, "mac address/prefix/vendor name"),
     ("Send packets with a bogus TCP/UDP/SCTP checksum", "text", BAD_SUM, ""),
     ("Enable IPv6 Scan", "checkbox", SET_IPV6, ""),
     ("Set Fully Privileged user", "radio", FULLY_PRIVILAGED, RADIO_USER_PRIVILAGE),
@@ -194,19 +199,42 @@ class NmapController(Controller):
         if options.get(SKIP_DISCOVERY, False):
             command.append("-Pn")
         if options.get(PING_TCP_SYN, False):
-            command.append("-PS")
-            command.append(
-                "[" + ",".join(map(str, options[PING_TCP_SYN])) + "]"
-            )  # TODO util list
+            command.extend(
+                [
+                    "-PS",
+                    get_python_style_list_string_from_comma_separated_str(
+                        options[PING_TCP_SYN]
+                    ),
+                ]
+            )
+
         if options.get(PING_TCP_ACK, False):
-            command.append("-PA")
-            command.append("[" + ",".join(map(str, options[PING_TCP_ACK])) + "]")
+            command.extend(
+                [
+                    "-PA",
+                    get_python_style_list_string_from_comma_separated_str(
+                        options[PING_TCP_ACK]
+                    ),
+                ]
+            )
         if options.get(PING_UDP, False):
-            command.append("-PU")
-            command.append("[" + ",".join(map(str, options[PING_UDP])) + "]")
+            command.extend(
+                [
+                    "-PU",
+                    get_python_style_list_string_from_comma_separated_str(
+                        options[PING_UDP]
+                    ),
+                ]
+            )
         if options.get(PING_SCTP_INIT, False):
-            command.append("-PY")
-            command.append("[" + ",".join(map(str, options[PING_SCTP_INIT])) + "]")
+            command.extend(
+                [
+                    "-PY",
+                    get_python_style_list_string_from_comma_separated_str(
+                        options[PING_SCTP_INIT]
+                    ),
+                ]
+            )
         if options.get(ICMP_ECHO, False):
             command.append("-PE")
         if options.get(ICMP_TIMESTAMP, False):
@@ -214,8 +242,14 @@ class NmapController(Controller):
         if options.get(ICMP_MASK, False):
             command.append("-PM")
         if options.get(IP_PROTOCOL_PING, False):
-            command.append("-PO")
-            command.append("[" + ",".join(map(str, options[IP_PROTOCOL_PING])) + "]")
+            command.append(
+                [
+                    "-PO",
+                    get_python_style_list_string_from_comma_separated_str(
+                        options[IP_PROTOCOL_PING]
+                    ),
+                ]
+            )
         if options.get(RADIO_DNS_RESOLUTION, False):
             if options[RADIO_DNS_RESOLUTION] == DISABLE_DNS:
                 command.append("-n")
@@ -246,8 +280,7 @@ class NmapController(Controller):
                 command.append("-sX")
             elif options[RADIO_SCAN_TYPE] == IDLE_SCAN:
                 if options.get(IDLE_SCAN_ZOMBIE_HOST, False):
-                    command.append("-sF")
-                    command.append(options[IDLE_SCAN_ZOMBIE_HOST])
+                    command.extend(["-sF", options[IDLE_SCAN_ZOMBIE_HOST]])
             elif options[RADIO_SCAN_TYPE] == SCTP_SCAN:
                 command.append("-sY")
             elif options[RADIO_SCAN_TYPE] == COOKIE_ECHO_SCAN:
@@ -400,7 +433,7 @@ class NmapController(Controller):
 
         return NmapCommandThread(command, self)
 
-    def __parse_temp_results_file__ (self):
+    def __parse_temp_results_file__(self):
         if not self.last_scan_result:
 
             with open(TEMP_FILE_NAME, "r") as file:
@@ -431,14 +464,12 @@ class NmapController(Controller):
 
     def __format_html__(self):
 
-
         html = ""
         if self.last_scan_result.get("os", False):
             html = self.__format_os_scan__()
         elif self.last_scan_result.get("ports", False):
             html = self.__format_port_scan__()
         return html
-
 
     def __format_os_scan__(self):
         html_string = ""
@@ -462,7 +493,9 @@ class NmapController(Controller):
             # fill table
             for row in extraports:
                 if isinstance(extraports[row], dict):
-                    html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
+                    html_string += "<td>{}</td>".format(
+                        fill_table_column_dict(row, key)
+                    )
             html_string += "</table><br>\n"
 
         # build port table
@@ -492,7 +525,9 @@ class NmapController(Controller):
                 for key in row:
                     # check subdictionary
                     if type(row[key]) is dict:
-                        html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
+                        html_string += "<td>{}</td>".format(
+                            fill_table_column_dict(row, key)
+                        )
                     else:
                         html_string += "<td>{}</td>".format(row[key])
                 html_string += "</tr>\n"
@@ -505,7 +540,6 @@ class NmapController(Controller):
             html_string += "<table>"
             html_string += "<tr>"
 
-        
             if isinstance(portused, list):
                 for key in portused[0].keys():
                     html_string += "<th>{}</th>".format(key.replace("@", ""))
@@ -521,10 +555,10 @@ class NmapController(Controller):
                     for key in row:
                         html_string += "<td>{}</td>".format(row[key])
                     html_string += "</tr>\n"
-                
+
             else:
                 for key in portused.keys():
-                    html_string += "<th>{}</th>".format(key.replace("@", "")) 
+                    html_string += "<th>{}</th>".format(key.replace("@", ""))
                 html_string += "</tr>\n"
 
                 if portused["@state"] == "open":
@@ -536,7 +570,7 @@ class NmapController(Controller):
                     html_string += "<td>{}</td>".format(portused[key])
                 html_string += "</tr>\n"
 
-            html_string += "</table><br>\n"            
+            html_string += "</table><br>\n"
 
         if self.last_scan_result["os"].get("osmatch", False):
             # build osmatch table
@@ -544,7 +578,6 @@ class NmapController(Controller):
             html_string += "<b>Os Match</b><br>"
             html_string += "<table>"
             html_string += "<tr>"
-
 
             if isinstance(osmatch, list):
                 for key in osmatch[0].keys():
@@ -556,14 +589,18 @@ class NmapController(Controller):
 
                     for key in row:
                         if isinstance(row[key], dict):
-                            html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
+                            html_string += "<td>{}</td>".format(
+                                fill_table_column_dict(row, key)
+                            )
                         elif isinstance(row[key], list):
-                            html_string += '<td>{}</td>'.format(fill_table_column_list(row, key))
+                            html_string += "<td>{}</td>".format(
+                                fill_table_column_list(row, key)
+                            )
                         else:
                             html_string += "<td>{}</td>".format(row[key])
                     html_string += "</tr>"
 
-            else:   
+            else:
                 for key in osmatch.keys():
                     html_string += "<th>{}</th>".format(key.replace("@", ""))
 
@@ -573,9 +610,13 @@ class NmapController(Controller):
                 # fill table
                 for row in osmatch:
                     if isinstance(osmatch[row], dict):
-                        html_string += '<td>{}</td>'.format(fill_table_column_dict(osmatch, row))
+                        html_string += "<td>{}</td>".format(
+                            fill_table_column_dict(osmatch, row)
+                        )
                     elif isinstance(osmatch[row], list):
-                        html_string += '<td>{}</td>'.format(fill_table_column_list(osmatch, row))
+                        html_string += "<td>{}</td>".format(
+                            fill_table_column_list(osmatch, row)
+                        )
                     else:
                         html_string += "<td>{}</td>".format(osmatch[row])
                 html_string += "</tr>\n"
@@ -617,13 +658,12 @@ class NmapController(Controller):
                     for key in row:
                         # check subdictionary
                         if type(row[key]) is dict:
-                            html_string += '<td>{}</td>'.format(fill_table_column_dict(row, key))
+                            html_string += "<td>{}</td>".format(
+                                fill_table_column_dict(row, key)
+                            )
                         else:
                             html_string += "<td>{}</td>".format(row[key])
                     html_string += "</tr>\n"
             html_string += "</table><br>\n"
 
         return html_string
-    
-
-

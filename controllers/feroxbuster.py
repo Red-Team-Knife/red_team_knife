@@ -67,7 +67,7 @@ scan_options = [
     ("Set Smart Extension", "checkbox", THOROUGH, ""),
     ("Proxy", "text", PROXY, "http(s)://host:port"),
     ("Replay Proxy", "text", REPLAY_PROXY, "http(s)://host:port"),
-    ("Replay Code", "number", REPLAY_CODE, "301"),
+    ("Replay Code", "number", REPLAY_CODE, "301 401 501 (space separated values)"),
     ("User Agent", "text", USER_AGENT, "feroxbuster/2.10.1"),
     ("Set Random User Agent", "checkbox", RANDOM_USER_AGENT, ""),
     ("Extensions", "text", EXTENSIONS, "@ext.txt"),
@@ -152,7 +152,7 @@ class FeroxbusterController(Controller):
         if options.get(REPLAY_PROXY, False):
             command.append("--replay-proxy")
             command.append(options[REPLAY_PROXY])
-        if options.get(REPLAY_CODE, False):  # TODO it's a list
+        if options.get(REPLAY_CODE, False): 
             command.append("--replay-codes")
             command.append(options[REPLAY_CODE])
 

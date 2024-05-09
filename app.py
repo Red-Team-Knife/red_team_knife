@@ -76,6 +76,9 @@ SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
 
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
+W4AF_DIRECTORY = "tools/w4af/"
+
+#TODO verificare presenza dei tool
 
 BLUEPRINTS = []
 
@@ -242,7 +245,6 @@ def start_w4af_server_api():
     ]
 
     # Define the directory to change to
-    W4AF_DIRECTORY = "w4af/"
 
     # Start the subprocess
     subprocess.Popen(

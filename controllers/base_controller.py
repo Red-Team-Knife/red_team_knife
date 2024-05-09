@@ -120,7 +120,7 @@ class Controller:
         Returns:
             str: HTML-formatted results.
         """
-        if not self.last_scan_result:
+        if self.last_scan_result is None:
             l.info(f"Parsing {self.tool_name} temp file...")
             self.last_scan_result, exception = self.__parse_temp_results_file__()
             if self.last_scan_result:

@@ -14,7 +14,7 @@ RECIPIENTS = "recipients"
 SUBJECT = "subject"
 BODY = "body"
 
-TOOL_FOLDER = "smtp-email-spoofer-py"
+TOOL_FOLDER = "tools/smtp-email-spoofer-py"
 TOOL_DISPLAY_NAME = "SMTP email spoofer"
 TOOL_NAME = "smtp_email_spoofer"
 TEMP_FILE_NAME = "tmp/smtp-email-spoofer-temp"
@@ -31,7 +31,7 @@ scan_options = [
         "Recipients",
         "text",
         RECIPIENTS,
-        "Recipients (victim1@domain.com, victim2@domani.com, ...)",
+        "Recipients, space separated (victim1@domain.com victim2@domani.com ...)",
     ),
     ("Subject", "text", SUBJECT, "Email subject"),
     ("Body", "textarea", BODY, "Email body (html formatted)"),
@@ -74,16 +74,15 @@ class SmtpEmailSpooferController(Controller):
         if options.get(NAME, None):
             command.extend(["--name", options[NAME]])
 
-        #TODO it's a list
+
         if options.get(RECIPIENTS, None):
             command.extend(["--recipients", options[RECIPIENTS]])
 
         if options.get(SUBJECT, None):
             command.extend(["--subject", options[SUBJECT]])
 
-        #TODO create file
         if options.get(BODY, None):
-            with open("tmp/email-body", "w") as file:
+            with open(TEMP_FILE_NAME, "w") as file:
                 print(options[BODY], file=file)
                 command.extend(["--filename", file.name])
 
@@ -99,4 +98,5 @@ class SmtpEmailSpooferController(Controller):
         return SmtpEmailSpooferCommandThread(command, self)
     
     def __format_result__(self):
+        self.__remove_temp_file__()
         return '<p>Operation completed, check terminal for more inforamtion.</p>'

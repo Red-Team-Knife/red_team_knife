@@ -56,3 +56,6 @@ def fill_table_column_dict(row, key):
     return html
 
 
+def get_python_style_list_string_from_comma_separated_str(string:str):
+    elements = [element.strip() for element in string.split(",")]
+    return "[" + ",".join(elements) + "]"

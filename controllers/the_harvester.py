@@ -196,6 +196,7 @@ class TheHarvesterController(Controller):
 
             return data, None
 
+    #TODO aggiungere controllo su salvataggio di nessun risultato
     def __format_html__(self):
         data = remove_empty_values(self.last_scan_result)
         if not data:
