@@ -1,5 +1,4 @@
 #!/bin/bash
-sudo su
 
 # Install nmap
 sudo apt update
@@ -27,6 +26,7 @@ git clone https://github.com/mikechabot/smtp-email-spoofer-py.git
 cd smtp-email-spoofer-py
 pip install -r requirements.txt
 
+cd ..
 # Install w4af
 sudo apt install git python3-pip libicu-dev python3-icu pkg-config -y
 git clone https://github.com/w4af/w4af.git
@@ -35,4 +35,4 @@ python -m pip install --upgrade pipenv wheel
 pipenv install
 npm install
 
-echo "Installation completed."
+echo "Setup completed."
