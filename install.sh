@@ -13,11 +13,12 @@ sudo apt install theharvester -y
 
 # Install nmap-vulners script
 git clone https://github.com/vulnersCom/nmap-vulners.git
-sudo cp nmap-vulners/vulners.nse /usr/share/nmap/scripts/
+sudo cp nmap-vulners /usr/share/nmap/scripts/nmap-vulners
 
 # Install loguru
 pip install loguru
 
+mkdir tools
 # Change directory to tools
 cd tools
 
