@@ -14,7 +14,9 @@ Red Team Knife serves as an interface to a range of valuable red teaming tools, 
 To install Red Team Knife, follow these steps:
 
 - Clone the repository.
-- ```sudo su```.
-- ```chmod +x setup.sh```.
-- ```./setup.sh```.
+```
+sudo su
+chmod +x setup.sh
+./setup.sh
+```
 Start the application by running ```python app.py``` and connect to ```localhost:5000``` in your web browser.
