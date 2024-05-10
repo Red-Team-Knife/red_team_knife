@@ -3,7 +3,7 @@
 ## Overview
 Red Team Knife serves as an interface to a range of valuable red teaming tools, including:
 
-- Nmap with the Nmap vulnerability scanner (utilizing the vulners script)
+- Nmap + Nmap vulnerability scanner (utilizing the vulners script)
 - Feroxbuster
 - theHarvester
 - Dig
