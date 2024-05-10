@@ -1,10 +1,10 @@
 import html
 import json
 from flask import Blueprint, request, render_template, jsonify, url_for
-from utils.dictionary import remove_empty_values
+from utils.utils import remove_empty_values
 from current_scan import CurrentScan
 from controllers.base_controller import Controller
-from utils.log import debug_route
+from utils.utils import debug_route
 from loguru import logger as l
 
 

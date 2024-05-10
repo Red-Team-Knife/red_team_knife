@@ -1,10 +1,11 @@
 import json
+import os
 
 
 class DataStorage:
     def __init__(self, dataPath):
         self.__dataPath__ = dataPath
-        self.__data__ = self.__load_data__()
+        self.data = self.__load_data__()
 
     def __load_data__(self):
         try:
@@ -16,11 +17,12 @@ class DataStorage:
 
     def __save_data__(self):
         with open(self.__dataPath__, "w") as file:
-            json.dump(self.__data__, file, indent=4)
+            os.chmod(self.__dataPath__, 0o777)
+            json.dump(self.data, file, indent=4)
 
     def save_key_value(self, key, value):
-        self.__data__[key] = value
+        self.data[key] = value
         self.__save_data__()
 
     def get_value(self, key):
-        return self.__data__.get(key)
+        return self.data.get(key)

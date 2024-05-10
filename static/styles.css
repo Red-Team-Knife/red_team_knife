@@ -81,6 +81,7 @@ td {
     border: 1px solid var(--white);
     text-align: left;
     padding: 8px;
+    width: auto;
 }
 
 th {
@@ -169,6 +170,24 @@ input[type="radio"] {
     /* Larghezza dell'input checkbox */
     height: 20px;
     /* Altezza dell'input checkbox */
+}
+
+input[type="password"] {
+    width: calc(50% - 80px);
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+textarea {
+    width: calc(50% - 80px);
+    height: 150px; /* Adjust height as needed */
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: none; /* Allow vertical resizing */
 }
 
 .select-box {

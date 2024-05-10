@@ -2,7 +2,7 @@ import json
 from threading import Thread
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
-from utils.dictionary import (
+from utils.utils import (
     fill_table_column_dict,
     fill_table_column_list,
     get_python_style_list_string_from_comma_separated_str,

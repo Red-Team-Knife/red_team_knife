@@ -8,10 +8,12 @@ from flask import jsonify, send_from_directory, url_for
 import requests
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
-from utils.dictionary import render_dictionary_as_table
+from utils.utils import render_dictionary_as_table
+
+W4AF_DIRECTORY = "tools/w4af/"
 
 PROFILE = "profile"
-PROFILE_RELATIVE_PATH = "w4af/profiles/"
+PROFILE_RELATIVE_PATH = f"{W4AF_DIRECTORY}/profiles/"
 SCAN_PROFILE = "scan_profile"
 TARGET_URLS = "target_urls"
 W4AF_PORT = 5001

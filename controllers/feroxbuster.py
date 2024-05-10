@@ -1,9 +1,9 @@
 import os, json
 from threading import Thread
 from typing import Tuple
-from utils.commands import build_command_string
-from utils.dictionary import render_dictionary_as_table
-from utils.html_format_util import *
+from utils.utils import build_command_string
+from utils.utils import render_dictionary_as_table
+from utils.utils import render_scan_dictionary
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
 from loguru import logger as l
@@ -152,7 +152,7 @@ class FeroxbusterController(Controller):
         if options.get(REPLAY_PROXY, False):
             command.append("--replay-proxy")
             command.append(options[REPLAY_PROXY])
-        if options.get(REPLAY_CODE, False): 
+        if options.get(REPLAY_CODE, False):
             command.append("--replay-codes")
             command.append(options[REPLAY_CODE])
 

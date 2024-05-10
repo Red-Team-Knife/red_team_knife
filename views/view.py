@@ -1,8 +1,8 @@
 import html
 import json
 from flask import Blueprint, request, render_template, jsonify, url_for
-from utils.log import debug_route
-from utils.dictionary import remove_empty_values
+from utils.utils import debug_route
+from utils.utils import remove_empty_values
 from current_scan import CurrentScan
 from controllers.base_controller import Controller
 from loguru import logger as l
@@ -21,6 +21,7 @@ class BaseBlueprint(Blueprint):
         sections: dict,
     ):
         super().__init__(name, import_name, url_prefix="/" + name)
+        self.name = name
         self.sections = sections
         self.controller = controller
         self.tool_name = tool_name
@@ -84,7 +85,7 @@ class BaseBlueprint(Blueprint):
             target = self.__build_target__()
 
             # Check if a tool scan is present in the current scan
-            if CurrentScan.scan.get_tool_scan(self.tool_name):
+            if CurrentScan.scan.get_tool_scan(self.name):
                 return render_template(
                     self.interface_template,
                     sections=self.sections,
@@ -136,14 +137,13 @@ class BaseBlueprint(Blueprint):
         # Check if a past scan needs to be restored
         if request.form.get("load_previous_results"):
             if CurrentScan.scan is not None and CurrentScan.scan.get_tool_scan(
-                self.tool_name
+                self.name
             ) is not None:
                 self.controller.last_scan_result = CurrentScan.scan.get_tool_scan(
-                    self.tool_name
+                    self.name
                 )
                 l.info(f"Loading previous {self.tool_name} scan results.")
                 
-            
                 return render_template(
                     self.results_template,
                     sections=self.sections,
@@ -179,9 +179,6 @@ class BaseBlueprint(Blueprint):
     # Builds the target for the specific tool
     def __build_target__(self):
         return CurrentScan.scan.host
-
-        
-
 
     def is_scan_in_progress(self):
         """
@@ -230,7 +227,7 @@ class BaseBlueprint(Blueprint):
         if CurrentScan.scan is not None:
             try:
                 CurrentScan.scan.save_scan(
-                    self.tool_name, self.controller.last_scan_result
+                    self.name, self.controller.last_scan_result
                 )
                 self.controller.last_scan_result = None
                 l.success(f"{self.tool_name} results saved.")

@@ -13,7 +13,7 @@
     {% block target %}
     {% endblock %}
 
-    <label>Options:</label><br>
+    <h3>Options:</h3>
     {% for option_name, input_type, value, options in options_list %}
     {% if input_type == "radio" %}
     <input type="radio" id="{{ value }}" name="{{options}}" value="{{ value }}">
@@ -29,7 +29,7 @@
 
     {% elif input_type == "textarea" %}
     <label for="{{ value }}">{{ option_name }}</label><br>
-    <input type="textarea" id="{{ value }}" name="{{value}}" placeholder="{{options}}"><br>
+    <textarea id="{{ value }}" name="{{value}}" placeholder="{{options}}"></textarea><br>
 
     {% elif input_type == "password" %}
     <label for="{{ value }}">{{ option_name }}</label><br>

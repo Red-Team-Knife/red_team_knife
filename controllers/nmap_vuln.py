@@ -2,7 +2,7 @@ import threading
 import subprocess, os, json, shutil, time
 import copy
 
-from utils.commands import build_command_string
+from utils.utils import build_command_string
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
 from controllers.search_exploit import SearchExploitController

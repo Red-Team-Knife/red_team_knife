@@ -1,5 +1,9 @@
+from datetime import time
+import datetime
 import shutil
 import subprocess
+import sys
+import colorama
 from flask import *
 from controllers.dig_controller import (
     DigController,
@@ -42,6 +46,7 @@ from controllers.w4af_audit import (
     scan_options as w4af_audit_scan_options,
     TOOL_DISPLAY_NAME as W4AF_AUDIT_DISPLAY_NAME,
     TOOL_NAME as W4AF_AUDIT_NAME,
+    W4AF_DIRECTORY,
 )
 from controllers.search_exploit import (
     SearchExploitController,
@@ -52,8 +57,7 @@ from controllers.search_exploit import (
 from models.scan import Scan
 from utils import *
 import os
-from utils.html_format_util import render_scan_dictionary
-from utils.log import debug_route
+from utils.utils import render_scan_dictionary, debug_route
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
 from views.web_target_view import WebTargetBlueprint
@@ -65,6 +69,7 @@ from loguru import logger as l
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
 TEMP_FOLDER = "tmp"
+REPORTS_FOLDER = "reports"
 
 INTERFACE_TEMPLATE = "interface_scan_target.html"
 RESULTS_TEMPLATE = "results_base.html"
@@ -76,10 +81,49 @@ SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
 
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
-W4AF_DIRECTORY = "tools/w4af/"
 
-#TODO verificare presenza dei tool
+BANNER = r"""
+__________           .___        
+\______   \ ____   __| _/        
+ |       _// __ \ / __ |         
+ |    |   \  ___// /_/ |         
+ |____|_  /\___  >____ |         
+        \/     \/     \/         
+___________                      
+\__    ___/___ _____    _____    
+  |    |_/ __ \\__  \  /     \   
+  |    |\  ___/ / __ \|  Y Y  \  
+  |____| \___  >____  /__|_|  /  
+             \/     \/      \/   
+ ____  __.      .__  _____       
+|    |/ _| ____ |__|/ ____\____  
+|      <  /    \|  \   __\/ __ \ 
+|    |  \|   |  \  ||  | \  ___/ 
+|____|__ \___|  /__||__|  \___  >
+        \/    \/              \/ 
 
+
+
+  %%########################%%  
+ ############################## 
+%###:++++++++++++++++++++++:###%
+%###:######################:###%
+%###:####+=----------=+####:###%
+%###:###+--------------+###:###%
+%###:###=---=------=---=###-###%
+%###-###=-@@@@@--@@@@@-=##+-###%
+%###==##=-@@@@*--@@@@+-=##-*###%
+%####:##+------#=------+##:####%
+%####:#+-------@@-------**-####%
+%####+-#+--------------+#:#####%
+%#####-*####--:-:-:+####-=#####%
+%######:+##############-=######%
+%#######+:*##########-:########%
+%##########*-::::::=###########%
+  %%########################%%  
+
+
+        """
 BLUEPRINTS = []
 
 SECTIONS = {
@@ -100,16 +144,27 @@ SECTIONS = {
     "Action": [("None", "nmap")],
 }
 
+CONTROLLERS = {
+    NMAP_SCAN_NAME: NmapController(),
+    NMAP_VULN_NAME: NmapVulnController(),
+    DIG_NAME: DigController(),
+    THE_HARVESTER_NAME: TheHarvesterController(),
+    FEROXBUSTER_NAME: FeroxbusterController(),
+    W4AF_AUDIT_NAME: W4afAuditController(),
+    SEARCH_EXPLOIT_NAME: SearchExploitController(),
+    SMTP_EMAIL_SPOOFER_NAME: SmtpEmailSpooferController(),
+}
+
 app = Flask("red_team_knife", static_url_path="/static")
 
 
 def register_blueprints(app):
-    l.info("Registering blueprints.")
+    l.info("Registering blueprints...")
 
     nmap_blueprint = BaseBlueprint(
         NMAP_SCAN_NAME,
         __name__,
-        NmapController(),
+        CONTROLLERS[NMAP_SCAN_NAME],
         NMAP_SCAN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
@@ -120,7 +175,7 @@ def register_blueprints(app):
     nmap_vuln_blueprint = BaseBlueprint(
         NMAP_VULN_NAME,
         __name__,
-        NmapVulnController(),
+        CONTROLLERS[NMAP_VULN_NAME],
         NMAP_VULN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         NMAP_VULN_RESULTS_TEMPLATE,
@@ -131,7 +186,7 @@ def register_blueprints(app):
     dig_blueprint = BaseBlueprint(
         DIG_NAME,
         __name__,
-        DigController(),
+        CONTROLLERS[DIG_NAME],
         DIG_DISPLY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
@@ -142,7 +197,7 @@ def register_blueprints(app):
     the_harvester_blueprint = WebTargetBlueprint(
         THE_HARVESTER_NAME,
         __name__,
-        TheHarvesterController(),
+        CONTROLLERS[THE_HARVESTER_NAME],
         THE_HARVESTER_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
@@ -153,7 +208,7 @@ def register_blueprints(app):
     feroxbuster_blueprint = WebTargetBlueprint(
         FEROXBUSTER_NAME,
         __name__,
-        FeroxbusterController(),
+        CONTROLLERS[FEROXBUSTER_NAME],
         FEROXBUSTER_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
@@ -164,7 +219,7 @@ def register_blueprints(app):
     w4af_audit_blueprint = W4afBlueprint(
         W4AF_AUDIT_NAME,
         __name__,
-        W4afAuditController(),
+        CONTROLLERS[W4AF_AUDIT_NAME],
         W4AF_AUDIT_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         W4AF_RESULTS_TEMPLATE,
@@ -175,7 +230,7 @@ def register_blueprints(app):
     search_exploit_blueprint = HeadlessBlueprint(
         SEARCH_EXPLOIT_NAME,
         __name__,
-        SearchExploitController(),
+        CONTROLLERS[SEARCH_EXPLOIT_NAME],
         SEARCH_EXPLOIT_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
@@ -186,7 +241,7 @@ def register_blueprints(app):
     smtp_email_spoofer_blueprint = WebTargetBlueprint(
         SMTP_EMAIL_SPOOFER_NAME,
         __name__,
-        SmtpEmailSpooferController(),
+        CONTROLLERS[SMTP_EMAIL_SPOOFER_NAME],
         SMTP_EMAIL_SPOOFER_DISPLAY_NAME,
         SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE,
         SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE,
@@ -211,9 +266,8 @@ def register_blueprints(app):
         app.register_blueprint(blueprint)
 
 
-# TODO permessi directory sudo
 def create_folders():
-    l.info("Creating folders.")
+    l.info("Creating folders...")
 
     global SCANS_PATH
 
@@ -221,6 +275,11 @@ def create_folders():
     if not os.path.exists(SCANS_PATH):
         os.makedirs(SCANS_FOLDER)
         os.path.abspath(SCANS_PATH)
+
+    REPORTS_PATH = os.path.abspath(REPORTS_FOLDER)
+    if not os.path.exists(REPORTS_PATH):
+        os.makedirs(REPORTS_FOLDER)
+        os.path.abspath(REPORTS_PATH)
 
     TEMP_PATH = os.path.abspath(TEMP_FOLDER)
     if not os.path.exists(TEMP_PATH):
@@ -230,9 +289,13 @@ def create_folders():
         shutil.rmtree(TEMP_FOLDER)
         os.makedirs(TEMP_FOLDER)
 
+    os.chmod(SCANS_FOLDER, 0o777)
+    os.chmod(TEMP_FOLDER, 0o777)
+    os.chmod(REPORTS_FOLDER, 0o777)
+
 
 def start_w4af_server_api():
-    l.info(f"Starting w4af server on {W4AF_ADDRESS}:{W4AF_PORT}.")
+    l.info(f"Starting w4af server on {W4AF_ADDRESS}:{W4AF_PORT}...")
     # Start w4af api server
 
     W4AF_COMMAND = [
@@ -256,6 +319,25 @@ def start_w4af_server_api():
     )
 
 
+def check_tools_exist():
+    """
+    Check if "w4af" and "smtp-email-spoofer-py" exist in the tools folder.
+
+    Returns:
+        bool: True if both tools exist, False otherwise.
+    """
+    l.info("Checking tools installation...")
+    tools_folder = "tools"
+
+    # Check if both tools exist
+    w4af_exists = os.path.exists(os.path.join(tools_folder, "w4af"))
+    smtp_email_spoofer_py_exists = os.path.exists(
+        os.path.join(tools_folder, "smtp-email-spoofer-py")
+    )
+
+    return w4af_exists and smtp_email_spoofer_py_exists
+
+
 @app.context_processor
 def utility_processor():
     return dict(render_dictionary=render_scan_dictionary)
@@ -266,7 +348,7 @@ def index():
     debug_route(request)
 
     if CurrentScan.scan is not None:
-        scan = CurrentScan.scan.data_storage.__data__
+        scan = CurrentScan.scan.data_storage.data
         return render_template(
             "index_scan.html", sections=SECTIONS, scan=scan, scan_name=scan["name"]
         )
@@ -310,6 +392,30 @@ def scan_detail():
     return redirect(url_for("index"))
 
 
+@app.route("/generate_report", methods=["GET"])
+def generate_report():
+    debug_route(request)
+    if not CurrentScan.scan:
+        redirect(url_for("index"))
+    scan = CurrentScan.scan
+    date = datetime.datetime.now().date()
+    time = datetime.datetime.now().time()
+    report_folder = f"reports/{str(date)+str(time)}"
+
+    os.mkdir(report_folder)
+    os.chmod(report_folder, 0o777)
+    for key in scan.data_storage.data:
+        if key in CONTROLLERS.keys():
+            file_path = f"{report_folder}/{key}.html"
+            with open(file_path, "w") as file:
+                CONTROLLERS[key].last_scan_result = CurrentScan.scan.get_tool_scan(key)
+                print(CONTROLLERS[key].get_formatted_results(), file=file)
+                CONTROLLERS[key].last_scan_result = None
+            os.chmod(file_path, 0o777)
+
+    return f"Report generated in {report_folder}"
+
+
 @app.route("/tmp/<path:filename>")
 def temp_file(filename):
     debug_route(request)
@@ -331,9 +437,21 @@ log = logging.getLogger("werkzeug")
 log.disabled = True
 
 if __name__ == "__main__":
-    l.info("Executing setup.")
+    
+    l.info("Executing setup...")
+    if not check_tools_exist():
+        l.critical("Tools not installed properly!")
+        l.critical("Clone w4af and smtp-email-spoofer-py inside the tools folder.")
+        sys.exit()
     start_w4af_server_api()
     create_folders()
     register_blueprints(app)
 
-    app.run(debug=True, host="0.0.0.0")
+    print(colorama.Fore.RED)
+    print(BANNER)
+    print(colorama.Style.RESET_ALL)
+    setup_executed = True
+    
+    app.run(host="0.0.0.0")
+
+

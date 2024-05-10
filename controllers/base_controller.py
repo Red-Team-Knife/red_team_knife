@@ -2,7 +2,7 @@ import os
 import threading
 from typing import Tuple
 from loguru import logger as l
-from utils.commands import build_command_string
+from utils.utils import build_command_string
 
 
 class Controller:

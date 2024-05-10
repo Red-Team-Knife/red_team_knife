@@ -2,8 +2,8 @@ import os, json, shutil
 from loguru import logger as l
 from threading import Thread
 import time
-from utils.dictionary import remove_empty_values
-from utils.commands import build_command_string
+from utils.utils import remove_empty_values
+from utils.utils import build_command_string
 from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
 
@@ -28,6 +28,7 @@ RUNNING_MESSAGE = "Running theHarvester with command: "
 TOOL_DISPLAY_NAME = "theHarvester"
 TOOL_NAME = "the_harvester"
 
+NO_RESULTS_FOUND = "No results found."
 
 scan_options = [
     ("Limit", "number", LIMIT, "For default value (500) leave empty"),
@@ -108,6 +109,8 @@ class TheHarvesterController(Controller):
         else:
             shutil.rmtree(SCREENSHOTS_DIRECTORY)
             os.makedirs(SCREENSHOTS_DIRECTORY)
+        
+        os.chmod(SCREENSHOTS_DIRECTORY, 0o777)
 
         # build command
         command = ["theHarvester", "-d", target, "-f", TEMP_FILE_NAME]
@@ -198,9 +201,9 @@ class TheHarvesterController(Controller):
 
     #TODO aggiungere controllo su salvataggio di nessun risultato
     def __format_html__(self):
+        if self.last_scan_result == NO_RESULTS_FOUND:
+            return f'<p>{self.last_scan_result}</p>'
         data = remove_empty_values(self.last_scan_result)
-        if not data:
-            return "<p>No Result Found</p>"
 
         html_output = ""
 

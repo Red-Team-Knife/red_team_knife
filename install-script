@@ -1,6 +1,13 @@
 # install nmap
 # install Feroxbuster
 # install theHarvester
+
+# start w4af:	pipenv shell
+#			./w4af_console
+# install nmap script nmap-vulners https://github.com/vulnersCom/nmap-vulners
+# pip install loguru
+# change directory to tools
+# install smtp_email_spoofer
 # install w4af
 #	sudo apt install git
 #	sudo apt install python3-pip
@@ -10,9 +17,4 @@
 #	python -m pip install --upgrade pipenv wheel
 #	pipenv install
 #	npm install
-# start w4af:	pipenv shell
-#			./w4af_console
-# install nmap script nmap-vulners https://github.com/vulnersCom/nmap-vulners
-# pip install loguru
-# install smtp_email_spoofer
 #	git clone https://github.com/mikechabot/smtp-email-spoofer-py
