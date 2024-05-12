@@ -148,7 +148,8 @@ class Controller:
 
         l.info(self.running_message)
         l.info(command_string[:-1])
-
+        
+    #TODO its list, Exception see feroxbuster
     def __parse_temp_results_file__(self) -> Tuple[dict, Exception]:
         """
         Parses a temporary file to extract results.

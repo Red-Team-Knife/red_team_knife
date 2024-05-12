@@ -76,6 +76,15 @@ table.vuln_table tr.exploit_less_details {
     cursor: pointer;
 }
 
+.sqlmap_textarea {
+    width: calc(100%);
+    height: 90vh; /* Adjust height as needed */
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    resize: none; /* Allow vertical resizing */
+}
+
 th,
 td {
     border: 1px solid var(--white);

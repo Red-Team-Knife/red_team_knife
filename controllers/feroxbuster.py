@@ -314,7 +314,7 @@ class FeroxbusterController(Controller):
                 except json.JSONDecodeError as e:
                     return None, e
 
-            return json_objects, None
+        return json_objects, None
 
     def __format_html__(self):
         sorted = {}
