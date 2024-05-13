@@ -85,6 +85,7 @@ W4AF_RESULTS_TEMPLATE = "w4af_audit/results.html"
 SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
 SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
 
+
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
 
@@ -256,7 +257,7 @@ def register_blueprints(app):
         SECTIONS,
     )
     
-    sqlmap_blueprint = BaseBlueprint(
+    sqlmap_blueprint = WebTargetBlueprint(
         SQLMAP_NAME,
         __name__,
         CONTROLLERS[SQLMAP_NAME],

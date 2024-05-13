@@ -149,15 +149,15 @@ class Controller:
         l.info(self.running_message)
         l.info(command_string[:-1])
         
-    #TODO its list, Exception see feroxbuster
-    def __parse_temp_results_file__(self) -> Tuple[dict, Exception]:
+
+    def __parse_temp_results_file__(self) -> Tuple[object, Exception]:
         """
         Parses a temporary file to extract results.
 
         This method should be overridden in subclasses for customization.
 
         Returns:
-            Tuple[dict, Exception]: A tuple containing the results (a dictionary) and an exception.
+            Tuple[object, Exception]: A tuple containing the results and an exception.
                                     If results are present, the exception is ignored.
                                     If results are not present, the exception is considered.
         """

