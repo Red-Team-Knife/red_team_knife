@@ -64,6 +64,7 @@ from models.scan import Scan
 from utils import *
 import os
 from utils.utils import render_scan_dictionary, debug_route
+from views.domain_name_target_view import DomainNameTargetBlueprint
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
 from views.web_target_view import WebTargetBlueprint
@@ -188,7 +189,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    dig_blueprint = BaseBlueprint(
+    dig_blueprint = DomainNameTargetBlueprint(
         DIG_NAME,
         __name__,
         CONTROLLERS[DIG_NAME],

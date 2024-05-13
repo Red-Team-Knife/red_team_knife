@@ -11,7 +11,7 @@ pip install loguru
 mkdir tools
 cd tools
 
-git clone https://github.com/mikechabot/smtp-email-spoofer-py.git
+git clone https://github.com/manfredigianni/smtp-email-spoofer-py.git
 cd smtp-email-spoofer-py
 pip install -r requirements.txt
 

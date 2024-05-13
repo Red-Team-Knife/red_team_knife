@@ -51,6 +51,36 @@
     <button type="submit">Run</button>
 </form>
 
+<script>
+    // Function to extract parameter names and values from URL
+    function getUrlParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const parameters = {};
+        for (const [key, value] of urlParams) {
+            parameters[key] = value;
+        }
+        return parameters;
+    }
+
+    // Function to pre-fill input fields based on URL parameters
+    function prefillInputFields() {
+        const parameters = getUrlParameters();
+        for (const key in parameters) {
+            if (parameters.hasOwnProperty(key)) {
+                const inputField = document.getElementById(key);
+                if (inputField !== null) {
+                    inputField.value = parameters[key];
+                }
+            }
+        }
+    }
+
+    // Call the prefillInputFields function when the page loads
+    window.onload = function() {
+        prefillInputFields();
+    };
+</script>
+
 {% endblock %}
 
 {% block extra %} {% endblock %}
