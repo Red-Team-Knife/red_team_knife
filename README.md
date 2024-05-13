@@ -20,3 +20,4 @@ chmod +x setup.sh
 ./setup.sh
 ```
 Start the application by running ```python app.py``` and connect to ```localhost:5000``` in your web browser.
+If the server continues to run after closing the terminal you can try to run ```python kill_server.py```.
