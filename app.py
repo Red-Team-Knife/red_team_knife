@@ -102,8 +102,6 @@ ___________
 |____|__ \___|  /__||__|  \___  >
         \/    \/              \/ 
 
-
-
   %%########################%%  
  ############################## 
 %###:++++++++++++++++++++++:###%
@@ -121,7 +119,6 @@ ___________
 %#######+:*##########-:########%
 %##########*-::::::=###########%
   %%########################%%  
-
 
         """
 BLUEPRINTS = []
@@ -409,7 +406,8 @@ def generate_report():
             file_path = f"{report_folder}/{key}.html"
             with open(file_path, "w") as file:
                 CONTROLLERS[key].last_scan_result = CurrentScan.scan.get_tool_scan(key)
-                print(CONTROLLERS[key].get_formatted_results(), file=file)
+                html = f'<!DOCTYPE html><html>{CONTROLLERS[key].get_formatted_results()}</html>'
+                print(html, file=file)
                 CONTROLLERS[key].last_scan_result = None
             os.chmod(file_path, 0o777)
 

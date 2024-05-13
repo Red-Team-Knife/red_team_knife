@@ -2,6 +2,7 @@ screenshots/
 scans/
 w4af/
 tools/
+reports/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
