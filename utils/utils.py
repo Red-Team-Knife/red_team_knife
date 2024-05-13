@@ -93,6 +93,30 @@ def render_dictionary_as_table(dictionary: dict, indent="") -> str:
             html += f"<tr><th>{indent}{key}</th><td>{value}</td></tr>"
     return html
 
+def render_list_in_dictionary_as_table(list:list) -> str:
+    """
+    Render a list as an HTML table content.
+
+    Args:
+        list (list): The list to render as table content.
+
+    Returns:
+        str: The HTML representation of the dictionary as a table.
+    """
+    html = ''
+    html += '<tr>'
+    for header in list[0].keys():
+        html += f"<th>{header}</th>"
+    html += '</tr>'
+    
+    for row in list:
+        html += '<tr>'
+        for column in row:
+            html += f'<td>{row[column]}</td>'
+        html += '</tr>'
+
+    return html 
+
 
 def fill_table_column_list(row, key):
     """

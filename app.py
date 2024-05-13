@@ -53,6 +53,12 @@ from controllers.search_exploit import (
     TOOL_DISPLAY_NAME as SEARCH_EXPLOIT_DISPLAY_NAME,
     TOOL_NAME as SEARCH_EXPLOIT_NAME,
 )
+from controllers.sqlmap import(
+    SqlmapController,
+    scan_options as sqlmap_scan_options,
+    TOOL_DISPLAY_NAME as SQLMAP_DISPLAY_NAME,
+    TOOL_NAME as SQLMAP_NAME,
+)
 
 from models.scan import Scan
 from utils import *
@@ -78,6 +84,7 @@ NMAP_VULN_RESULTS_TEMPLATE = "nmap_vuln/results.html"
 W4AF_RESULTS_TEMPLATE = "w4af_audit/results.html"
 SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
 SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
+
 
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
@@ -135,7 +142,7 @@ SECTIONS = {
         (NMAP_VULN_DISPLAY_NAME, NMAP_VULN_NAME),
     ],
     "Delivery": [(SMTP_EMAIL_SPOOFER_DISPLAY_NAME, SMTP_EMAIL_SPOOFER_NAME)],
-    "Exploitation": [("None", "nmap")],
+    "Exploitation": [(SQLMAP_DISPLAY_NAME, SQLMAP_NAME)],
     "Installation": [("None", "nmap")],
     "Command and Control": [("None", "nmap")],
     "Action": [("None", "nmap")],
@@ -150,6 +157,7 @@ CONTROLLERS = {
     W4AF_AUDIT_NAME: W4afAuditController(),
     SEARCH_EXPLOIT_NAME: SearchExploitController(),
     SMTP_EMAIL_SPOOFER_NAME: SmtpEmailSpooferController(),
+    SQLMAP_NAME: SqlmapController(),
 }
 
 app = Flask("red_team_knife", static_url_path="/static")
@@ -245,6 +253,17 @@ def register_blueprints(app):
         smtp_email_spoofer_scan_options,
         SECTIONS,
     )
+    
+    sqlmap_blueprint = WebTargetBlueprint(
+        SQLMAP_NAME,
+        __name__,
+        CONTROLLERS[SQLMAP_NAME],
+        SQLMAP_DISPLAY_NAME,
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        sqlmap_scan_options,
+        SECTIONS,        
+    )
 
     global BLUEPRINTS
 
@@ -257,6 +276,7 @@ def register_blueprints(app):
         w4af_audit_blueprint,
         search_exploit_blueprint,
         smtp_email_spoofer_blueprint,
+        sqlmap_blueprint
     ]
 
     for blueprint in BLUEPRINTS:
@@ -450,6 +470,6 @@ if __name__ == "__main__":
     print(colorama.Style.RESET_ALL)
     setup_executed = True
     
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug="True")
 
 
