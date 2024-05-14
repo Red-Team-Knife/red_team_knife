@@ -13,6 +13,10 @@ from controllers.sqlmap import (
     TOOL_NAME as SQLMAP_NAME,
     TOOL_DISPLAY_NAME as SQLMAP_DISPLAY_NAME,
 )
+from controllers.commix import (
+    TOOL_NAME as COMMIX_NAME,
+    TOOL_DISPLAY_NAME as COMMIX_DISPLAY_NAME,
+)
 
 
 class W4afBlueprint(BaseBlueprint):
@@ -43,8 +47,8 @@ class W4afBlueprint(BaseBlueprint):
         extra = {
             "sqlmap_name": SQLMAP_NAME,
             "sqlmap_display_name": SQLMAP_DISPLAY_NAME,
-            "commix_name": "",
-            "commix_display_name": "",
+            "commix_name": COMMIX_NAME,
+            "commix_display_name": COMMIX_DISPLAY_NAME,
             "dig_name": DIG_NAME,
             "dig_display_name": DIG_DISPLAY_NAME,
             "query_type": QUERY_TYPE,
@@ -69,7 +73,7 @@ class W4afBlueprint(BaseBlueprint):
                 current_section=self.name,
                 tool=self.tool_name,
                 stopped=True,
-                extra=extra
+                extra=extra,
             )
 
         return super().__get_interface_page_for_get_request__(extra)
@@ -96,7 +100,7 @@ class W4afBlueprint(BaseBlueprint):
                     current_section=self.name,
                     tool=self.tool_name,
                     stopped=True,
-                    extra=extra
+                    extra=extra,
                 )
 
         return super().__get_interface_page_for_post_request__(request, extra)
