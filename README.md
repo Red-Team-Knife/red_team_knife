@@ -1,5 +1,5 @@
 # Red Team Knife
-
+![logo](https://github.com/Davide1102/red_team_knife/assets/95478950/f9b1b654-674f-4be7-8da8-5f6f7cd7202a)
 
 ## Overview
 Red Team Knife serves as an interface to a range of valuable red teaming tools, including:
@@ -25,3 +25,4 @@ chmod +x setup.sh
 ```
 Start the application by running ```python app.py``` and connect to ```localhost:5000``` in your web browser.
 If the server continues to run after closing the terminal you can try to run ```python kill_server.py```.
+
