@@ -73,7 +73,12 @@ from controllers.commix import (
 from models.scan import Scan
 from utils import *
 import os
-from utils.utils import render_scan_dictionary, debug_route
+from utils.utils import (
+    render_dictionary_as_table,
+    render_json_dictionary_as_table,
+    render_scan_dictionary,
+    debug_route,
+)
 from views.domain_name_target_view import DomainNameTargetBlueprint
 from views.nmap_vuln.view import NmapVulnBlueprint
 from views.tips_page_view import TipsPageBlueprint
@@ -89,7 +94,6 @@ from loguru import logger as l
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
 TEMP_FOLDER = "tmp"
-REPORTS_FOLDER = "reports"
 
 INTERFACE_TEMPLATE = "interface_scan_target.html"
 RESULTS_TEMPLATE = "results_base.html"
@@ -332,11 +336,6 @@ def create_folders():
         os.makedirs(SCANS_FOLDER)
         os.path.abspath(SCANS_PATH)
 
-    REPORTS_PATH = os.path.abspath(REPORTS_FOLDER)
-    if not os.path.exists(REPORTS_PATH):
-        os.makedirs(REPORTS_FOLDER)
-        os.path.abspath(REPORTS_PATH)
-
     TEMP_PATH = os.path.abspath(TEMP_FOLDER)
     if not os.path.exists(TEMP_PATH):
         os.makedirs(TEMP_FOLDER)
@@ -347,7 +346,6 @@ def create_folders():
 
     os.chmod(SCANS_FOLDER, 0o777)
     os.chmod(TEMP_FOLDER, 0o777)
-    os.chmod(REPORTS_FOLDER, 0o777)
 
 
 def start_w4af_server_api():
@@ -446,31 +444,6 @@ def scan_detail():
     scan_file_name = request.args.get("scan_file_name")
     CurrentScan.scan = Scan(file_source=SCANS_PATH + "/" + scan_file_name)
     return redirect(url_for("index"))
-
-
-@app.route("/generate_report", methods=["GET"])
-def generate_report():
-    debug_route(request)
-    if not CurrentScan.scan:
-        redirect(url_for("index"))
-    scan = CurrentScan.scan
-    date = datetime.datetime.now().date()
-    time = datetime.datetime.now().time()
-    report_folder = f"reports/{str(date)+str(time)}"
-
-    os.mkdir(report_folder)
-    os.chmod(report_folder, 0o777)
-    for key in scan.data_storage.data:
-        if key in CONTROLLERS.keys():
-            file_path = f"{report_folder}/{key}.html"
-            with open(file_path, "w") as file:
-                CONTROLLERS[key].last_scan_result = CurrentScan.scan.get_tool_scan(key)
-                html = f"<!DOCTYPE html><html>{CONTROLLERS[key].get_formatted_results()}</html>"
-                print(html, file=file)
-                CONTROLLERS[key].last_scan_result = None
-            os.chmod(file_path, 0o777)
-
-    return f"Report generated in {report_folder}"
 
 
 @app.route("/tmp/<path:filename>")

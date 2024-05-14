@@ -2,16 +2,17 @@ from flask import Request
 from loguru import logger as l
 
 
-def debug_route(request:Request):
+def debug_route(request: Request):
     """
     Prints debug message to keep track of http requests
 
     Args:
-        request: 
+        request:
     """
     l.debug(f"{request.method} {request.path}")
 
-#TODO fixare rendering
+
+# TODO fixare rendering
 def render_scan_dictionary(dictionary: dict, tools: dict, indent_level=0):
     """
     Render a dictionary into HTML with special handling for certain keys based on tools references.
@@ -26,7 +27,7 @@ def render_scan_dictionary(dictionary: dict, tools: dict, indent_level=0):
     Returns:
         str: The HTML representation of the dictionary.
     """
-    
+
     html = ""
     check_list = []
     reference_list = []
@@ -93,7 +94,8 @@ def render_dictionary_as_table(dictionary: dict, indent="") -> str:
             html += f"<tr><th>{indent}{key}</th><td>{value}</td></tr>"
     return html
 
-def render_list_in_dictionary_as_table(list:list) -> str:
+
+def render_list_in_dictionary_as_table(list: list) -> str:
     """
     Render a list as an HTML table content.
 
@@ -103,19 +105,19 @@ def render_list_in_dictionary_as_table(list:list) -> str:
     Returns:
         str: The HTML representation of the dictionary as a table.
     """
-    html = ''
-    html += '<tr>'
+    html = ""
+    html += "<tr>"
     for header in list[0].keys():
         html += f"<th>{header}</th>"
-    html += '</tr>'
-    
-    for row in list:
-        html += '<tr>'
-        for column in row:
-            html += f'<td>{row[column]}</td>'
-        html += '</tr>'
+    html += "</tr>"
 
-    return html 
+    for row in list:
+        html += "<tr>"
+        for column in row:
+            html += f"<td>{row[column]}</td>"
+        html += "</tr>"
+
+    return html
 
 
 def fill_table_column_list(row, key):

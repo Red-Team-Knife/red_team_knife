@@ -76,6 +76,12 @@ class Controller:
         if not self.is_scan_in_progress:
             return self.__format_result__()
 
+    def generate_report_html(self):
+        """
+        Returns HTML-formatted scan results to be used in reports.
+        """
+        return self.restore_last_scan()
+
     def __build_command__(self, target: str, options: dict) -> list:
         """
         Builds and returns the command to run.
