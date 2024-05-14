@@ -303,10 +303,17 @@ class SqlmapController(Controller):
         html_output = ""
         
         if self.os_shell:
+            html_output += f'<textarea readonly style="height 30vh; width: calc(100%); font-family: \'Courier New\', Courier, monospace;"> '
             if self.shell_option == OS_SHELL:
-                html_output += f'<textarea readonly style="height 30vh; width: calc(100%); font-family: \'Courier New\', Courier, monospace;"> '
                 html_output += OS_SHELL_MSG.format(self.target, self.data)
-                html_output += "</textarea><br><br>"
+            elif self.shell_option == PWN_SHELL:
+                html_output += PWN_SHELL_MSG.format(self.target, self.data)
+            elif self.shell_option == SQL_SHELL:
+                html_output += SQL_SHELL_MSG.format(self.target, self.data)
+            elif self.shell_option == EXECUTE_COMMAND:
+                html_output += EXECUTE_COMMAND.format(self.target, self.data)
+                
+            html_output += "</textarea><br><br>"
             
         
 

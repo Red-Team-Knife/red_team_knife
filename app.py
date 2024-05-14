@@ -63,6 +63,13 @@ from controllers.exploitation_tips import (
     EXPLOITATION_TIPS_DISPLAY_NAME,
     EXPLOITATION_TIPS_NAME,
 )
+from controllers.commix import (
+    CommixController,
+    scan_option as commix_scan_options,
+    TOOL_DISPLAY_NAME as COMMIX_DISPLAY_NAME,
+    TOOL_NAME as COMMIX_NAME,
+)
+
 from models.scan import Scan
 from utils import *
 import os
@@ -155,6 +162,7 @@ SECTIONS = {
     "Exploitation": [
         (SQLMAP_DISPLAY_NAME, SQLMAP_NAME),
         (EXPLOITATION_TIPS_DISPLAY_NAME, EXPLOITATION_TIPS_NAME),
+        (COMMIX_DISPLAY_NAME, COMMIX_NAME),
     ],
     "Installation": [("None", "nmap")],
     "Command and Control": [("None", "nmap")],
@@ -171,6 +179,7 @@ CONTROLLERS = {
     SEARCH_EXPLOIT_NAME: SearchExploitController(),
     SMTP_EMAIL_SPOOFER_NAME: SmtpEmailSpooferController(),
     SQLMAP_NAME: SqlmapController(),
+    COMMIX_NAME: CommixController(),
 }
 
 app = Flask("red_team_knife", static_url_path="/static")
@@ -278,9 +287,21 @@ def register_blueprints(app):
         SECTIONS,
     )
 
+    commix_blueprint = WebTargetBlueprint(
+        COMMIX_NAME,
+        __name__,
+        CONTROLLERS[COMMIX_NAME],
+        COMMIX_DISPLAY_NAME,
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        commix_scan_options,
+        SECTIONS,
+    )
+
     exploitation_tips_blueprint = TipsPageBlueprint(
         EXPLOITATION_TIPS_NAME, __name__, EXPLOITATION_TIPS_TEMPLATE, SECTIONS
     )
+
     global BLUEPRINTS
 
     BLUEPRINTS = [
@@ -293,6 +314,7 @@ def register_blueprints(app):
         search_exploit_blueprint,
         smtp_email_spoofer_blueprint,
         sqlmap_blueprint,
+        commix_blueprint,
         exploitation_tips_blueprint,
     ]
 
