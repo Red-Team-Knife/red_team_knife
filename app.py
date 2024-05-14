@@ -53,18 +53,23 @@ from controllers.search_exploit import (
     TOOL_DISPLAY_NAME as SEARCH_EXPLOIT_DISPLAY_NAME,
     TOOL_NAME as SEARCH_EXPLOIT_NAME,
 )
-from controllers.sqlmap import(
+from controllers.sqlmap import (
     SqlmapController,
     scan_options as sqlmap_scan_options,
     TOOL_DISPLAY_NAME as SQLMAP_DISPLAY_NAME,
     TOOL_NAME as SQLMAP_NAME,
 )
-
+from controllers.exploitation_tips import (
+    EXPLOITATION_TIPS_DISPLAY_NAME,
+    EXPLOITATION_TIPS_NAME,
+)
 from models.scan import Scan
 from utils import *
 import os
 from utils.utils import render_scan_dictionary, debug_route
 from views.domain_name_target_view import DomainNameTargetBlueprint
+from views.nmap_vuln.view import NmapVulnBlueprint
+from views.tips_page_view import TipsPageBlueprint
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
 from views.web_target_view import WebTargetBlueprint
@@ -88,6 +93,8 @@ SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
 SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
 NMAP_RESULTS_TEMPLATE = "nmap/results.html"
 
+
+EXPLOITATION_TIPS_TEMPLATE = "exploitation_tips.html"
 
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
@@ -145,7 +152,10 @@ SECTIONS = {
         (NMAP_VULN_DISPLAY_NAME, NMAP_VULN_NAME),
     ],
     "Delivery": [(SMTP_EMAIL_SPOOFER_DISPLAY_NAME, SMTP_EMAIL_SPOOFER_NAME)],
-    "Exploitation": [(SQLMAP_DISPLAY_NAME, SQLMAP_NAME)],
+    "Exploitation": [
+        (SQLMAP_DISPLAY_NAME, SQLMAP_NAME),
+        (EXPLOITATION_TIPS_DISPLAY_NAME, EXPLOITATION_TIPS_NAME),
+    ],
     "Installation": [("None", "nmap")],
     "Command and Control": [("None", "nmap")],
     "Action": [("None", "nmap")],
@@ -180,7 +190,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    nmap_vuln_blueprint = BaseBlueprint(
+    nmap_vuln_blueprint = NmapVulnBlueprint(
         NMAP_VULN_NAME,
         __name__,
         CONTROLLERS[NMAP_VULN_NAME],
@@ -256,7 +266,7 @@ def register_blueprints(app):
         smtp_email_spoofer_scan_options,
         SECTIONS,
     )
-    
+
     sqlmap_blueprint = WebTargetBlueprint(
         SQLMAP_NAME,
         __name__,
@@ -265,9 +275,12 @@ def register_blueprints(app):
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         sqlmap_scan_options,
-        SECTIONS,        
+        SECTIONS,
     )
 
+    exploitation_tips_blueprint = TipsPageBlueprint(
+        EXPLOITATION_TIPS_NAME, __name__, EXPLOITATION_TIPS_TEMPLATE, SECTIONS
+    )
     global BLUEPRINTS
 
     BLUEPRINTS = [
@@ -279,7 +292,8 @@ def register_blueprints(app):
         w4af_audit_blueprint,
         search_exploit_blueprint,
         smtp_email_spoofer_blueprint,
-        sqlmap_blueprint
+        sqlmap_blueprint,
+        exploitation_tips_blueprint,
     ]
 
     for blueprint in BLUEPRINTS:
@@ -429,7 +443,7 @@ def generate_report():
             file_path = f"{report_folder}/{key}.html"
             with open(file_path, "w") as file:
                 CONTROLLERS[key].last_scan_result = CurrentScan.scan.get_tool_scan(key)
-                html = f'<!DOCTYPE html><html>{CONTROLLERS[key].get_formatted_results()}</html>'
+                html = f"<!DOCTYPE html><html>{CONTROLLERS[key].get_formatted_results()}</html>"
                 print(html, file=file)
                 CONTROLLERS[key].last_scan_result = None
             os.chmod(file_path, 0o777)
@@ -458,7 +472,7 @@ log = logging.getLogger("werkzeug")
 log.disabled = True
 
 if __name__ == "__main__":
-    
+
     l.info("Executing setup...")
     if not check_tools_exist():
         l.critical("Tools not installed properly!")
@@ -472,7 +486,5 @@ if __name__ == "__main__":
     print(BANNER)
     print(colorama.Style.RESET_ALL)
     setup_executed = True
-    
+
     app.run(host="0.0.0.0", debug="True")
-
-

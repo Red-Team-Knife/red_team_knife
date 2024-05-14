@@ -20,9 +20,10 @@ def kill_process(pid):
         print(f"Error occurred while terminating process with PID {pid}: {e}")
 
 if __name__ == "__main__":
-    port = 5000
-    pid = find_process_by_port(port)
-    if pid:
-        kill_process(pid)
-    else:
-        print(f"No process found using port {port}.")
+    ports = [5000, 5001]
+    for port in ports:
+        pid = find_process_by_port(port)
+        if pid:
+            kill_process(pid)
+        else:
+            print(f"No process found using port {port}.")

@@ -9,7 +9,7 @@ from utils.utils import (
 )
 from controllers.nmap_vuln import (
     TOOL_NAME as VULN_ENDPOINT,
-    PORT_RANGE as PORT_TO_SCAN_VULN,
+    PORT_RANGE,
 )
 
 import xmltodict
@@ -96,7 +96,6 @@ RADIO_DNS_RESOLUTION = "radio_dns_resolution"
 
 TEMP_FILE_NAME = "tmp/nmap-temp"
 RUNNING_MESSAGE = "Running Nmap with command: "
-
 
 
 scan_options = [
@@ -656,7 +655,10 @@ class NmapController(Controller):
                     if row.get("state"):
                         # check if port is open to highlight row
                         if row["state"]["@state"] == "open":
-                            html_string += f"<tr class = open onclick=\"redirectToNmapVuln('{row['@portid']}')\" title=\"Found an open Port. Click to try searching for Vulns\" style=\"cursor: pointer;\")>"
+                            if row["service"]["@name"] in ("http", "https"):
+                                html_string += f'<tr class = open onclick="suggestHttpTools()" title="Found an open http/https Port. Click to see tips." style="cursor: pointer;")>'
+                            else:
+                                html_string += f"<tr class = open onclick=\"redirectToNmapVuln('{row['@portid']}')\" title=\"Found an open Port. Click to try searching for Vulns.\" style=\"cursor: pointer;\")>"
                     else:
                         html_string += "<tr>"
 
@@ -671,11 +673,4 @@ class NmapController(Controller):
                     html_string += "</tr>\n"
             html_string += "</table><br>\n"
 
-        html_string += f"""
-                        <script>
-                        function redirectToNmapVuln(port) {{
-                            window.location.href = '/{VULN_ENDPOINT}?{PORT_TO_SCAN_VULN}=' + port;
-                        }}
-                        </script>
-                        """
         return html_string

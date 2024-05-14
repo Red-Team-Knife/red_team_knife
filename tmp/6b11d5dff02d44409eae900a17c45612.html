@@ -1,0 +1,28 @@
+
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Vulnerability Description</title>
+                <link rel="stylesheet" href="/static/styles.css">
+            </head>
+            <body>
+                <table border="1">
+                    <tr><th>attributes</th><td><table></table></td></tr><tr><th>cwe_ids</th><td>[]</td></tr><tr><th>cwe_urls</th><td>[]</td></tr><tr><th>desc</th><td>The application has no protection against Click-Jacking attacks.</td></tr><tr><th>fix_effort</th><td>50</td></tr><tr><th>fix_guidance</th><td>Configure your web server to include an `X-Frame-Options` header.</td></tr><tr><th>highlight</th><td>[]</td></tr><tr><th>href</th><td>/scans/0/kb/6</td></tr><tr><th>id</th><td>6</td></tr><tr><th>long_description</th><td>Clickjacking (User Interface redress attack, UI redress attack, UI
+redressing) is a malicious technique of tricking a Web user into
+clicking on something different from what the user perceives they are
+clicking on, thus potentially revealing confidential information or
+taking control of their computer while clicking on seemingly innocuous
+web pages.
+
+The server didn't return an `X-Frame-Options` header which
+means that this website could be at risk of a clickjacking attack.
+The `X-Frame-Options` HTTP response header can be used to indicate
+whether or not a browser should be allowed to render a page inside a
+frame or iframe. Sites can use this to avoid clickjacking attacks, by
+ensuring that their content is not embedded into other sites.</td></tr><tr><th>name</th><td>Click-Jacking vulnerability</td></tr><tr><th>owasp_top_10_references</th><td>[]</td></tr><tr><th>plugin_name</th><td>click_jacking</td></tr><tr><th>references</th><td>[{'title': 'RFC-7034', 'url': 'http://tools.ietf.org/html/rfc7034'}, {'title': 'Mozilla developer network', 'url': 'https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options'}, {'title': 'OWASP Clickjacking document', 'url': 'https://www.owasp.org/index.php/Clickjacking'}]</td></tr><tr><th>response_ids</th><td>[20, 271]</td></tr><tr><th>severity</th><td>Medium</td></tr><tr><th>tags</th><td>[]</td></tr><tr><th>traffic_hrefs</th><td>['/scans/0/traffic/20', '/scans/0/traffic/271']</td></tr><tr><th>uniq_id</th><td>8fc60a00-155c-4a55-9227-94e34e8b1fe7</td></tr><tr><th>url</th><td>None</td></tr><tr><th>var</th><td>None</td></tr><tr><th>vulndb_id</th><td>53</td></tr><tr><th>wasc_ids</th><td>[]</td></tr><tr><th>wasc_urls</th><td>[]</td></tr>
+                </table>
+            </body>
+            </html>
+            

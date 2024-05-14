@@ -77,6 +77,8 @@ class NmapVulnController(Controller):
 
             if port_table.get("script", False):
                 script_table = port_table.pop("script")
+            else:
+                script_table = None
 
             # build table headers
             for header in port_table:

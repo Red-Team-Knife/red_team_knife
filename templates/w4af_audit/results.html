@@ -2,28 +2,36 @@
 
 {% block title %}{{tool}}{% endblock %}
 
+
 {%block content%}
 
 <h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
-<div id="save_results_section" style="display: flex; align-items: center;">
 
-    <div class="tooltip" id="save_results_message_section">
-        <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save Results</button>
-        <span class="tooltiptext" id="tooltipText">Stop the scan to save results</span>
+
+<div id="buttons_section" style="display: flex; justify-content: space-between; align-items: center;">
+    <div id="save_results_section" style="display: flex; align-items: center;">
+
+        <div class="tooltip" id="save_results_message_section">
+            <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save
+                Results</button>
+            <span class="tooltiptext" id="tooltipText">Stop the scan to save results</span>
+        </div>
+
+        <form method="post" style="padding: 10px;">
+            <input type="hidden" name="new_scan_requested" value="True">
+            <button type="submit">New Scan</button>
+        </form>
+
+        <button id="stop_scan" style="padding: 10px;">Stop Scan</button>
+
+        <div id="progress" style="padding: 10px;">
+        </div>
+
+        <button id="show_status" style="padding: 10px;">Show full status</button>
+
     </div>
 
-    <form method="post" style="padding: 10px;">
-        <input type="hidden" name="new_scan_requested" value="True">
-        <button type="submit">New Scan</button>
-    </form>
-
-    <button id="stop_scan" style="padding: 10px;">Stop Scan</button>
-
-    <div id="progress" style="padding: 10px;">
-    </div>
-
-    <button id="show_status" style="padding: 10px;">Show full status</button>
-
+    <button onclick="openInfoModal()">Exploitation Tips</button>
 </div>
 
 <div id="status" style="padding: 10px; display: none;">
@@ -42,7 +50,43 @@
     </div>
 </div>
 
+<div class="modal">
+    <div class="modal_content" style="display: flex; flex-direction: column; position: relative;">
+        <span class="close" style="position: absolute; top: 10px; right: 20px;">&times;</span>
+        <p id="modal_body">You can exploit found vulnerabilites with these tools:<br>
+        <ul>
+            <li><b>Reflected XSS</b>: you can try to spoof an email and send a malicious link. Start by searching the
+                mail server with <a
+                    href="{{url_for(extra['dig_name'] + '.interface')}}?{{extra['query_type']}}=mx">{{extra['dig_display_name']}}</a></li>
+            <li><b>SQL injection</b>: try using <a
+                    href="{{url_for(extra['sqlmap_name'] + '.interface')}}">{{extra['sqlmap_display_name']}}</a></li>
+            <li><b>Command injection (os commanding)</b>: try using <a
+                    href="{{url_for(extra['commix_name'] + '.interface')}}">{{extra['commix_display_name']}}</a></li>
+        </ul>
+        </p>
+    </div>
+</div>
+
 <script>
+
+
+    var modal = $('.modal');
+
+    $('.close').on('click', function () {
+        modal.css('display', 'none');
+    });
+
+    $(window).on('click', function (event) {
+
+        if ($(event.target).is(modal)) {
+            modal.css('display', 'none');
+        }
+    });
+
+    function openInfoModal() {
+        modal.css('display', 'block');
+    }
+
     $(document).ready(function () {
         var saveTooltip = document.getElementById('tooltipText');
         var resultsDiv = $('#results');
@@ -56,6 +100,7 @@
         var saveResultsMessageDiv = $('#save_results_message_section');
         var infoDiv = $('#info');
         var stopRequested;
+
 
         var modal = $('.status_modal');
         var closeModal = $('.status_modal_close');
@@ -81,8 +126,13 @@
             stopRequested = false;
         }
 
+        if ('{{past_scan_available}}' === 'True') {
+            stopRequested = true
+        }
+
         var spinner = '<div style="display:inline-block; position:relative"><i class="loading_small" style="background-image: url({{url_for("static", filename="loading.gif")}})"></i></div>'
         var refreshTime = 2000;
+
 
         function checkScanStatus() {
             if (!stopRequested) {
@@ -119,6 +169,7 @@
 
         stopButton.on('click', function () {
             stopRequested = true
+            stopButton.prop('disabled', true);
             infoDiv.html('<div style="display: flex; align-items: center;"><p>' + spinner + 'Stopping...</p></div>');
             $.ajax({
                 type: 'GET',
@@ -149,7 +200,7 @@
         });
 
         saveTooltip.style.visibility = 'hidden';
-        
+
         saveButton.on('mouseenter', function () {
             if (this.disabled) {
                 saveTooltip.style.visibility = 'visible';
@@ -171,6 +222,7 @@
 
         if (stopRequested) {
             enableSaveButton()
+            stopButton.prop('disabled', true);
             updateResults()
         } else {
             disableSaveButton()

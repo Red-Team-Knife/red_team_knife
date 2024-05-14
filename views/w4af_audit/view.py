@@ -4,6 +4,15 @@ from current_scan import CurrentScan
 from utils.utils import debug_route
 from views.view import BaseBlueprint
 from loguru import logger as l
+from controllers.dig_controller import (
+    TOOL_NAME as DIG_NAME,
+    TOOL_DISPLAY_NAME as DIG_DISPLAY_NAME,
+    QUERY_TYPE,
+)
+from controllers.sqlmap import (
+    TOOL_NAME as SQLMAP_NAME,
+    TOOL_DISPLAY_NAME as SQLMAP_DISPLAY_NAME,
+)
 
 
 class W4afBlueprint(BaseBlueprint):
@@ -30,7 +39,19 @@ class W4afBlueprint(BaseBlueprint):
         )
         self.controller: W4afAuditController
 
-    def __get_interface_page_for_get_request__(self):
+    def interface(self):
+        extra = {
+            "sqlmap_name": SQLMAP_NAME,
+            "sqlmap_display_name": SQLMAP_DISPLAY_NAME,
+            "commix_name": "",
+            "commix_display_name": "",
+            "dig_name": DIG_NAME,
+            "dig_display_name": DIG_DISPLAY_NAME,
+            "query_type": QUERY_TYPE,
+        }
+        return super().interface(extra=extra)
+
+    def __get_interface_page_for_get_request__(self, extra=None):
         no_scan_started = CurrentScan.scan is None
 
         # Check if an unsaved scan is still stored and
@@ -48,11 +69,12 @@ class W4afBlueprint(BaseBlueprint):
                 current_section=self.name,
                 tool=self.tool_name,
                 stopped=True,
+                extra=extra
             )
 
-        return super().__get_interface_page_for_get_request__()
+        return super().__get_interface_page_for_get_request__(extra)
 
-    def __get_interface_page_for_post_request__(self, request):
+    def __get_interface_page_for_post_request__(self, request, extra=None):
         if request.form.get("new_scan_requested"):
             self.controller.delete_scan()
 
@@ -74,9 +96,10 @@ class W4afBlueprint(BaseBlueprint):
                     current_section=self.name,
                     tool=self.tool_name,
                     stopped=True,
+                    extra=extra
                 )
 
-        return super().__get_interface_page_for_post_request__(request)
+        return super().__get_interface_page_for_post_request__(request, extra)
 
     def save_results(self):
         debug_route(request)

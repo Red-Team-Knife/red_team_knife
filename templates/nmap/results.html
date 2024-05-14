@@ -6,12 +6,53 @@
 {%endblock%}
 
 {% block extra_script %}
+<div class="modal">
+    <div class="modal_content" style="display: flex; flex-direction: column; position: relative;">
+        <span class="close" style="position: absolute; top: 10px; right: 20px;">&times;</span>
+        <p id="modal_body">Nmap found an open http/https port.<br>
+            You can use one of the following tools to scan the website:<br>
+        <ul>
+            <li><b><a
+                        href="{{url_for(extra['feroxbuster_name'] + '.interface')}}">{{extra['feroxbuster_display_name']}}</a></b>,
+                to discover exposed resources</li>
+            <li><b><a href="{{url_for(extra['w4af_name'] + '.interface')}}">{{extra['w4af_display_name']}}</a></b>,
+                to scan for web app vulnerabilities</li>
+            <li><b><a
+                        href="{{url_for(extra['nmap_vuln_name'] + '.interface')}}">{{extra['nmap_vuln_display_name']}}</a></b>,
+                to scan all ports for known vulnerabilites</li>
+        </ul>
+        </p>
+    </div>
+</div>
+
 <script>
+    var modal = $('.modal');
+
+    $('.close').on('click', function () {
+        modal.css('display', 'none');
+    });
+
+    $(window).on('click', function (event) {
+
+        if ($(event.target).is(modal)) {
+            modal.css('display', 'none');
+        }
+    });
+
+    function suggestHttpTools() {
+        modal.css('display', 'block');
+    }
+
 
     function afterResultsScript() { }
+
     function redirectNmapVuln() {
-        window.location.href= "{{url_for(extra['nmap_vuln_name'] + '.interface')}}";
+        window.location.href = "{{url_for(extra['nmap_vuln_name'] + '.interface')}}";
+    }
+
+
+    function redirectToNmapVuln(port) {
+        window.location.href = '/{{extra["nmap_vuln_name"]}}?{{extra["port_range"]}}=' + port;
     }
 </script>
 {% endblock %}
-

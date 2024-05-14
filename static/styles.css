@@ -113,7 +113,7 @@ th {
 }
 
 .exploit_available {
-    background-color: var(---highlighting);
+    background-color: var(--orange-highlighting);
 }
 
 .title {

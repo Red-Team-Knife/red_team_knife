@@ -47,6 +47,7 @@ class BaseBlueprint(Blueprint):
         """ 
         debug_route(request)
 
+        print(extra)
         if request.method == "POST":
             return self.__get_interface_page_for_post_request__(request, extra)
         return self.__get_interface_page_for_get_request__(extra)
