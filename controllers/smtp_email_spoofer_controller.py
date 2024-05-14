@@ -24,7 +24,7 @@ scan_options = [
     ("Username", "text", USERNAME, ""),
     ("Password", "password", PASSWORD, ""),
     ("Host", "text", HOST, "Mail server"),
-    ("Port", "number", PORT, "Mail server port"),
+    ("Port", "text", PORT, "Mail server port (SMTP Defaults: 25, 2525, 465, 587)"),
     ("Sender", "text", SENDER, "Sender address"),
     ("Name", "text", NAME, "Sender disply name"),
     (

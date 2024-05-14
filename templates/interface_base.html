@@ -52,7 +52,6 @@
 </form>
 
 <script>
-    // Function to extract parameter names and values from URL
     function getUrlParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const parameters = {};
@@ -62,7 +61,6 @@
         return parameters;
     }
 
-    // Function to pre-fill input fields based on URL parameters
     function prefillInputFields() {
         const parameters = getUrlParameters();
         for (const key in parameters) {
@@ -75,7 +73,6 @@
         }
     }
 
-    // Call the prefillInputFields function when the page loads
     window.onload = function() {
         prefillInputFields();
     };

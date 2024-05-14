@@ -7,6 +7,10 @@ from utils.utils import (
     fill_table_column_list,
     get_python_style_list_string_from_comma_separated_str,
 )
+from controllers.nmap_vuln import (
+    TOOL_NAME as VULN_ENDPOINT,
+    PORT_RANGE as PORT_TO_SCAN_VULN,
+)
 
 import xmltodict
 from loguru import logger as l
@@ -92,6 +96,7 @@ RADIO_DNS_RESOLUTION = "radio_dns_resolution"
 
 TEMP_FILE_NAME = "tmp/nmap-temp"
 RUNNING_MESSAGE = "Running Nmap with command: "
+
 
 
 scan_options = [
@@ -651,7 +656,7 @@ class NmapController(Controller):
                     if row.get("state"):
                         # check if port is open to highlight row
                         if row["state"]["@state"] == "open":
-                            html_string += "<tr class = open>"
+                            html_string += f"<tr class = open onclick=\"redirectToNmapVuln('{row['@portid']}')\" title=\"Found an open Port. Click to try searching for Vulns\" style=\"cursor: pointer;\")>"
                     else:
                         html_string += "<tr>"
 
@@ -666,4 +671,11 @@ class NmapController(Controller):
                     html_string += "</tr>\n"
             html_string += "</table><br>\n"
 
+        html_string += f"""
+                        <script>
+                        function redirectToNmapVuln(port) {{
+                            window.location.href = '/{VULN_ENDPOINT}?{PORT_TO_SCAN_VULN}=' + port;
+                        }}
+                        </script>
+                        """
         return html_string

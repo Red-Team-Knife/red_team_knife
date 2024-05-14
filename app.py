@@ -70,6 +70,7 @@ from views.headless_view import HeadlessBlueprint
 from views.web_target_view import WebTargetBlueprint
 from current_scan import CurrentScan
 from views.w4af_audit.view import W4afBlueprint
+from views.nmap.view import NmapBlueprint
 import logging
 from loguru import logger as l
 
@@ -85,6 +86,7 @@ NMAP_VULN_RESULTS_TEMPLATE = "nmap_vuln/results.html"
 W4AF_RESULTS_TEMPLATE = "w4af_audit/results.html"
 SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
 SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
+NMAP_RESULTS_TEMPLATE = "nmap/results.html"
 
 
 W4AF_ADDRESS = "localhost"
@@ -167,13 +169,13 @@ app = Flask("red_team_knife", static_url_path="/static")
 def register_blueprints(app):
     l.info("Registering blueprints...")
 
-    nmap_blueprint = BaseBlueprint(
+    nmap_blueprint = NmapBlueprint(
         NMAP_SCAN_NAME,
         __name__,
         CONTROLLERS[NMAP_SCAN_NAME],
         NMAP_SCAN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
-        RESULTS_TEMPLATE,
+        NMAP_RESULTS_TEMPLATE,
         nmap_scan_options,
         SECTIONS,
     )

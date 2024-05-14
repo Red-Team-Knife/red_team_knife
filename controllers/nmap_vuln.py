@@ -8,7 +8,12 @@ from controllers.command_thread import CommandThread
 from controllers.search_exploit import SearchExploitController
 import xmltodict
 
-script_options = []
+PORT_RANGE = "port_range"
+
+script_options = [
+    ("Port Range", "text", PORT_RANGE, "22, 21-25"),
+    ]
+
 RUNNING_MESSAGE = "Running Nmap vulnerability scan with command: "
 TOOL_DISPLAY_NAME = "Nmap-Vuln Scan"
 TOOL_NAME = "nmap_vuln"
@@ -32,6 +37,9 @@ class NmapVulnController(Controller):
             TEMP_FILE_NAME,
             target,
         ]
+        if options.get(PORT_RANGE, False):
+            command.extend(["-p", options[PORT_RANGE]])
+        
         return command
 
     def __run_command__(self, command):

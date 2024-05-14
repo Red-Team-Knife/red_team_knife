@@ -35,14 +35,23 @@ class BaseBlueprint(Blueprint):
         self.route("/scan_in_progress", methods=["GET"])(self.is_scan_in_progress)
         self.route("/stop_scan", methods=["GET"])(self.stop_scan)
 
-    def interface(self):
+    def interface(self, extra:dict= None):
+        """
+        Returns proper interface or result page based on user request
+
+        Args:
+            extra (dict, optional): Dictionary containing extra variables to customize inherited views. Defaults to None.
+
+        Returns:
+            flask.Response: Requested page.
+        """ 
         debug_route(request)
 
         if request.method == "POST":
-            return self.__get_interface_page_for_post_request__(request)
-        return self.__get_interface_page_for_get_request__()
+            return self.__get_interface_page_for_post_request__(request, extra)
+        return self.__get_interface_page_for_get_request__(extra)
 
-    def __get_interface_page_for_get_request__(self):
+    def __get_interface_page_for_get_request__(self, extra:dict = None):
         """
         Decides which version of the web page needs to be returned after a GET request.
 
@@ -50,8 +59,11 @@ class BaseBlueprint(Blueprint):
         is present, it will be shown, giving the opportunity to save it or request
         a new scan (reset page).
 
+        Args:
+            extra (dict, optional): Dictionary containing extra variables to customize inherited views. Defaults to None.
+
         Returns:
-        flask.Response: The version of the web page to be returned.
+            flask.Response: The version of the web page to be returned.
         """
         no_scan_started = CurrentScan.scan is None
 
@@ -65,6 +77,7 @@ class BaseBlueprint(Blueprint):
                 save_disabled=no_scan_started,
                 current_section=self.name,
                 tool=self.tool_name,
+                extra=extra,
             )
 
         # Check if an unsaved scan is still stored
@@ -77,11 +90,12 @@ class BaseBlueprint(Blueprint):
                 scan_result=self.controller.get_formatted_results(),
                 current_section=self.name,
                 tool=self.tool_name,
+                extra=extra,
             )
 
         # Check if current scan has a value
         if CurrentScan.scan is not None:
-            
+
             target = self.__build_target__()
 
             # Check if a tool scan is present in the current scan
@@ -93,16 +107,18 @@ class BaseBlueprint(Blueprint):
                     target=CurrentScan.scan.host,
                     options_list=self.options_list,
                     tool=self.tool_name,
+                    extra=extra,
                 )
 
             # Tool scan is not present, we only pass the target
             return render_template(
                 self.interface_template,
                 sections=self.sections,
-                past_scan_available=False, 
+                past_scan_available=False,
                 target=target,
                 options_list=self.options_list,
                 tool=self.tool_name,
+                extra=extra,
             )
 
         # No scan has been started
@@ -111,9 +127,10 @@ class BaseBlueprint(Blueprint):
             sections=self.sections,
             options_list=self.options_list,
             tool=self.tool_name,
+            extra=extra,
         )
 
-    def __get_interface_page_for_post_request__(self, request):
+    def __get_interface_page_for_post_request__(self, request, extra: dict = None):
         """
         Determines the version of the web page to return after a POST request.
 
@@ -124,6 +141,7 @@ class BaseBlueprint(Blueprint):
 
         Args:
             request (flask.Request): The HTTP request object containing form data.
+            extra (dict, optional): Dictionary containing extra variables to customize inherited views. Defaults to None.
 
         Returns:
             flask.Response: The version of the web page to be returned.
@@ -132,18 +150,19 @@ class BaseBlueprint(Blueprint):
         if request.form.get("new_scan_requested"):
             l.info(f"{self.tool_name} scan reset requested.")
             self.controller.last_scan_result = None
-            return self.__get_interface_page_for_get_request__()
+            return self.__get_interface_page_for_get_request__(extra)
 
         # Check if a past scan needs to be restored
         if request.form.get("load_previous_results"):
-            if CurrentScan.scan is not None and CurrentScan.scan.get_tool_scan(
-                self.name
-            ) is not None:
+            if (
+                CurrentScan.scan is not None
+                and CurrentScan.scan.get_tool_scan(self.name) is not None
+            ):
                 self.controller.last_scan_result = CurrentScan.scan.get_tool_scan(
                     self.name
                 )
                 l.info(f"Loading previous {self.tool_name} scan results.")
-                
+
                 return render_template(
                     self.results_template,
                     sections=self.sections,
@@ -152,6 +171,7 @@ class BaseBlueprint(Blueprint):
                     scan_result=self.controller.restore_last_scan(),
                     current_section=self.name,
                     tool=self.tool_name,
+                    extra=extra,
                 )
 
         # A scan was requested (run scan)
@@ -174,8 +194,9 @@ class BaseBlueprint(Blueprint):
             options=json.dumps(options),
             current_section=self.name,
             tool=self.tool_name,
+            extra=extra,
         )
-    
+
     # Builds the target for the specific tool
     def __build_target__(self):
         return CurrentScan.scan.host
@@ -226,9 +247,7 @@ class BaseBlueprint(Blueprint):
 
         if CurrentScan.scan is not None:
             try:
-                CurrentScan.scan.save_scan(
-                    self.name, self.controller.last_scan_result
-                )
+                CurrentScan.scan.save_scan(self.name, self.controller.last_scan_result)
                 self.controller.last_scan_result = None
                 l.success(f"{self.tool_name} results saved.")
             except Exception as e:

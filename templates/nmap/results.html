@@ -1,0 +1,17 @@
+{% extends "results_base.html" %}
+
+{%block additional_buttons%}
+<button onclick="redirectNmapVuln()">Scan all Ports for Vulnerabilities</button>
+
+{%endblock%}
+
+{% block extra_script %}
+<script>
+
+    function afterResultsScript() { }
+    function redirectNmapVuln() {
+        window.location.href= "{{url_for(extra['nmap_vuln_name'] + '.interface')}}";
+    }
+</script>
+{% endblock %}
+

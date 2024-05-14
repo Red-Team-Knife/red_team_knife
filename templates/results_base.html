@@ -5,15 +5,19 @@
 {%block content%}
 
 <h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
-<div id="save_results_section" style="display: none;">
+<div id="buttons_section" style="display: flex; justify-content: space-between; align-items: center;">
+<div id="save_results_section" style="display: flex; align-items: center;">
     <div id="save_results_message_section">
-        <button id="save_results" {% if save_disabled %}disabled{% endif %}>Save Results</button>
+        <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save Results</button>
     </div>
 
-    <form method="post">
+    <form method="post" style="padding: 10px;">
         <input type="hidden" name="new_scan_requested" value="True">
-        <button type="submit">New Scan</button>
+        <button type="submit" >New Scan</button>
     </form>
+</div>
+
+{%block additional_buttons%} {%endblock%}
 </div>
 
 <div id="results">
@@ -48,12 +52,14 @@
         var abortBtn = $('#abort_scan');
         var saveBtn = $('#save_results');
         var saveResultsDiv = $('#save_results_section');
+        var buttonsDiv = $('#buttons_section')
         var saveResultsMessageDiv = $('#save_results_message_section');
 
         var pastScanAvailable = "{{ past_scan_available }}";
 
         var stopRequested = false;
-
+        
+        buttonsDiv.hide();
         function checkScanStatus() {
             if (!stopRequested) {
                 $.ajax({
@@ -80,6 +86,7 @@
                 success: function (data) {
                     resultsDiv.html(data);
                     saveResultsDiv.show();
+                    buttonsDiv.show();
                     abortBtn.hide();
                     afterResultsScript()
                 },
@@ -124,6 +131,7 @@
 
         if (pastScanAvailable === "True") {
             saveResultsDiv.show()
+            buttonsDiv.show()
             afterResultsScript()
         } else {
             abortBtn.show()
