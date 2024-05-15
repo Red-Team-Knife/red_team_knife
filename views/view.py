@@ -3,7 +3,7 @@ import json
 from flask import Blueprint, request, render_template, jsonify, url_for
 from utils.utils import debug_route
 from utils.utils import remove_empty_values
-from current_scan import CurrentScan
+from models.current_scan import CurrentScan
 from controllers.base_controller import Controller
 from loguru import logger as l
 

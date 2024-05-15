@@ -1,6 +1,6 @@
 from flask import render_template, request
 from controllers.w4af_audit import W4afAuditController
-from current_scan import CurrentScan
+from models.current_scan import CurrentScan
 from utils.utils import debug_route
 from views.view import BaseBlueprint
 from loguru import logger as l

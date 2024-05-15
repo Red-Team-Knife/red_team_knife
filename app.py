@@ -98,7 +98,7 @@ from views.tips_page_view import TipsPageBlueprint
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
 from views.web_target_view import WebTargetBlueprint
-from current_scan import CurrentScan
+from models.current_scan import CurrentScan
 from views.w4af_audit.view import W4afBlueprint
 from views.nmap.view import NmapBlueprint
 from views.the_harvester.view import TheHarvesterBlueprint
@@ -535,4 +535,4 @@ if __name__ == "__main__":
     print(colorama.Style.RESET_ALL)
     setup_executed = True
 
-    app.run(host="0.0.0.0", debug="True")
+    app.run(host="0.0.0.0")

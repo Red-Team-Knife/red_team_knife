@@ -1,5 +1,5 @@
 import tldextract
-from current_scan import CurrentScan
+from models.current_scan import CurrentScan
 from views.view import BaseBlueprint
 
 def get_domain_name(url):

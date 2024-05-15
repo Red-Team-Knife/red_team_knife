@@ -1,9 +1,11 @@
 screenshots/
+tmp/
 scans/
 w4af/
 tools/
 reports/
 install_script
+red-team-knife/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -42,6 +44,7 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
 
 # Unit test / coverage reports
 htmlcov/
@@ -167,3 +170,8 @@ cython_debug/
 #.idea/
 smtp-email-spoofer-py/
 install-script
+
+
+# Conventions
+standard.txt
+
