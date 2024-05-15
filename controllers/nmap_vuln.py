@@ -130,6 +130,9 @@ class NmapVulnController(Controller):
                     html_string += "<tr>"
                     cve_table = script_table["table"]
                     cve_table = cve_table.get("table")
+                    
+                if not isinstance(cve_table, list):
+                    cve_table = [cve_table]
 
                 # sort vuln list for "is_exploit" attr
                 cve_table = sorted(

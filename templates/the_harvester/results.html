@@ -1,0 +1,49 @@
+{% extends "results_base.html" %}
+
+
+{%block additional_buttons%}
+<button onclick="openInfoModal()">Exploitation Tips</button>
+{%endblock%}
+
+
+
+{% block extra_script %}
+
+<div class="modal">
+    <div class="modal_content" style="display: flex; flex-direction: column; position: relative;">
+        <span class="close" style="position: absolute; top: 10px; right: 20px;">&times;</span>
+        <p id="modal_body">You can try using the following tools:<br>
+        <ul>
+            <li><b><a
+                href="{{url_for(extra['feroxbuster_name'] + '.interface')}}">{{extra['feroxbuster_display_name']}}</a>
+            </b>: resource enumeration. </li>
+            <li><b><a
+                href="{{url_for(extra['w4af_name'] + '.interface')}}">{{extra['w4af_display_name']}}</a>
+            </b>: vulnerability scan. </li>
+        </ul>
+        Remember to copy your target from the list!
+        </p>
+    </div>
+</div>
+
+
+<script>
+    function afterResultsScript() { }
+    var modal = $('.modal');
+
+    $('.close').on('click', function () {
+        modal.css('display', 'none');
+    });
+
+    $(window).on('click', function (event) {
+
+        if ($(event.target).is(modal)) {
+            modal.css('display', 'none');
+        }
+    });
+
+    function openInfoModal() {
+        modal.css('display', 'block');
+    }
+</script>
+{% endblock %}

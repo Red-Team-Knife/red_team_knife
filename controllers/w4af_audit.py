@@ -25,11 +25,6 @@ TMP_FOLDER = "tmp"
 if os.path.exists(PROFILE_RELATIVE_PATH) and os.path.isdir(PROFILE_RELATIVE_PATH):
     filenames = os.listdir(PROFILE_RELATIVE_PATH)
 
-try:
-    filenames.remove("sitemap.pw4af")
-    filenames.remove("web_infrastructure.pw4af")
-except:
-    pass
 
 options = []
 for filename in filenames:

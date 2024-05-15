@@ -69,17 +69,24 @@ EXECUTE_COMMAND = "execute_command"
 ALTER_SHELL = "alter_shell"
 RADIO_SHELLS = "radio_shells"
 
-OS_SHELL_MSG = 'You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):\n commix -u {} --data {} --batch'
-ALTER_SHELL_MSG = 'You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):\n commix -u {} --data {} --alter-shell <Es. Python> --batch'
-EXECUTE_COMMAND_MSG = 'You can try to execute a command via commix by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --os-cmd <command>'
+OS_SHELL_MSG = 'You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):'
+OS_SHELL_COMMAND= 'commix -u {} --data {} --batch'
+ALTER_SHELL_MSG = 'You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):'
+ALTER_SHELL_COMMAND = 'commix -u {} --data {} --alter-shell <Es. Python> --batch'
+EXECUTE_CMD_MSG = 'You can try to execute a command via commix by running this command in a terminal (you have to put data in <> tags):'
+EXECUTE_CMD_COMMAND = 'sqlmap -u {} --data {} --batch --os-cmd <command>'
 
 TOOL_DISPLAY_NAME = "Commix"
 TOOL_NAME = "commix"
 RUNNING_MESSAGE = f"Running {TOOL_DISPLAY_NAME} with command: "
 TEMP_FILE_NAME = "tmp/commix-temp"
 
+#TODO: rivedi la sintassi dei comandi
 
 scan_option = [
+    ("Spawn an OS Shell", "radio", OS_SHELL, RADIO_SHELLS),
+    ("Execute a Command", "radio", EXECUTE_COMMAND, RADIO_SHELLS),
+    ("Use an Alternative Shell", "radio", ALTER_SHELL, RADIO_SHELLS),
     ("Set Crawl Depth", "number", SET_CRAWL_DEPTH, "Default 1"),
     ("Set Regex to exclude from Crawl", "text", SET_REGEX_EXCLUSION, ""),
     ("Set an HTTP method to be used forcibly", "text", SET_HTTP_METHOD, "PUT, GET ..."),
@@ -136,10 +143,7 @@ scan_option = [
     ("Skip Mathematic in Detection Phase", "checkbox", SKIP_MATH, ""),
     ("Skip Testing Empty-Value Parameters", "checkbox", SKIP_EMPTY, ""),
     ("Set Tries for File-based Technique", "checkbox", SET_TRIES, ""),
-    ("Perform only Positive Heuristic Tests", "checkbox", SET_HEURISTIC, ""), 
-    ("Spawn an OS Shell", "radio", OS_SHELL, RADIO_SHELLS),
-    ("Execute a Command", "radio", EXECUTE_COMMAND, RADIO_SHELLS),
-    ("Use an Alternative Shell", "radio", ALTER_SHELL, RADIO_SHELLS),
+    ("Perform only Positive Heuristic Tests", "checkbox", SET_HEURISTIC, ""),
 ]
 
 
@@ -172,9 +176,11 @@ class CommixController(Controller):
             target,
             "--output-dir",
             temp_path,
+            "-v", 
+            "2",
+            '--answers', 
+            "Do you want to prompt for a pseudo-terminal shell?=N",
             "--batch",
-            "-v 2",
-            '--answers="pseudo-terminal shell=N"'
         ]
         
         self.target = target
@@ -185,13 +191,13 @@ class CommixController(Controller):
             self.target = target
         
         if options.get(SET_CRAWL_DEPTH, False):
-            command.extend(["--crawl=", options[SET_CRAWL_DEPTH]])
+            command.extend(["--crawl", options[SET_CRAWL_DEPTH]])
 
         if options.get(SET_REGEX_EXCLUSION, False):
             command.extend(["--crawl-exclude=", options[SET_REGEX_EXCLUSION]])
 
         if options.get(SET_HTTP_METHOD, False):
-            command.extend(["--crawl=", options[SET_CRAWL_DEPTH]])
+            command.extend(["--method=", f"{options[SET_HTTP_METHOD]}"])
 
         if options.get(SET_DATA, False):
             self.data = options[SET_DATA]
@@ -342,7 +348,7 @@ class CommixController(Controller):
             command.extend(["--tamper= ", f"{options[SET_TAMPER]}"])
 
         if options.get(SET_LEVEL, False):
-            command.extend(["--level= ", options[SET_LEVEL]])
+            command.extend(["--level", options[SET_LEVEL]])
 
         if options.get(SKIP_MATH, False):
             command.append("--skip-calc")
@@ -397,22 +403,25 @@ class CommixController(Controller):
         html_output = ""
     
         if self.os_shell:
-            html_output += f'<textarea readonly style="height 30vh; width: calc(100%); font-family: \'Courier New\', Courier, monospace;"> '
-    
             if self.shell_option == OS_SHELL:
-                html_output += OS_SHELL_MSG.format(self.target, self.data)
+                html_output += f'<p>{OS_SHELL_MSG}</p>'
+                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += OS_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == ALTER_SHELL:
-                html_output += ALTER_SHELL_MSG.format(self.target, self.data)
+                html_output += f'<p>{ALTER_SHELL_MSG}</p>'
+                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += ALTER_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == EXECUTE_COMMAND:
-                html_output += EXECUTE_COMMAND_MSG.format(self.target, self.data)                
+                html_output += f'<p>{EXECUTE_CMD_MSG}</p>'
+                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += EXECUTE_CMD_MSG.format(self.target, self.data)                
                 
             html_output += "</textarea><br><br>"
             
         
-        html_output += "<textarea readonly class='sqlmap_textarea'>"
+        html_output += "<textarea readonly class='exploit_textarea'>"
         html_output += self.last_scan_result
         html_output += " </textarea>"
         
-        print(html_output)
         
         return html_output

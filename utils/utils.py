@@ -12,7 +12,6 @@ def debug_route(request: Request):
     l.debug(f"{request.method} {request.path}")
 
 
-# TODO fixare rendering
 def render_scan_dictionary(dictionary: dict, tools: dict, indent_level=0):
     """
     Render a dictionary into HTML with special handling for certain keys based on tools references.

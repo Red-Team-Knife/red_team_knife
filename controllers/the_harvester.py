@@ -89,9 +89,6 @@ scan_options = [
     ),
 ]
 
-# TODO add suppport for API keys
-
-
 class TheHarvesterController(Controller):
     def __init__(self):
         super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
@@ -199,7 +196,6 @@ class TheHarvesterController(Controller):
 
             return data, None
 
-    #TODO aggiungere controllo su salvataggio di nessun risultato
     def __format_html__(self):
         if self.last_scan_result == NO_RESULTS_FOUND:
             return f'<p>{self.last_scan_result}</p>'

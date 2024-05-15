@@ -78,7 +78,7 @@ table.vuln_table tr.exploit_less_details {
 }
 
 
-.sqlmap_textarea {
+.exploit_textarea {
     font-family: 'Courier New', Courier, monospace;
     width: calc(100%);
     height: 90vh;

@@ -75,7 +75,6 @@ from utils import *
 import os
 from utils.utils import (
     render_dictionary_as_table,
-    render_json_dictionary_as_table,
     render_scan_dictionary,
     debug_route,
 )
@@ -88,6 +87,7 @@ from views.web_target_view import WebTargetBlueprint
 from current_scan import CurrentScan
 from views.w4af_audit.view import W4afBlueprint
 from views.nmap.view import NmapBlueprint
+from views.the_harvester.view import TheHarvesterBlueprint
 import logging
 from loguru import logger as l
 
@@ -103,6 +103,7 @@ W4AF_RESULTS_TEMPLATE = "w4af_audit/results.html"
 SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
 SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
 NMAP_RESULTS_TEMPLATE = "nmap/results.html"
+THE_HARVESTER_RESULTS_TEMPLATE = "the_harvester/results.html"
 
 
 EXPLOITATION_TIPS_TEMPLATE = "exploitation_tips.html"
@@ -168,9 +169,9 @@ SECTIONS = {
         (EXPLOITATION_TIPS_DISPLAY_NAME, EXPLOITATION_TIPS_NAME),
         (COMMIX_DISPLAY_NAME, COMMIX_NAME),
     ],
-    "Installation": [("None", "nmap")],
-    "Command and Control": [("None", "nmap")],
-    "Action": [("None", "nmap")],
+    "Installation": [("None", "dig")],
+    "Command and Control": [("None", "dig")],
+    "Action": [("None", "dig")],
 }
 
 CONTROLLERS = {
@@ -225,13 +226,13 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    the_harvester_blueprint = WebTargetBlueprint(
+    the_harvester_blueprint = TheHarvesterBlueprint(
         THE_HARVESTER_NAME,
         __name__,
         CONTROLLERS[THE_HARVESTER_NAME],
         THE_HARVESTER_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
-        RESULTS_TEMPLATE,
+        THE_HARVESTER_RESULTS_TEMPLATE,
         the_harvester_scan_options,
         SECTIONS,
     )

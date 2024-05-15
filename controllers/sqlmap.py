@@ -50,10 +50,14 @@ SQL_SHELL = "sql_shell"
 RADIO_SHELL = "radio_shell"
 
 
-OS_SHELL_MSG = 'You can try to spawn an OS Shell via sqlmap by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --os-shell'
-SQL_SHELL_MSG = 'You can try to spawn a SQL shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --sql-shell'
-PWN_SHELL_MSG = 'You can try to spawn a Reverse shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --os-pwn'
-EXECUTE_COMMAND_MSG = 'You can try to execute a command via sqlmap by running this command in a terminal (you have to put data in <> tags):\nsqlmap -u {} --data {} --batch --os-cmd <command>'
+OS_SHELL_MSG = 'You can try to spawn an OS Shell via sqlmap by running this command in a terminal (you have to put data in <> tags):'
+OS_SHELL_COMMAND = 'sqlmap -u {} --data {} --batch --os-shell'
+SQL_SHELL_MSG = 'You can try to spawn a SQL shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):'
+SQL_SHELL_COMMAND = 'sqlmap -u {} --data {} --batch --sql-shell'
+PWN_SHELL_MSG = 'You can try to spawn a Reverse shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):'
+PWN_SHELL_COMMAND = 'sqlmap -u {} --data {} --batch --os-pwn'
+EXECUTE_CMD_MSG = 'You can try to execute a command via sqlmap by running this command in a terminal (you have to put data in <> tags):'
+EXECUTE_CMD_COMMAND = 'sqlmap -u {} --data {} --batch --os-cmd <command>'
 
 TEMP_FILE_NAME = "tmp/sqmap-temp"
 TOOL_DISPLAY_NAME = "Sqlmap"
@@ -118,6 +122,12 @@ class SqlmapController(Controller):
         self.target = None
         self.data = None
         
+        temp_path = os.path.join(os.getcwd(), TEMP_FILE_NAME)
+        
+        # Create tmp Folder
+        if not os.path.exists(temp_path):
+            os.makedirs(temp_path)
+        
         command = [
             "sqlmap",
             "-u",
@@ -126,7 +136,8 @@ class SqlmapController(Controller):
             f"./{TEMP_FILE_NAME}",
             "--dump-format=CSV",
             "--batch",
-            "-v 4",
+            "-v",
+            "4",
         ]
         
         self.target = target
@@ -154,10 +165,10 @@ class SqlmapController(Controller):
             command.extend(["--dbms=", f'"{options[SET_DBMS]}"'])
 
         if options.get(SET_LEVEL, False):
-            command.extend(["--level= ", options[SET_PARAMETER]])
+            command.extend(["--level", options[SET_LEVEL]])
 
         if options.get(SET_RISK, False):
-            command.extend(["--risk= ", options[SET_RISK]])
+            command.extend(["--risk", options[SET_RISK]])
 
         if options.get(SET_TECHNIQUE, False):
             command.extend(["--technique= ", f'"{options[SET_RISK]}"'])
@@ -229,7 +240,7 @@ class SqlmapController(Controller):
             command.extend(["--file-read=", options[SET_FILE]])
 
         if options.get(SET_CRAWL, False):
-            command.extend(["--crawl=", options[SET_CRAWL]])
+            command.extend(["--crawl", options[SET_CRAWL]])
 
         if options.get(TEST_FORMS, False):
             command.append("--forms")
@@ -303,15 +314,22 @@ class SqlmapController(Controller):
         html_output = ""
         
         if self.os_shell:
-            html_output += f'<textarea readonly style="height 30vh; width: calc(100%); font-family: \'Courier New\', Courier, monospace;"> '
             if self.shell_option == OS_SHELL:
-                html_output += OS_SHELL_MSG.format(self.target, self.data)
+                html_output += f'<p>{OS_SHELL_MSG}</p>'
+                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += OS_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == PWN_SHELL:
-                html_output += PWN_SHELL_MSG.format(self.target, self.data)
+                html_output += f'<p>{PWN_SHELL_MSG}</p>'
+                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += PWN_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == SQL_SHELL:
-                html_output += SQL_SHELL_MSG.format(self.target, self.data)
+                html_output += f'<p>{SQL_SHELL_MSG}</p>'
+                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += OS_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == EXECUTE_COMMAND:
-                html_output += EXECUTE_COMMAND.format(self.target, self.data)
+                html_output += f'<p>{EXECUTE_CMD_MSG}</p>'
+                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += EXECUTE_CMD_COMMAND.format(self.target, self.data)
                 
             html_output += "</textarea><br><br>"
             
@@ -321,7 +339,7 @@ class SqlmapController(Controller):
             if isinstance(db, str):
                 html_output += "<b> Results: </b><br>"
                 html_output += (
-                    f"<textarea readonly class= 'sqlmap_textarea'> {db} </textarea>"
+                    f"<textarea readonly class= 'exploit_textarea'> {db} </textarea>"
                 )
             else:
                 html_output += f"<b> {list(db.keys())[0]} :</b> <br><br>"
