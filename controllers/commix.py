@@ -222,7 +222,7 @@ class CommixController(Controller):
             command.extend(["--cookie-del=", f"{options[SET_SPLIT_COOKIE]}"])
 
         if options.get(SET_EXTRA_HEADER, False):
-            command.extend(["-H ", f"{options[SET_EXTRA_HEADER]}"])
+            command.extend(["-H", f"{options[SET_EXTRA_HEADER]}"])
 
         if options.get(SET_PROXY, False):
             command.extend(["--proxy=", f"{options[SET_PROXY]}"])
@@ -249,7 +249,7 @@ class CommixController(Controller):
             command.extend(["--auth-data=", f"{options[SET_AUTH_DATA]}"])
 
         if options.get(SET_IGNORE_CODE, False):
-            command.extend(["--ignore-code= ", f"{options[SET_IGNORE_CODE]}"])
+            command.extend(["--ignore-code=", f"{options[SET_IGNORE_CODE]}"])
 
         if options.get(FORCE_SSL, False):
             command.append("--force-ssl")
@@ -261,10 +261,10 @@ class CommixController(Controller):
             command.append("--ignore-redirects")
 
         if options.get(SET_TIMEOUT, False):
-            command.extend(["--timeout= ", options[SET_TIMEOUT]])
+            command.extend(["--timeout=", options[SET_TIMEOUT]])
 
         if options.get(SET_RETRIES, False):
-            command.extend(["--retries= ", options[SET_RETRIES]])
+            command.extend(["--retries=", options[SET_RETRIES]])
 
         if options.get(DROP_SET_COOKIE, False):
             command.append("--drop-set-cookie")
@@ -300,52 +300,52 @@ class CommixController(Controller):
             command.append("--ps-version")
 
         if options.get(READ_FILE, False):
-            command.extend(["--file-read= ", f"{options[READ_FILE]}"])
+            command.extend(["--file-read=", f"{options[READ_FILE]}"])
 
         if options.get(WRITE_FILE, False):
-            command.extend(["--file-write= ", f"{options[WRITE_FILE]}"])
+            command.extend(["--file-write=", f"{options[WRITE_FILE]}"])
 
         if options.get(UPLOAD_FILE, False):
-            command.extend(["--file-upload= ", f"{options[UPLOAD_FILE]}"])
+            command.extend(["--file-upload=", f"{options[UPLOAD_FILE]}"])
 
         if options.get(FILE_DEST, False):
-            command.extend(["--file-dest= ", f"{options[FILE_DEST]}"])
+            command.extend(["--file-dest=", f"{options[FILE_DEST]}"])
 
         if options.get(SET_SHELLSHOCK, False):
             command.append("--shellshock")
 
         if options.get(SET_PARAMETER, False):
-            command.extend(["-p ", options[SET_IGNORE_CODE]])
+            command.extend(["-p", options[SET_IGNORE_CODE]])
 
         if options.get(SKIP_PARAMETERS, False):
-            command.extend(["--skip= ", f"{options[SKIP_PARAMETERS]}"])
+            command.extend(["--skip=", f"{options[SKIP_PARAMETERS]}"])
 
         if options.get(SET_SUFFIX, False):
-            command.extend(["--suffix= ", f"{options[SET_SUFFIX]}"])
+            command.extend(["--suffix=", f"{options[SET_SUFFIX]}"])
 
         if options.get(SET_PREFIX, False):
-            command.extend(["--prefix= ", f"{options[SET_PREFIX]}"])
+            command.extend(["--prefix=", f"{options[SET_PREFIX]}"])
 
         if options.get(SET_TECHNIQUE, False):
-            command.extend(["--technique= ", f"{options[SET_TECHNIQUE  ]}"])
+            command.extend(["--technique=", f"{options[SET_TECHNIQUE  ]}"])
 
         if options.get(SKIP_TECHNIQUE, False):
-            command.extend(["--skip-technique= ", f"{options[SKIP_TECHNIQUE]}"])
+            command.extend(["--skip-technique=", f"{options[SKIP_TECHNIQUE]}"])
 
         if options.get(MAX_LEN, False):
-            command.extend(["--maxlen= ", f"{options[MAX_LEN]}"])
+            command.extend(["--maxlen=", f"{options[MAX_LEN]}"])
 
         if options.get(SET_DELAY, False):
-            command.extend(["--delay= ", f"{options[SET_DELAY]}"])
+            command.extend(["--delay=", f"{options[SET_DELAY]}"])
 
         if options.get(SET_WEB_ROOT, False):
-            command.extend(["--web-root= ", f"{options[SET_WEB_ROOT]}"])
+            command.extend(["--web-root=", f"{options[SET_WEB_ROOT]}"])
             
         if options.get(FORCE_OS, False):
-            command.extend(["--os= ", options[FORCE_OS]])
+            command.extend(["--os=", options[FORCE_OS]])
 
         if options.get(SET_TAMPER, False):
-            command.extend(["--tamper= ", f"{options[SET_TAMPER]}"])
+            command.extend(["--tamper=", f"{options[SET_TAMPER]}"])
 
         if options.get(SET_LEVEL, False):
             command.extend(["--level", options[SET_LEVEL]])
@@ -357,7 +357,7 @@ class CommixController(Controller):
             command.append("--skip-empty")
 
         if options.get(SET_TRIES, False):
-            command.extend(["--failed-tries= ", options[SET_TRIES]])
+            command.extend(["--failed-tries=", options[SET_TRIES]])
 
         if options.get(SET_HEURISTIC, False):
             command.append("--smart")

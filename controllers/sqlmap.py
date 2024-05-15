@@ -1,7 +1,6 @@
 import os
 import shutil
 import csv
-import json
 from threading import Thread
 from typing import Tuple
 from loguru import logger as l
@@ -159,7 +158,7 @@ class SqlmapController(Controller):
             command.append("--check-tor")
 
         if options.get(SET_PARAMETER, False):
-            command.extend(["-p ", f'"{options[SET_PARAMETER]}"'])
+            command.extend(["-p", f'"{options[SET_PARAMETER]}"'])
 
         if options.get(SET_DBMS, False):
             command.extend(["--dbms=", f'"{options[SET_DBMS]}"'])
@@ -171,7 +170,7 @@ class SqlmapController(Controller):
             command.extend(["--risk", options[SET_RISK]])
 
         if options.get(SET_TECHNIQUE, False):
-            command.extend(["--technique= ", f'"{options[SET_RISK]}"'])
+            command.extend(["--technique=", f'"{options[SET_RISK]}"'])
 
         if options.get(RETRIEVE_ALL, False):
             command.append("-a")
@@ -222,7 +221,7 @@ class SqlmapController(Controller):
             command.extend([["-C", options[SET_COLUMN]]])
 
         if options.get(SET_THREADS, False):
-            command.extend(["--threads=", options[SET_THREADS]])
+            command.extend(["--threads", options[SET_THREADS]])
 
         if options.get(SET_OS, False):
             command.extend(["--os=", f'"{options[SET_OS]}"'])
@@ -279,7 +278,13 @@ class SqlmapController(Controller):
         TEMP_PATH = "./" + TEMP_FILE_NAME
         for scan in os.listdir(TEMP_PATH):
             scan_path = os.path.join(TEMP_PATH, scan)
-            if os.path.isdir(scan_path):
+            if os.path.isfile(scan_path):
+                if scan.endswith('.csv'):
+                    with open(scan_path, "r") as file:
+                        csv_content = [row for row in csv.DictReader(file)]
+                        json_object = {"Crawling Results": csv_content}
+                        json_objects.append(json_object)
+            elif os.path.isdir(scan_path):
                 # Check if there is Dump Folder
                 dump_path = os.path.join(scan_path, "dump")
                 if os.path.isdir(dump_path):
