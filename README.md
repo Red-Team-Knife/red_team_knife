@@ -16,8 +16,8 @@ Red Team Knife serves as an interface to a range of valuable red teaming tools, 
 
 *these are the original repositories, but ```setup.sh``` will clone a fork where we fixed some bugs or some code checks to ensure everythong works with our interface.
 Links to our forks are:
-- [w4af](https://github.com/manfredigianni/w4af)*
-- [SMTP Email spoofer](https://github.com/manfredigianni/smtp-email-spoofer-py)*
+- [w4af](https://github.com/manfredigianni/w4af)
+- [SMTP Email spoofer](https://github.com/manfredigianni/smtp-email-spoofer-py)
 
 ## Installation
 To install Red Team Knife, follow these steps:
