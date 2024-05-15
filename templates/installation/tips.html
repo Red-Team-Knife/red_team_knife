@@ -1,0 +1,11 @@
+{% extends 'tips_template.html' %}
+
+{% block description %}
+<p> In this phase, the objective is to install permanent access to the system. There are various methods to achieve this goal. Firstly, you need to identify the initial access point, such as a compromised user account, a vulnerable open network port, or any other entry point that provided access to the system.<br><br>
+
+    Common installation techniques include implanting a backdoor in the system by spawning a shell or a reverse shell deployable through the execution of specific commands, or deploying persistent malware disguised as legitimate software.<br><br>
+    
+    Once you are certain that you have established permanent access to the system, you can proceed to the <a href= "{{url_for(next_tip_name +  '.interface')}}" style="color: #f44336;"><b>Command and Control Phase</b></a>.<br><br>
+</p>
+
+{% endblock %}

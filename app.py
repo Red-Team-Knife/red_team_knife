@@ -69,6 +69,20 @@ from controllers.commix import (
     TOOL_DISPLAY_NAME as COMMIX_DISPLAY_NAME,
     TOOL_NAME as COMMIX_NAME,
 )
+from controllers.installation_tips import(
+    INSTALLATION_TIPS_DISPLAY_NAME,
+    INSTALLATION_TIPS_NAME
+)
+
+from controllers.command_and_control_tips import(
+    COMMAND_AND_CONTROL_TIPS_DISPLAY_NAME,
+    COMMAND_AND_CONTROL_TIPS_NAME,
+)
+
+from controllers.action_tips import(
+    ACTION_TIPS_DISPLAY_NAME,
+    ACTION_TIPS_NAME
+)
 
 from models.scan import Scan
 from utils import *
@@ -106,7 +120,10 @@ NMAP_RESULTS_TEMPLATE = "nmap/results.html"
 THE_HARVESTER_RESULTS_TEMPLATE = "the_harvester/results.html"
 
 
-EXPLOITATION_TIPS_TEMPLATE = "exploitation_tips.html"
+EXPLOITATION_TIPS_TEMPLATE = "exploitation/tips.html"
+INSTALLATION_TIPS_TEMPLATE = "installation/tips.html"
+COMMAND_AND_CONTROL_TIPS_TEMPLATE = "command_and_control/tips.html"
+ACTION_TIPS_TEMPLATE = "action/tips.html"
 
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
@@ -169,9 +186,9 @@ SECTIONS = {
         (EXPLOITATION_TIPS_DISPLAY_NAME, EXPLOITATION_TIPS_NAME),
         (COMMIX_DISPLAY_NAME, COMMIX_NAME),
     ],
-    "Installation": [("None", "dig")],
-    "Command and Control": [("None", "dig")],
-    "Action": [("None", "dig")],
+    "Installation": [(INSTALLATION_TIPS_DISPLAY_NAME, INSTALLATION_TIPS_NAME)],
+    "Command and Control": [(COMMAND_AND_CONTROL_TIPS_DISPLAY_NAME, COMMAND_AND_CONTROL_TIPS_NAME)],
+    "Action": [(ACTION_TIPS_DISPLAY_NAME, ACTION_TIPS_NAME)],
 }
 
 CONTROLLERS = {
@@ -304,7 +321,39 @@ def register_blueprints(app):
     )
 
     exploitation_tips_blueprint = TipsPageBlueprint(
-        EXPLOITATION_TIPS_NAME, __name__, EXPLOITATION_TIPS_TEMPLATE, SECTIONS
+        EXPLOITATION_TIPS_NAME,
+        __name__,
+        EXPLOITATION_TIPS_TEMPLATE,
+        SECTIONS,
+        EXPLOITATION_TIPS_DISPLAY_NAME,
+        INSTALLATION_TIPS_NAME,
+    )
+    
+    installation_tips_blueprint = TipsPageBlueprint(
+        INSTALLATION_TIPS_NAME,
+        __name__,
+        INSTALLATION_TIPS_TEMPLATE,
+        SECTIONS,
+        INSTALLATION_TIPS_DISPLAY_NAME,
+        COMMAND_AND_CONTROL_TIPS_NAME,
+    )
+    
+    command_and_control_tips_blueprint = TipsPageBlueprint(
+        COMMAND_AND_CONTROL_TIPS_NAME,
+        __name__,
+        COMMAND_AND_CONTROL_TIPS_TEMPLATE,
+        SECTIONS,
+        COMMAND_AND_CONTROL_TIPS_DISPLAY_NAME,
+        ACTION_TIPS_NAME,
+    )
+    
+    action_tips_blueprint = TipsPageBlueprint(
+        ACTION_TIPS_NAME,
+        __name__,
+        ACTION_TIPS_TEMPLATE,
+        SECTIONS,
+        ACTION_TIPS_DISPLAY_NAME,
+        None,
     )
 
     global BLUEPRINTS
@@ -321,6 +370,9 @@ def register_blueprints(app):
         sqlmap_blueprint,
         commix_blueprint,
         exploitation_tips_blueprint,
+        installation_tips_blueprint,
+        command_and_control_tips_blueprint,
+        action_tips_blueprint,
     ]
 
     for blueprint in BLUEPRINTS:

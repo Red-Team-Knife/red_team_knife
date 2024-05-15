@@ -81,7 +81,7 @@ TOOL_NAME = "commix"
 RUNNING_MESSAGE = f"Running {TOOL_DISPLAY_NAME} with command: "
 TEMP_FILE_NAME = "tmp/commix-temp"
 
-#TODO: rivedi la sintassi dei comandi
+
 
 scan_option = [
     ("Spawn an OS Shell", "radio", OS_SHELL, RADIO_SHELLS),

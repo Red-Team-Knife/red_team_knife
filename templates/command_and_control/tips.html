@@ -1,0 +1,15 @@
+{% extends 'tips_template.html' %}
+
+{% block description %}
+<p> 
+    In the Command and Control phase, the goal is to establish a communication channel between the attacker's infrastructure and the compromised system.<br>
+    This enables the attacker to remotely control and manage the compromised system, exfiltrate data, or deliver additional payloads.<br><br>
+    
+    Common techniques used in this phase include servers that allow for the automatic reception and sending of commands, as well as the encryption of all communication to evade detection systems such as firewalls or antivirus software.<br><br>
+    
+    There are many frameworks that assist in controlling this phase and automating all the steps, such as the Metasploit Framework, Beacon, or PowerShell Empire.<br><br>
+    
+    Once you have successfully used these techniques, you can proceed to the <a href="{{url_for(next_tip_name + '.interface')}}" style="color: #f44336;"><b>Action Phase</b></a>.<br><br>
+    </p>
+
+{% endblock %}
