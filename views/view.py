@@ -215,9 +215,9 @@ class BaseBlueprint(Blueprint):
         debug_route(request)
 
         if self.controller.is_scan_in_progress:
-            l.info(f"{self.tool_name} scan in progress...")
+            l.info(f"{self.tool_name} running...")
         else:
-            l.info(f"{self.tool_name} scan not in progress.")
+            l.info(f"{self.tool_name} not running.")
 
         return jsonify({"scan_in_progress": self.controller.is_scan_in_progress})
 

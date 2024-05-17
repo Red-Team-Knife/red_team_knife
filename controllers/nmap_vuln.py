@@ -67,6 +67,9 @@ class NmapVulnController(Controller):
     def __format_html__(self):
 
         last_scan_result = copy.deepcopy(self.last_scan_result)
+        
+        if isinstance(last_scan_result, dict):
+            last_scan_result = [last_scan_result]
 
         html_string = ""
         # build port details table

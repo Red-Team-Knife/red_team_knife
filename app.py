@@ -520,6 +520,8 @@ log = logging.getLogger("werkzeug")
 log.disabled = True
 
 if __name__ == "__main__":
+    l.remove()
+    l.add(sys.stdout, level="INFO")
 
     l.info("Executing setup...")
     if not check_tools_exist():
