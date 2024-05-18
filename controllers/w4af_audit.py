@@ -105,9 +105,6 @@ class W4afAuditController(Controller):
         self.scan_id = None
         l.success(f"Deletion completed for scan id {self.scan_id}.")
 
-    def generate_report_html(self):
-        return self.restore_last_scan()["results"]
-
     def __format_result__(self):
         l.info(f"Generating HTML for {self.tool_name} results...")
 

@@ -374,7 +374,7 @@ class CommixController(Controller):
         
     def __remove_temp_file__(self):
         """
-        Needs to override super method because sqlmap saves temp files in more folders.
+        Needs to override super method because commix saves temp files in more folders.
         Removes a temporary results folder
         """
         try:
