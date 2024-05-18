@@ -23,7 +23,7 @@ from controllers.nmap_vuln import (
     TOOL_DISPLAY_NAME as NMAP_VULN_DISPLAY_NAME,
     TOOL_NAME as NMAP_VULN_NAME,
 )
-from controllers.smtp_email_spoofer_controller import (
+from controllers.smtp_email_spoofer import (
     SmtpEmailSpooferController,
     scan_options as smtp_email_spoofer_scan_options,
     TOOL_NAME as SMTP_EMAIL_SPOOFER_NAME,

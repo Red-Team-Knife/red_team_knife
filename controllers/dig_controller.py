@@ -1,6 +1,6 @@
 from controllers.base_controller import Controller
 import pydig
-from controllers.smtp_email_spoofer_controller import (
+from controllers.smtp_email_spoofer import (
     TOOL_NAME as SPOOFER_ENDPOINT,
     HOST as SPOOFER_HOST_PARAMETER_NAME,
 )
