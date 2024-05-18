@@ -96,13 +96,14 @@ def render_dictionary_as_table(dictionary: dict, indent="") -> str:
     return html
 
 def render_list_as_bullet_list(content: list) -> str:
-    """_summary_
+    """
+    Render a list as an HTML bullet list.
 
     Args:
-        content (list): _description_
+        content (list): The list to render as bullet list.
 
     Returns:
-        str: _description_
+        str: The HTML representation of the list as a bullet list.
     """
     html = ""
     if len(content) == 0:
