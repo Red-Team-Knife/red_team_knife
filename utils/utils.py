@@ -85,16 +85,35 @@ def render_dictionary_as_table(dictionary: dict, indent="") -> str:
     for key, value in dictionary.items():
         if isinstance(value, dict):
             html += (
-                f"<tr><th>{indent}{key}</th><td><table>"
+                f"<tr><th>{indent}{key}</th><td><table>\n"
                 + render_dictionary_as_table(value, indent + "&nbsp;&nbsp;")
-                + "</table></td></tr>"
+                + "\n</table></td></tr>\n"
             )
+        elif isinstance(value, list):
+            html += f"<tr><th>{indent}{key}</th><td><ul>\n{render_list_as_bullet_list(value)}</ul></td></tr>\n"
         else:
-            html += f"<tr><th>{indent}{key}</th><td>{value}</td></tr>"
+            html += f"<tr><th>{indent}{key}</th><td>{value}</td></tr>\n"
+    return html
+
+def render_list_as_bullet_list(content: list) -> str:
+    """_summary_
+
+    Args:
+        content (list): _description_
+
+    Returns:
+        str: _description_
+    """
+    html = ""
+    if len(content) == 0:
+        html += "<li>No Infos</li>\n"
+    else:
+        for item in content:
+            html += f"<li>{item}</li>\n"
     return html
 
 
-def render_list_in_dictionary_as_table(list: list) -> str:
+def render_list_in_dictionary_as_table(content: list) -> str:
     """
     Render a list as an HTML table content.
 
@@ -105,16 +124,26 @@ def render_list_in_dictionary_as_table(list: list) -> str:
         str: The HTML representation of the dictionary as a table.
     """
     html = ""
-    html += "<tr>"
-    for header in list[0].keys():
-        html += f"<th>{header}</th>"
-    html += "</tr>"
+    html += "<tr>\n"
+    for header in content[0].keys():
+        html += f"<th>{header}</th>\n"
+    html += "</tr>\n"
 
-    for row in list:
-        html += "<tr>"
+    for row in content:
+        html += "<tr>\n"
         for column in row:
-            html += f"<td>{row[column]}</td>"
-        html += "</tr>"
+            html += "<td>\n"
+            if isinstance(row[column], list):
+                if isinstance(row[column][0], dict):
+                    html += f"<table>\n{render_dictionary_as_table(row[column])}</table>\n"
+                else:
+                    html += f"<ul>\n{render_list_as_bullet_list(row[column])}</ul>\n"
+            elif isinstance(row[column], dict):
+                html += f"<table>\n{render_dictionary_as_table(row[column])}</table>\n"
+            else:
+                html += f"{row[column]}\n"
+            html += "</td>\n"
+        html += "</tr>\n"
 
     return html
 

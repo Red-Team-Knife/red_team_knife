@@ -84,6 +84,12 @@ from controllers.action_tips import(
     ACTION_TIPS_NAME
 )
 
+from controllers.wpscan import (
+    WPscanController,
+    scan_option as wpscan_scan_options,
+    TOOL_DISPLAY_NAME as WPSCAN_DISPLAY_NAME,
+    TOOL_NAME as WPSCAN_NAME,
+)
 from models.scan import Scan
 from utils import *
 import os
@@ -179,6 +185,7 @@ SECTIONS = {
     "Weaponization": [
         (W4AF_AUDIT_DISPLAY_NAME, W4AF_AUDIT_NAME),
         (NMAP_VULN_DISPLAY_NAME, NMAP_VULN_NAME),
+        (WPSCAN_DISPLAY_NAME, WPSCAN_NAME),
     ],
     "Delivery": [(SMTP_EMAIL_SPOOFER_DISPLAY_NAME, SMTP_EMAIL_SPOOFER_NAME)],
     "Exploitation": [
@@ -202,6 +209,7 @@ CONTROLLERS = {
     SMTP_EMAIL_SPOOFER_NAME: SmtpEmailSpooferController(),
     SQLMAP_NAME: SqlmapController(),
     COMMIX_NAME: CommixController(),
+    WPSCAN_NAME : WPscanController(),
 }
 
 app = Flask("red_team_knife", static_url_path="/static")
@@ -319,6 +327,17 @@ def register_blueprints(app):
         commix_scan_options,
         SECTIONS,
     )
+    
+    wpscan_blueprint = WebTargetBlueprint(
+        WPSCAN_NAME,
+        __name__,
+        CONTROLLERS[WPSCAN_NAME],
+        WPSCAN_DISPLAY_NAME,
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        wpscan_scan_options,
+        SECTIONS
+    )
 
     exploitation_tips_blueprint = TipsPageBlueprint(
         EXPLOITATION_TIPS_NAME,
@@ -373,6 +392,7 @@ def register_blueprints(app):
         installation_tips_blueprint,
         command_and_control_tips_blueprint,
         action_tips_blueprint,
+        wpscan_blueprint
     ]
 
     for blueprint in BLUEPRINTS:
@@ -537,4 +557,4 @@ if __name__ == "__main__":
     print(colorama.Style.RESET_ALL)
     setup_executed = True
 
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=True)
