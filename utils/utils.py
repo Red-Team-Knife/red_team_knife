@@ -149,6 +149,24 @@ def render_list_in_dictionary_as_table(content: list) -> str:
     return html
 
 
+def move_key(dictionary:dict, key:str, pos:int) -> dict:
+    """
+    Move the key of a dictionary into a specific position of the dictionary.
+
+    Args:
+        dictionary (dict): The dictionary to modify.
+        key (str): The key of the dictionary to move
+        pos (int): The position of the dictionary in which to place the key.
+
+    Returns:
+        dict: The dictionary with the key in the desired position.
+    """
+    keys = list(dictionary.keys())
+    if key in keys:
+        keys.insert(pos, keys.pop(keys.index(key)))
+    return {k: dictionary[k] for k in keys}
+
+
 def fill_table_column_list(row, key):
     """
     Fill a table column with data from a dictionary.

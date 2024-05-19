@@ -107,6 +107,10 @@ th {
     background-color: var(--yellow-highlighting);
 }
 
+.vulnerable_plugin {
+    background-color: var(--orange-highlighting);
+}
+
 .exploit_less_details {
     background-color: var(--yellow-highlighting);
 

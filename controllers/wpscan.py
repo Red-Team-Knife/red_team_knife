@@ -1,3 +1,4 @@
+from copy import deepcopy
 import json
 from threading import Thread
 from typing import Tuple
@@ -5,7 +6,7 @@ from controllers.base_controller import Controller
 from controllers.command_thread import CommandThread
 from loguru import logger as l
 
-from utils.utils import render_dictionary_as_table, render_list_as_bullet_list, render_list_in_dictionary_as_table
+from utils.utils import move_key, render_dictionary_as_table, render_list_as_bullet_list, render_list_in_dictionary_as_table
 
 
 TOOL_DISPLAY_NAME = "WPscan"
@@ -77,11 +78,11 @@ scan_option = [
     ("Set Cookie Jar Filepath", "text", SET_COOKIE_JAR, "Default /tmp/wpscan/cookie_jar.txt"),
     ("Disable control over Wordpress Wxecution on target", "checkbox", SET_FORCE, ""),
     ("Set Wordpress Content directory", "text", SET_WP_DIR, "wp-content"),
-    ("Set Wordpress plugin directory", "text", SET_WP_PLUGINS_DIR, "wp-content/plugins"),
+    ("Set Wordpress plugin directory", "text", SET_WP_PLUGINS_DIR, "wp-content/scan[section]"),
     ("Set Enumeration Processes (Default: All Plugins, Config Backups)", "checkbox", SET_ENUMERATION, ""),
-    ("Enumerate Vulnerable plugins", "checkbox", EN_VULN_PLUGINS, ""),
-    ("Enumerate All plugins", "checkbox", EN_ALL_PLUGINS, ""),
-    ("Enumerate Popular plugins", "checkbox", EN_POPULAR_PLUGINS, ""),
+    ("Enumerate Vulnerable scan[section]", "checkbox", EN_VULN_PLUGINS, ""),
+    ("Enumerate All scan[section]", "checkbox", EN_ALL_PLUGINS, ""),
+    ("Enumerate Popular scan[section]", "checkbox", EN_POPULAR_PLUGINS, ""),
     ("Enumerate Vulnerable themes", "checkbox", EN_VULN_THEMES, ""),
     ("Enumerate All themes", "checkbox", EN_ALL_THEMES, ""),
     ("Enumerate Popular themes", "checkbox", EN_POPULAR_THEMES, ""),
@@ -155,7 +156,7 @@ class WPscanController(Controller):
         if options.get(SET_WP_DIR, False):
             command.extend(["--wp-content-dir", options[SET_WP_DIR]])
         if options.get(SET_WP_PLUGINS_DIR, False):
-            command.extend(["--wp-plugins-dir", options[SET_WP_PLUGINS_DIR]])
+            command.extend(["--wp-scan[section]-dir", options[SET_WP_PLUGINS_DIR]])
         if options.get(SET_ENUMERATION, False):
             command.append("--enumerate")
             en = ''
@@ -189,9 +190,9 @@ class WPscanController(Controller):
         if options.get(EXCLUDE_REGEX, False):
             command.extend(["--exclude-content-based", options[EXCLUDE_REGEX]])
         if options.get(PLUGIN_DETECTION_MODE, False):
-            command.extend(["--plugins-detection", options[PLUGIN_DETECTION_MODE]])
+            command.extend(["--scan[section]-detection", options[PLUGIN_DETECTION_MODE]])
         if options.get(PLUGIN_VERSION_DETECTION_MODE, False):
-            command.extend(["--plugins-version-detection", options[PLUGIN_VERSION_DETECTION_MODE]])
+            command.extend(["--scan[section]-version-detection", options[PLUGIN_VERSION_DETECTION_MODE]])
         if options.get(EXCLUDE_USERNAMES, False):
             command.extend(["--exclude-usernames", options[EXCLUDE_USERNAMES]])
         if options.get(PSWD_FILE_PATH, False):
@@ -224,113 +225,204 @@ class WPscanController(Controller):
         with open(TEMP_FILE_NAME, "r") as file:
             try:
                 data:dict = json.load(file)
+                data.pop("stop_time")
+                data.pop("elapsed")
+                data.pop("requests_done")
+                data.pop("cached_requests")
+                data.pop("data_sent")
+                data.pop("data_sent_humanised")
+                data.pop("data_received")
+                data.pop("data_received_humanised")
+                data.pop("used_memory")
+                data.pop("used_memory_humanised")
+                data.pop("banner")
+                data.pop("start_time")
+                data.pop("start_memory")
             except Exception as e:
                 return None, e
         with open ("test.json","w") as file:
             print(json.dumps(data), file= file)
         return data, None
     
-    def __format_html__(self) -> str:
-        html_output = ""
-        html_output += "<b>General Infos</b><br>\n"
-        html_output += f"<p><b>Target url:</b> {self.last_scan_result['target_url']}</p>\n"
-        html_output += f"<p><b>Target ip:</b> {self.last_scan_result['target_ip']}</p>\n"
-        html_output += f"<p><b>Effective url:</b> {self.last_scan_result['effective_url']}</p><br>\n"
+    def __build_href__(self, key: str, value:str) -> str:
+        WPVULNDB = "https://wpscan.com/vulnerability/"
         
-        interesting_findings = self.last_scan_result.get("interesting_findings", None)
-        if interesting_findings:
-            html_output += "<b>Interesting Findings</b><br>\n"
+        html = ""
+        if key == "wpvulndb":
+            html += f'<a href="{WPVULNDB + value + "/"}">{value}</a>'
+        elif key == "url":
+            html += f'<a href="{value}">{value}</a>'
             
-            html_output += "<table>\n"
-            html_output += "<tr>\n"
-            for header in interesting_findings[0].keys():
-                html_output += f"<th>{header}</th>\n"
-            html_output += "</tr>\n"
-            for row in interesting_findings:
-                html_output += "<tr>\n"
-                
-                for column in row:
-                    html_output += "<td>\n"
-                    if isinstance(row[column], dict):
-                        html_output += f"<table>\n{render_dictionary_as_table(row[column])}</table>\n"
-                    elif isinstance(row[column], list):
-                        html_output += f"<ul>\n{render_list_as_bullet_list(row[column])}</ul>\n"
-                    else:
-                        html_output += f"{row[column]}\n"
-                    html_output += "</td>\n"
-                html_output += "</tr>\n"
-                
-            html_output += "</table><br><br>\n"
-            
-        version = self.last_scan_result.get("version", None)
-        if version:
-            html_output += '<b>Verison Details</b><br>\n'
-            for tag, detail in version.items():
-                if isinstance(detail, dict):
-                    html_output += f"<b>{tag}:</b><table>\n{render_dictionary_as_table(detail)}</table>\n" 
-                if isinstance(detail, list):
-                    if isinstance(detail[0], dict):
-                        html_output += f"<table>\n{render_list_in_dictionary_as_table(detail)}</table>\n" 
-                    else:
-                        html_output += f"<b>{tag}:</b><ul>\n{render_list_as_bullet_list(detail)}</ul>\n"
-                        
+        else:
+            return value
         
-        main_theme = self.last_scan_result.get("main_theme", None)
-        if main_theme:
-            html_output += "<b>Main Theme</b><br>\n"
-            for tag, detail in main_theme.items():
-                if isinstance(detail, dict):
-                    html_output += f"<b>{tag}:</b><table>\n{render_dictionary_as_table(detail)}</table>\n" 
-                elif isinstance(detail, list):
-                    html_output += f"<b>{tag}:</b><ul>\n{render_list_as_bullet_list(detail)}</ul>\n"
-                    html_output += "<br>\n"
+        return html
+    
+    def __render_dictionary_as_table__(self, dictionary: dict, indent=""):
+        """
+        Render a dictionary as an HTML table.
+
+        Args:
+            dictionary (dict): The dictionary to render as a table.
+            indent (str, optional): The string to use for indentation. Defaults to "".
+
+        Returns:
+            str: The HTML representation of the dictionary as a table.
+        """
+        html = ""
+        for key, value in dictionary.items():
+            html += '<tr class= open>'
+            if isinstance(value, dict):
+                html += (
+                    f"<th>{indent}{key}</th><td><table>\n"
+                    + render_dictionary_as_table(value, indent + "&nbsp;&nbsp;")
+                    + "\n</table></td>\n"
+                )
+            elif isinstance(value, list):
+                html += f"<th>{indent}{key}</th><td><ul>\n{self.__render_list_as_bullet_list__(value, key)}</ul></td>\n"
+            else:
+                html += f"<th>{indent}{key}</th><td>{value}</td>\n"
+            html += '</tr>\n'
+        return html
+    
+    def __render_list_as_bullet_list__(self, content: list, tag: str) -> str:
+        """
+        Render a list as an HTML bullet list.
+
+        Args:
+            content (list): The list to render as bullet list.
+
+        Returns:
+            str: The HTML representation of the list as a bullet list.
+        """
+        html = ""
+        if len(content) == 0:
+            html += "<li>No Infos</li>\n"
+        else:
+            for item in content:
+                ref = self.__build_href__(tag, item)
+                html += f"<li>{ref}</li>\n"
+        return html
+    
+    def __render_list_in_dictionary_as_table__(self, content: list) -> str:
+        """
+        Render a list as an HTML table content.
+
+        Args:
+            list (list): The list to render as table content.
+
+        Returns:
+            str: The HTML representation of the dictionary as a table.
+        """
+        html = ""
+        html += "<tr>\n"
+        for header in content[0].keys():
+            html += f"<th>{header}</th>\n"
+        html += "</tr>\n"
+
+        for row in content:
+            html += "<tr>\n"
+            for column in row:
+                html += "<td>\n"
+                if isinstance(row[column], list):
+                    if isinstance(row[column][0], dict):
+                        html += f"<table>\n{render_dictionary_as_table(row[column])}</table>\n"
+                    else:
+                        html += f"<ul>\n{render_list_as_bullet_list(row[column])}</ul>\n"
+                elif isinstance(row[column], dict):
+                    html += f"<table>\n{self.__render_dictionary_as_table__(row[column])}</table>\n"
                 else:
-                    html_output += f"<p><b>{tag}:</b> {detail}</p>\n"
+                    html += f"{row[column]}\n"
+                html += "</td>\n"
+            html += "</tr>\n"
+
+        return html
         
-        plugins: dict = self.last_scan_result.get("plugins")
-        if plugins:
-            html_output += "<b>Plugins</b><br>\n"
-            html_output += "<table>\n"
-            html_output += "<tr>\n"
-            first_plugin = next(iter(plugins.keys()))
-            for header in plugins[first_plugin].keys():
-                html_output += f"<th>{header}</th>\n"
-            html_output += "</tr>\n"
-            
-            for plugin in plugins:
-                html_output += "<tr>\n"
-                for tag, detail in plugins[plugin].items():
-                    html_output += "<td>\n" 
-                    if isinstance(detail, dict):
-                        html_output += "<table>\n"
-                        html_output += render_dictionary_as_table(detail)
-                        html_output += "</table>\n"
-                    elif isinstance(detail, list):
-                        if tag == "vulnerabilities":
-                            if len(detail) == 0:
-                                html_output += "No Vulnerability Found\n"
-                            else:
-                                html_output += f"<table>\n{render_list_in_dictionary_as_table(detail)}</table>\n" 
-                    else:
-                        html_output += f"{detail}\n"
-                    html_output += "</td>\n" 
-                html_output += "</tr>\n" 
-                
-            html_output += "</table><br><br>\n" 
-            
-            themes = self.last_scan_result.get("themes", None)
-            if themes:
-                html_output += "<b>Themes</b><br>\n"
+    def __format_html__(self) -> str:
+        html_output = ''
+        scan:dict = deepcopy(self.last_scan_result)
+        
+        split_list_1 = ["main_theme", "version"]
+        split_list_2 = ["plugins", "themes"]
+        split_list_3 = ["medias", "users"]
+        
+        api_detail = scan.pop("vuln_api", None)
+        if api_detail:
+            html_output += "<b>Api Details</b><br>"
+            for tag, detail in api_detail.items():
+                html_output += f"<p><b>{tag}: </b>{detail}</p>"
+            html_output += "<br>"                           
+        
+        
+        html_output += "<b>General Infos</b><br>\n"
+        html_output += f"<p><b>Target url:</b> {scan['target_url']}</p>\n"
+        scan.pop("target_url")
+        html_output += f"<p><b>Target ip:</b> {scan['target_ip']}</p>\n"
+        scan.pop("target_ip")
+        html_output += f"<p><b>Effective url:</b> {scan['effective_url']}</p>\n"
+        scan.pop("effective_url")
+        
+        
+        
+        for section in scan:
+            if scan[section] is None or not scan[section]:
+                continue
+            html_output += f"<b>{section}</b><br>"
+            print(section)
+
+            # interesting_findings block
+            if isinstance(scan[section], list):
                 html_output += "<table>\n"
                 html_output += "<tr>\n"
-                first_theme = next(iter(themes.keys()))
-                for header in themes[first_theme].keys():
+                for header in scan[section][0].keys():
                     html_output += f"<th>{header}</th>\n"
                 html_output += "</tr>\n"
-                
-                for theme in themes:
+                for row in scan[section]:
                     html_output += "<tr>\n"
-                    for tag, detail in themes[theme].items():
+                    
+                    for column in row:
+                        html_output += "<td>\n"
+                        if isinstance(row[column], dict):
+                            html_output += f"<table>\n{render_dictionary_as_table(row[column])}</table>\n"
+                        elif isinstance(row[column], list):
+                            html_output += f"<ul>\n{render_list_as_bullet_list(row[column])}</ul>\n"
+                        else:
+                            html_output += f"{row[column]}\n"
+                        html_output += "</td>\n"
+                    html_output += "</tr>\n"
+                    
+                html_output += "</table><br><br>\n"   
+            elif section in split_list_1:
+                for tag, detail in scan[section].items():
+                    if tag == "vulnerabilities" and len(detail) != 0:
+                        html_output += f"<b>{tag}:</b><table>\n{self.__render_list_in_dictionary_as_table__(detail)}</table><br>\n" 
+                    elif isinstance(detail, dict):
+                        html_output += f"<b>{tag}:</b><table>\n{render_dictionary_as_table(detail)}</table><br>\n" 
+                    elif isinstance(detail, list):
+                        if isinstance(detail[0], dict):
+                            html_output += f"<b>{tag}: </b> <table>\n{render_list_in_dictionary_as_table(detail)}</table><br>\n" 
+                        elif isinstance(detail[0], str) :
+                            html_output += f"<b>{tag}:</b><ul>\n{render_list_as_bullet_list(detail)}</ul>\n"
+                            html_output += "<br>\n"
+                        else:
+                            html_output += f"<p><b>{tag}:</b> {detail}</p>\n"
+                    else:
+                        html_output += f'<p><b>{tag}: </b>{detail}</p>'                
+            elif section in split_list_2:
+                html_output += "<table>\n"
+                html_output += "<tr>\n"
+                first_item = next(iter(scan[section].keys()))
+                for header in scan[section][first_item].keys():
+                    html_output += f"<th>{header}</th>\n"
+                html_output += "</tr>\n"
+                    
+                for item in scan[section]:
+                    if scan[section][item].get("vulnerabilities", False) and len(scan[section][item].get("vulnerabilities", False)) != 0:
+                        scan[section][item] = move_key(scan[section][item], "vulnerabilities", 1)
+                        html_output += '<tr class= "vulnerable_plugin">'
+                    else:
+                            html_output += "<tr>\n" 
+                    for tag, detail in scan[section][item].items():
                         html_output += "<td>\n" 
                         if isinstance(detail, dict):
                             html_output += "<table>\n"
@@ -341,73 +433,35 @@ class WPscanController(Controller):
                                 if len(detail) == 0:
                                     html_output += "No Vulnerability Found\n"
                                 else:
-                                    html_output += f"<table>\n{render_list_in_dictionary_as_table(detail)}</table>\n" 
+                                    html_output += f"<table>\n{self.__render_list_in_dictionary_as_table__(detail)}</table>\n"
+                            elif len(detail) != 0 and isinstance(detail[0], str):
+                                html_output += f'<ul>{render_list_as_bullet_list(detail)}</ul>'
                         else:
-                            html_output += f"<p>{detail}</p>\n"
+                            html_output += f"{detail}\n"
                         html_output += "</td>\n" 
                     html_output += "</tr>\n" 
-                
-                html_output += "</table><br><br>\n"                    
-            
-            timthumbs = self.last_scan_result.get("timthumbs", None)
-            if timthumbs:
-                html_output += "<b>Timthumbs</b><br>\n"
-                html_output += f"<table>\n{render_dictionary_as_table(timthumbs)}</table><br><br>\n"               
-            
-            config_backups = self.last_scan_result.get("config_backups", None)
-            if config_backups:
-                html_output += "<b>Configurations Backups</b><br>\n"
-                html_output += f"<table>\n{render_dictionary_as_table(config_backups)}</table><br><br>\n"
-                
-            db_exprorts = self.last_scan_result.get("db_exports", None)
-            if db_exprorts:
-                html_output += "<b>DB Exports</b><br>\n"
-                html_output += f"<table>\n{render_dictionary_as_table(db_exprorts)}</table><br><br>\n"  
-                
-            medias = self.last_scan_result.get("medias", None)
-            if medias:
-                html_output += "<b>Medias</b><br>"
+                    
+                html_output += "</table><br><br>\n"               
+            elif section in split_list_3:
                 html_output += "<table>"
                 html_output += "<tr>\n"
-                first_media = next(iter(medias.keys()))
+                first_item = next(iter(scan[section].keys()))
                 html_output += "<th>media_id</th>"
-                for header in medias[first_media].keys():
+                for header in scan[section][first_item].keys():
                     html_output += f"<th>{header}</th>\n"
                 html_output += "</tr>\n"
                 
-                for media in medias:
+                for item in scan[section]:
                     html_output += "<tr>\n"
-                    html_output += f"<td>{media}</td>"
-                    for tag, detail in medias[media].items():
+                    html_output += f"<td>{item}</td>"
+                    for tag, detail in scan[section][item].items():
                         html_output += f"<td>{detail}</td>\n" 
                     html_output += "</tr>\n" 
                     
                 html_output += "</table><br><br>\n"
-            
-            users = self.last_scan_result.get("users", None)
-            if users:
-                html_output += "<b>Users</b><br>"
-                html_output += "<table>"
-                html_output += "<tr>\n"
-                first_user = next(iter(users.keys()))
-                html_output += "<th>user_id</th>"
-                for header in users[first_user].keys():
-                    html_output += f"<th>{header}</th>\n"
-                html_output += "</tr>\n"
-                
-                for user in users:
-                    html_output += "<tr>\n"
-                    html_output += f"<td>{user}</td>"
-                    for tag, detail in users[user].items():
-                        html_output += f"<td>{detail}</td>\n" 
-                    html_output += "</tr>\n" 
-                    
-                html_output += "</table><br><br>\n"  
-                
-            api_detail = self.last_scan_result.get("vuln_api", None)
-            if api_detail:
-                html_output += "<b>Api Details</b><br>"
-                for tag, detail in api_detail.items():
-                    html_output += f"<p><b>{tag}: </b>{detail}</p>"                            
+            else:
+                html_output += f"<b>{section}</b><br>"
             
         return html_output
+        
+
