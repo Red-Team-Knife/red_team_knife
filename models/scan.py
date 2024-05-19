@@ -43,30 +43,6 @@ class Scan:
         self.data_storage.save_key_value(tool_name, data)
         return
 
-    def create_scan(self, file_name):
-        if not os.path.exists(self.root_path):
-            self.create_root_folder()
-
-        if file_name is None:
-            file_path = os.path.join(self.root_path, file_name)
-        else:
-            file_path = os.path.join(
-                self.root_path,
-            )
-
-        with open(file_path, "w") as file:
-            json.dump(
-                {
-                    file_name: {
-                        "creation_date": datetime.datetime.now().date(),
-                        "creation_time": datetime.datetime.now().time(),
-                    }
-                },
-                file,
-            )
-
-        return file_path
-
     def get_tool_scan(self, tool:str):
         
         return self.data_storage.get_value(tool)
