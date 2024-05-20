@@ -1,4 +1,4 @@
-from views.domain_name_target_view import DomainNameTargetBlueprint
+from views.domain_name_target import DomainNameTargetBlueprint
 from controllers.dig import SPOOFER_ENDPOINT, SPOOFER_HOST_PARAMETER_NAME
 
 class DigBlueprint(DomainNameTargetBlueprint):

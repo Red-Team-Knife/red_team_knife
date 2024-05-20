@@ -1,5 +1,5 @@
 import json
-from views.web_target_view import WebTargetBlueprint
+from views.web_target import WebTargetBlueprint
 from copy import deepcopy
 
 from utils.utils import (

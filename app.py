@@ -97,15 +97,15 @@ from utils.utils import (
 )
 from views.commix import CommixBlueprint
 from views.dig import DigBlueprint
-from views.domain_name_target_view import DomainNameTargetBlueprint
+from views.domain_name_target import DomainNameTargetBlueprint
 from views.feroxbuster import FeroxbusterBlueprint
 from views.nmap_vuln import NmapVulnBlueprint
 from views.search_exploit import SearchExploitBlueprint
 from views.sqlmap import SqlmapBlueprint
-from views.tips_page_view import TipsPageBlueprint
+from views.tips_page import TipsPageBlueprint
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
-from views.web_target_view import WebTargetBlueprint
+from views.web_target import WebTargetBlueprint
 from models.current_scan import CurrentScan
 from views.w4af_audit import W4afBlueprint
 from views.nmap_scan import NmapBlueprint

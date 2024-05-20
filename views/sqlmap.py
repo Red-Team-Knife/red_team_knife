@@ -13,7 +13,7 @@ from controllers.sqlmap import (
     SQL_SHELL,
     SQL_SHELL_MSG,
 )
-from views.web_target_view import WebTargetBlueprint
+from views.web_target import WebTargetBlueprint
 from utils.utils import render_list_in_dictionary_as_table
 
 

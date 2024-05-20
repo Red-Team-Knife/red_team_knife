@@ -1,5 +1,5 @@
 from utils.utils import render_dictionary_as_table
-from views.web_target_view import WebTargetBlueprint
+from views.web_target import WebTargetBlueprint
 
 
 class FeroxbusterBlueprint(WebTargetBlueprint):

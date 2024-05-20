@@ -1,4 +1,4 @@
-from views.web_target_view import WebTargetBlueprint
+from views.web_target import WebTargetBlueprint
 
 
 class SmtpEmailSpooferBlueprint(WebTargetBlueprint):

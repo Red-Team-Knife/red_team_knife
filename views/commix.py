@@ -1,4 +1,4 @@
-from views.web_target_view import WebTargetBlueprint
+from views.web_target import WebTargetBlueprint
 from controllers.commix import (
     OS_SHELL,
     OS_SHELL_MSG,
