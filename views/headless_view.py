@@ -58,7 +58,7 @@ class HeadlessBlueprint(Blueprint):
 
     def results(self):
         debug_route(request)
-        return jsonify(self.controller.get_formatted_results())
+        return jsonify(self.__format_result__())
 
     def stop_scan(self):
         l.info(f"Stopping {self.tool_name} scan...")
@@ -68,3 +68,31 @@ class HeadlessBlueprint(Blueprint):
             return "<p>Scan stopped.</p>"
         except Exception as e:
             return "<p>Something went wrong. Check terminal for more information.</p>"
+
+    def __format_result__(self):
+        """
+        Formats the result in HTML.
+
+        Returns:
+            str: HTML-formatted results.
+        """
+        results = self.controller.get_results()
+        if results:
+            l.info(f"Generating HTML for {self.tool_name} results...")
+            html = self.__format_html__(results)
+            l.success("HTML generated successfully.")
+            return html
+        else:
+            return "<p>An error occurred during results retrieval. Check terminal for more information.</p>"
+
+    def __format_html__(self, results) -> str:
+        """
+        Formats results into HTML form.
+
+        Args:
+            results: object containing the results.
+
+        Returns:
+            str: HTML-formatted results.
+        """
+        pass

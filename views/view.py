@@ -35,7 +35,7 @@ class BaseBlueprint(Blueprint):
         self.route("/scan_in_progress", methods=["GET"])(self.is_scan_in_progress)
         self.route("/stop_scan", methods=["GET"])(self.stop_scan)
 
-    def interface(self, extra:dict= None):
+    def interface(self, extra: dict = None):
         """
         Returns proper interface or result page based on user request
 
@@ -44,14 +44,14 @@ class BaseBlueprint(Blueprint):
 
         Returns:
             flask.Response: Requested page.
-        """ 
+        """
         debug_route(request)
 
         if request.method == "POST":
             return self.__get_interface_page_for_post_request__(request, extra)
         return self.__get_interface_page_for_get_request__(extra)
 
-    def __get_interface_page_for_get_request__(self, extra:dict = None):
+    def __get_interface_page_for_get_request__(self, extra: dict = None):
         """
         Decides which version of the web page needs to be returned after a GET request.
 
@@ -87,7 +87,7 @@ class BaseBlueprint(Blueprint):
                 sections=self.sections,
                 past_scan_available=True,
                 save_disabled=no_scan_started,
-                scan_result=self.controller.get_formatted_results(),
+                scan_result=self.__format_result__(),
                 current_section=self.name,
                 tool=self.tool_name,
                 extra=extra,
@@ -158,9 +158,7 @@ class BaseBlueprint(Blueprint):
                 CurrentScan.scan is not None
                 and CurrentScan.scan.get_tool_scan(self.name) is not None
             ):
-                self.controller.last_scan_result = CurrentScan.scan.get_tool_scan(
-                    self.name
-                )
+                self.controller.restore_scan()
                 l.info(f"Loading previous {self.tool_name} scan results.")
 
                 return render_template(
@@ -168,7 +166,7 @@ class BaseBlueprint(Blueprint):
                     sections=self.sections,
                     past_scan_available=True,
                     save_disabled=True,
-                    scan_result=self.controller.restore_last_scan(),
+                    scan_result=self.__format_result__(),
                     current_section=self.name,
                     tool=self.tool_name,
                     extra=extra,
@@ -197,8 +195,14 @@ class BaseBlueprint(Blueprint):
             extra=extra,
         )
 
-    # Builds the target for the specific tool
-    def __build_target__(self):
+    def __build_target__(self) -> str:
+        """Builds target.
+
+        Can be inherited for customization.
+
+        Returns:
+            str: target string.
+        """
         return CurrentScan.scan.host
 
     def is_scan_in_progress(self):
@@ -230,7 +234,7 @@ class BaseBlueprint(Blueprint):
         """
         debug_route(request)
 
-        return jsonify(self.controller.get_formatted_results())
+        return jsonify(self.__format_result__())
 
     def save_results(self):
         """
@@ -245,18 +249,14 @@ class BaseBlueprint(Blueprint):
         debug_route(request)
         l.info(f"Saving {self.tool_name} results...")
 
-        if CurrentScan.scan is not None:
-            try:
-                CurrentScan.scan.save_scan(self.name, self.controller.last_scan_result)
-                self.controller.last_scan_result = None
-                l.success(f"{self.tool_name} results saved.")
-            except Exception as e:
-                l.error(f"{self.tool_name} results were not saved!")
-                print(e)
+        is_results_saved = self.controller.save_results()
 
+        if isinstance(is_results_saved, Exception):
+            return "<p>An error occured during the operation, check terminal for more information.</p>"
+        elif is_results_saved:
             return "<p>Results successfully saved.</p>"
-        l.warning(f"No scan was started!")
-        return "<p>No scan started.</p>"
+        else:
+            return "<p>No scan started.</p>"
 
     def stop_scan(self):
         """
@@ -276,3 +276,31 @@ class BaseBlueprint(Blueprint):
             l.error(f"Could not stop {self.tool_name} scan:")
             print(e)
             return "<p>Something went wrong. Check terminal for more information.</p>"
+
+    def __format_result__(self):
+        """
+        Formats the result in HTML.
+
+        Returns:
+            str: HTML-formatted results.
+        """
+        results = self.controller.get_results()
+        if results:
+            l.info(f"Generating HTML for {self.tool_name} results...")
+            html = self.__format_html__(results)
+            l.success("HTML generated successfully.")
+            return html
+        else:
+            return "<p>An error occurred during results retrieval. Check terminal for more information.</p>"
+
+    def __format_html__(self, results) -> str:
+        """
+        Formats results into HTML form.
+
+        Args:
+            results: object containing the results.
+
+        Returns:
+            str: HTML-formatted results.
+        """
+        pass

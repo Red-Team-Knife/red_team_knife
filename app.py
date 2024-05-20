@@ -5,7 +5,7 @@ import subprocess
 import sys
 import colorama
 from flask import *
-from controllers.dig_controller import (
+from controllers.dig import (
     DigController,
     scan_options as dig_scan_options,
     TOOL_NAME as DIG_NAME,
@@ -69,20 +69,17 @@ from controllers.commix import (
     TOOL_DISPLAY_NAME as COMMIX_DISPLAY_NAME,
     TOOL_NAME as COMMIX_NAME,
 )
-from controllers.installation_tips import(
+from controllers.installation_tips import (
     INSTALLATION_TIPS_DISPLAY_NAME,
-    INSTALLATION_TIPS_NAME
+    INSTALLATION_TIPS_NAME,
 )
 
-from controllers.command_and_control_tips import(
+from controllers.command_and_control_tips import (
     COMMAND_AND_CONTROL_TIPS_DISPLAY_NAME,
     COMMAND_AND_CONTROL_TIPS_NAME,
 )
 
-from controllers.action_tips import(
-    ACTION_TIPS_DISPLAY_NAME,
-    ACTION_TIPS_NAME
-)
+from controllers.action_tips import ACTION_TIPS_DISPLAY_NAME, ACTION_TIPS_NAME
 
 from controllers.wpscan import (
     WPscanController,
@@ -98,18 +95,24 @@ from utils.utils import (
     render_scan_dictionary,
     debug_route,
 )
+from views.commix import CommixBlueprint
+from views.dig import DigBlueprint
 from views.domain_name_target_view import DomainNameTargetBlueprint
-from views.nmap_vuln.view import NmapVulnBlueprint
+from views.feroxbuster import FeroxbusterBlueprint
+from views.nmap_vuln import NmapVulnBlueprint
+from views.search_exploit import SearchExploitBlueprint
+from views.sqlmap import SqlmapBlueprint
 from views.tips_page_view import TipsPageBlueprint
 from views.view import BaseBlueprint
 from views.headless_view import HeadlessBlueprint
 from views.web_target_view import WebTargetBlueprint
 from models.current_scan import CurrentScan
-from views.w4af_audit.view import W4afBlueprint
-from views.nmap.view import NmapBlueprint
-from views.the_harvester.view import TheHarvesterBlueprint
+from views.w4af_audit import W4afBlueprint
+from views.nmap_scan import NmapBlueprint
+from views.the_harvester import TheHarvesterBlueprint
 import logging
 from loguru import logger as l
+from views.wpscan import WPScanBlueprint
 
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
@@ -194,7 +197,9 @@ SECTIONS = {
         (COMMIX_DISPLAY_NAME, COMMIX_NAME),
     ],
     "Installation": [(INSTALLATION_TIPS_DISPLAY_NAME, INSTALLATION_TIPS_NAME)],
-    "Command and Control": [(COMMAND_AND_CONTROL_TIPS_DISPLAY_NAME, COMMAND_AND_CONTROL_TIPS_NAME)],
+    "Command and Control": [
+        (COMMAND_AND_CONTROL_TIPS_DISPLAY_NAME, COMMAND_AND_CONTROL_TIPS_NAME)
+    ],
     "Action": [(ACTION_TIPS_DISPLAY_NAME, ACTION_TIPS_NAME)],
 }
 
@@ -209,7 +214,7 @@ CONTROLLERS = {
     SMTP_EMAIL_SPOOFER_NAME: SmtpEmailSpooferController(),
     SQLMAP_NAME: SqlmapController(),
     COMMIX_NAME: CommixController(),
-    WPSCAN_NAME : WPscanController(),
+    WPSCAN_NAME: WPscanController(),
 }
 
 app = Flask("red_team_knife", static_url_path="/static")
@@ -240,7 +245,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    dig_blueprint = DomainNameTargetBlueprint(
+    dig_blueprint = DigBlueprint(
         DIG_NAME,
         __name__,
         CONTROLLERS[DIG_NAME],
@@ -262,7 +267,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    feroxbuster_blueprint = WebTargetBlueprint(
+    feroxbuster_blueprint = FeroxbusterBlueprint(
         FEROXBUSTER_NAME,
         __name__,
         CONTROLLERS[FEROXBUSTER_NAME],
@@ -284,7 +289,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    search_exploit_blueprint = HeadlessBlueprint(
+    search_exploit_blueprint = SearchExploitBlueprint(
         SEARCH_EXPLOIT_NAME,
         __name__,
         CONTROLLERS[SEARCH_EXPLOIT_NAME],
@@ -306,7 +311,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    sqlmap_blueprint = WebTargetBlueprint(
+    sqlmap_blueprint = SqlmapBlueprint(
         SQLMAP_NAME,
         __name__,
         CONTROLLERS[SQLMAP_NAME],
@@ -317,7 +322,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    commix_blueprint = WebTargetBlueprint(
+    commix_blueprint = CommixBlueprint(
         COMMIX_NAME,
         __name__,
         CONTROLLERS[COMMIX_NAME],
@@ -327,8 +332,8 @@ def register_blueprints(app):
         commix_scan_options,
         SECTIONS,
     )
-    
-    wpscan_blueprint = WebTargetBlueprint(
+
+    wpscan_blueprint = WPScanBlueprint(
         WPSCAN_NAME,
         __name__,
         CONTROLLERS[WPSCAN_NAME],
@@ -336,7 +341,7 @@ def register_blueprints(app):
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         wpscan_scan_options,
-        SECTIONS
+        SECTIONS,
     )
 
     exploitation_tips_blueprint = TipsPageBlueprint(
@@ -347,7 +352,7 @@ def register_blueprints(app):
         EXPLOITATION_TIPS_DISPLAY_NAME,
         INSTALLATION_TIPS_NAME,
     )
-    
+
     installation_tips_blueprint = TipsPageBlueprint(
         INSTALLATION_TIPS_NAME,
         __name__,
@@ -356,7 +361,7 @@ def register_blueprints(app):
         INSTALLATION_TIPS_DISPLAY_NAME,
         COMMAND_AND_CONTROL_TIPS_NAME,
     )
-    
+
     command_and_control_tips_blueprint = TipsPageBlueprint(
         COMMAND_AND_CONTROL_TIPS_NAME,
         __name__,
@@ -365,7 +370,7 @@ def register_blueprints(app):
         COMMAND_AND_CONTROL_TIPS_DISPLAY_NAME,
         ACTION_TIPS_NAME,
     )
-    
+
     action_tips_blueprint = TipsPageBlueprint(
         ACTION_TIPS_NAME,
         __name__,
@@ -392,7 +397,7 @@ def register_blueprints(app):
         installation_tips_blueprint,
         command_and_control_tips_blueprint,
         action_tips_blueprint,
-        wpscan_blueprint
+        wpscan_blueprint,
     ]
 
     for blueprint in BLUEPRINTS:
@@ -523,7 +528,6 @@ def scan_detail():
 def temp_file(filename):
     debug_route(request)
 
-    print(url_for("temp_file", filename="test"))
     filepath = os.path.join(TEMP_FOLDER, filename)
 
     # Check if the file exists

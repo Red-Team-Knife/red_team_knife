@@ -69,18 +69,17 @@ EXECUTE_COMMAND = "execute_command"
 ALTER_SHELL = "alter_shell"
 RADIO_SHELLS = "radio_shells"
 
-OS_SHELL_MSG = 'You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):'
-OS_SHELL_COMMAND= 'commix -u {} --data {} --batch'
-ALTER_SHELL_MSG = 'You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):'
-ALTER_SHELL_COMMAND = 'commix -u {} --data {} --alter-shell <Es. Python> --batch'
-EXECUTE_CMD_MSG = 'You can try to execute a command via commix by running this command in a terminal (you have to put data in <> tags):'
-EXECUTE_CMD_COMMAND = 'sqlmap -u {} --data {} --batch --os-cmd <command>'
+OS_SHELL_MSG = "You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):"
+OS_SHELL_COMMAND = "commix -u {} --data {} --batch"
+ALTER_SHELL_MSG = "You can try to spawn an OS Shell via commix by running this command in a terminal (you have to put data in <> tags):"
+ALTER_SHELL_COMMAND = "commix -u {} --data {} --alter-shell <Es. Python> --batch"
+EXECUTE_CMD_MSG = "You can try to execute a command via commix by running this command in a terminal (you have to put data in <> tags):"
+EXECUTE_CMD_COMMAND = "sqlmap -u {} --data {} --batch --os-cmd <command>"
 
 TOOL_DISPLAY_NAME = "Commix"
 TOOL_NAME = "commix"
 RUNNING_MESSAGE = f"Running {TOOL_DISPLAY_NAME} with command: "
 TEMP_FILE_NAME = "tmp/commix-temp"
-
 
 
 scan_option = [
@@ -121,7 +120,7 @@ scan_option = [
     ("Retrieve System Info", "checkbox", RETRIEVE_INFO, ""),
     ("Retrieve System Users", "checkbox", RETRIEVE_USERS, ""),
     ("Retrieve Password Hashes", "checkbox", RETRIEVE_PASSWORD_HASH, ""),
-    ("List Priviledges", "checkbox", LIST_PRIVILEGES, ""),    
+    ("List Priviledges", "checkbox", LIST_PRIVILEGES, ""),
     ("Retrieve PowerShell's Version", "checkbox", PS_VERSION, ""),
     ("Read a File", "text", READ_FILE, ""),
     ("Write to a File", "text", WRITE_FILE, ""),
@@ -147,49 +146,67 @@ scan_option = [
 ]
 
 
-
 class CommixController(Controller):
-    
+
     def __init__(self):
-        super().__init__(TOOL_NAME, TOOL_DISPLAY_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME, TOOL_NAME)
         self.os_shell = False
         self.shell_option = None
         self.target = None
         self.data = None
-        
-        
+
+    def get_results(self) -> object:
+
+        if self.last_scan_result is None:
+            l.info(f"Parsing {self.tool_display_name} temp file...")
+            self.last_scan_result, exception = self.__parse_temp_results_file__()
+            if self.last_scan_result:
+                self.last_scan_result = {"text": self.last_scan_result}
+                self.last_scan_result[OS_SHELL] = self.os_shell
+                self.last_scan_result[RADIO_SHELLS] = self.shell_option
+                self.last_scan_result[SET_DATA] = self.data
+                self.last_scan_result["target"] = self.target
+                l.success("File parsed successfully.")
+            else:
+                l.error("Error parsing temp file.")
+                print(exception)
+                return None
+
+            self.__remove_temp_file__()
+
+        return self.last_scan_result
+
     def __build_command__(self, target: str, options: dict) -> list:
-        
+
         self.os_shell = False
         self.shell_option = None
         self.target = None
         self.data = None
         temp_path = os.path.join(os.getcwd(), TEMP_FILE_NAME)
-        
+
         # Create tmp Folder
         if not os.path.exists(temp_path):
             os.makedirs(temp_path)
-        
+
         command = [
             "commix",
             "-u",
             target,
             "--output-dir",
             temp_path,
-            "-v", 
+            "-v",
             "2",
-            '--answers', 
+            "--answers",
             "Do you want to prompt for a pseudo-terminal shell?=N",
             "--batch",
         ]
-        
+
         self.target = target
-        
+
         if options.get(RADIO_SHELLS, False):
             self.os_shell = True
             self.shell_option = options[RADIO_SHELLS]
-            self.target = target
-        
+
         if options.get(SET_CRAWL_DEPTH, False):
             command.extend(["--crawl", options[SET_CRAWL_DEPTH]])
 
@@ -238,7 +255,7 @@ class CommixController(Controller):
 
         if options.get(SET_AUTH_TYPE, False):
             command.extend(["--auth-type=", f"{options[SET_AUTH_TYPE]}"])
-            
+
         if options.get(SET_AUTH_CREDS, False):
             command.extend(["--auth-cred=", f"{options[SET_AUTH_CREDS]}"])
 
@@ -340,7 +357,7 @@ class CommixController(Controller):
 
         if options.get(SET_WEB_ROOT, False):
             command.extend(["--web-root=", f"{options[SET_WEB_ROOT]}"])
-            
+
         if options.get(FORCE_OS, False):
             command.extend(["--os=", options[FORCE_OS]])
 
@@ -361,67 +378,41 @@ class CommixController(Controller):
 
         if options.get(SET_HEURISTIC, False):
             command.append("--smart")
-        
+
         return command
-    
+
     def __run_command__(self, command) -> Thread:
         class CommixCommandThread(CommandThread):
             def run(self):
                 super().run()
                 if self._stop_event.is_set():
                     self.calling_controller.__remove_temp_file__()
+
         return CommixCommandThread(command, self)
-        
+
     def __remove_temp_file__(self):
         """
         Needs to override super method because commix saves temp files in more folders.
         Removes a temporary results folder
         """
         try:
-            l.info(f"Removing temp {self.tool_name} folder...")
+            l.info(f"Removing temp {self.tool_display_name} folder...")
             shutil.rmtree(TEMP_FILE_NAME)
             l.success("File removed successfully.")
         except Exception as e:
-            l.error(f"Couldn't remove temp {self.tool_name} folder.")
+            l.error(f"Couldn't remove temp {self.tool_display_name} folder.")
             print(e)
-            
+
     def __parse_temp_results_file__(self) -> Tuple[object, Exception]:
-        json_objects = ''
-        
+        json_objects = ""
+
         TMP_PATH = "./" + TEMP_FILE_NAME
-        
+
         for scan in os.listdir(TMP_PATH):
             scan_path = os.path.join(TMP_PATH, scan)
-            
+
             if os.path.isdir(scan_path):
                 with open(os.path.join(scan_path, "logs.txt"), "r") as file:
                     json_objects += file.read()
-                                
+
         return json_objects, None
-    
-    def __format_html__(self) -> str:
-        html_output = ""
-    
-        if self.os_shell:
-            if self.shell_option == OS_SHELL:
-                html_output += f'<p>{OS_SHELL_MSG}</p>'
-                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
-                html_output += OS_SHELL_COMMAND.format(self.target, self.data)
-            elif self.shell_option == ALTER_SHELL:
-                html_output += f'<p>{ALTER_SHELL_MSG}</p>'
-                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
-                html_output += ALTER_SHELL_COMMAND.format(self.target, self.data)
-            elif self.shell_option == EXECUTE_COMMAND:
-                html_output += f'<p>{EXECUTE_CMD_MSG}</p>'
-                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
-                html_output += EXECUTE_CMD_MSG.format(self.target, self.data)                
-                
-            html_output += "</textarea><br><br>"
-            
-        
-        html_output += "<textarea readonly class='exploit_textarea'>"
-        html_output += self.last_scan_result
-        html_output += " </textarea>"
-        
-        
-        return html_output

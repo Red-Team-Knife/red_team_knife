@@ -41,10 +41,10 @@ scan_options = [
 class SmtpEmailSpooferController(Controller):
 
     def __init__(self):
-        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME, TOOL_NAME)
 
     def __build_command__(self, target: str, options: dict):
-        
+
         command = [
             "python3",
             f"{TOOL_FOLDER}/spoof.py",
@@ -74,7 +74,6 @@ class SmtpEmailSpooferController(Controller):
         if options.get(NAME, None):
             command.extend(["--name", options[NAME]])
 
-
         if options.get(RECIPIENTS, None):
             command.extend(["--recipients", options[RECIPIENTS]])
 
@@ -96,7 +95,3 @@ class SmtpEmailSpooferController(Controller):
                     self.calling_controller.__remove_temp_file__()
 
         return SmtpEmailSpooferCommandThread(command, self)
-    
-    def __format_result__(self):
-        self.__remove_temp_file__()
-        return '<p>Operation completed, check terminal for more inforamtion.</p>'

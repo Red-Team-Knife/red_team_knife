@@ -34,7 +34,7 @@ scan_options = [("Set scan profile", "select", PROFILE, options)]
 
 class W4afAuditController(Controller):
     def __init__(self):
-        super().__init__(TOOL_DISPLAY_NAME, None)
+        super().__init__(TOOL_DISPLAY_NAME, None, TOOL_NAME)
 
         self.is_scan_in_background = False
         self.scan_id = None
@@ -59,10 +59,10 @@ class W4afAuditController(Controller):
         while True:
             try:
                 self.scan_id = response.json().get("id")
-                l.info(f"{self.tool_name} scan ID: {str(self.scan_id)}")
+                l.info(f"{self.tool_display_name} scan ID: {str(self.scan_id)}")
                 break
             except Exception as e:
-                l.error(f"Something went wrong during {self.tool_name}.")
+                l.error(f"Something went wrong during {self.tool_display_name}.")
                 print(e)
                 time.sleep(2)
 
@@ -71,7 +71,7 @@ class W4afAuditController(Controller):
 
     def stop_scan(self):
         l.info(
-            f"Handling stop request for {self.tool_name}, for scan id {self.scan_id}."
+            f"Handling stop request for {self.tool_display_name}, for scan id {self.scan_id}."
         )
         requests.get(BASE_URL + f"/scans/{self.scan_id}/stop")
         while True:
@@ -96,7 +96,7 @@ class W4afAuditController(Controller):
 
     def delete_scan(self):
         l.info(
-            f"Handling deletion request for {self.tool_name}, for scan id {self.scan_id}."
+            f"Handling deletion request for {self.tool_display_name}, for scan id {self.scan_id}."
         )
         if self.is_scan_in_background:
             self.stop_scan()
@@ -105,8 +105,11 @@ class W4afAuditController(Controller):
         self.scan_id = None
         l.success(f"Deletion completed for scan id {self.scan_id}.")
 
-    def __format_result__(self):
-        l.info(f"Generating HTML for {self.tool_name} results...")
+    def save_results(self):
+        self.retrieve_complete_scan()
+        return super().save_results()
+
+    def get_results(self) -> object:
 
         status = requests.get(BASE_URL + f"/scans/{self.scan_id}/status")
 
@@ -119,93 +122,11 @@ class W4afAuditController(Controller):
             ).json()
             self.last_scan_result["status"] = self.status
 
-        try:
-            html_table = "<table>\n"
-            html_table += (
-                "<tr><th>ID</th><th>Name</th><th>URL</th><th>Reference</th></tr>\n"
-            )
+        return self.last_scan_result
 
-            for item in self.last_scan_result["items"]:
-                html_table += (
-                    f'<tr><td>{item["id"]}</td>'
-                    + f'<td>{item["name"]}</td>'
-                    + f'<td>{item["url"]}</td>'
-                )
-                if item.get("info"):
-                    description_file_path, description_file_name = (
-                        self.__create_temp_description_file__(item)
-                    )
-                    html_table += f'<td><a href="/{description_file_name}" target="_blank">Read more</a></td></tr>\n'
-                else:
-                    html_table += f'<td><a href="{BASE_URL + item["href"]}" target="_blank">Read more</a></td></tr>\n'
-
-            html_table += "</table>"
-            l.success("HTML generated successfully.")
-            return {
-                "status": self.__create_dictionary_html_table__(self.status),
-                "results": html_table,
-                "progress": self.status.get("progress"),
-            }
-        except Exception as e:
-            print(e)
-            return {
-                "status": "<p>Fetching results...</p>",
-                "results": "<p>Fetching results...</p>",
-                "progress": 0,
-            }
-
-    def __retrieve_complete_scan__(self):
+    def retrieve_complete_scan(self):
         for item in self.last_scan_result["items"]:
             item["info"] = requests.get(BASE_URL + item["href"]).json()
 
-    def __create_temp_description_file__(self, item):
-        random_uuid = uuid.uuid4()
-        # Convert UUID to a string and remove dashes
-        random_filename = str(random_uuid).replace("-", "")
-        file_path = os.path.join(TMP_FOLDER, random_filename + ".html")
-        with open(file_path, "w") as file:
-
-            print(self.__generate_description_html_page__(item["info"]), file=file)
-
-            return file_path, file_path
-
-    def __create_dictionary_html_table__(self, dictionary: dict, indent=""):
-        html = ""
-        for key, value in dictionary.items():
-            if isinstance(value, dict):
-                html += (
-                    f"<tr><th>{indent}{key}</th><td><table>"
-                    + render_dictionary_as_table(value, indent + "&nbsp;&nbsp;")
-                    + "</table></td></tr>"
-                )
-            else:
-                html += f"<tr><th>{indent}{key}</th><td>{value}</td></tr>"
-        return html
-
-    def __generate_description_html_page__(self, data):
-        html_content = f"""
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Vulnerability Description</title>
-                <link rel="stylesheet" href="{url_for('static', filename='styles.css')}">
-            </head>
-            <body>
-                <table border="1">
-                    {render_dictionary_as_table(data)}
-                </table>
-            </body>
-            </html>
-            """
-
-        return html_content
-
-    def restore_last_scan(self):
+    def restore_scan_status(self):
         self.status = self.last_scan_result.get("status")
-        return self.__format_result__()
-
-    def get_formatted_results(self):
-        if not self.is_scan_in_progress:
-            return self.__format_result__()

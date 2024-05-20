@@ -89,9 +89,10 @@ scan_options = [
     ),
 ]
 
+
 class TheHarvesterController(Controller):
     def __init__(self):
-        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME, TOOL_NAME)
 
     def run(self, target: str, options: dict):
         self.screenshot_saved = False
@@ -106,7 +107,7 @@ class TheHarvesterController(Controller):
         else:
             shutil.rmtree(SCREENSHOTS_DIRECTORY)
             os.makedirs(SCREENSHOTS_DIRECTORY)
-        
+
         os.chmod(SCREENSHOTS_DIRECTORY, 0o777)
 
         # build command
@@ -173,12 +174,12 @@ class TheHarvesterController(Controller):
 
     def __remove_temp_file__(self):
         try:
-            l.info(f"Removing temp {self.tool_name} files...")
+            l.info(f"Removing temp {self.tool_display_name} files...")
             os.remove(self.temp_file_name + ".json")
             os.remove(self.temp_file_name + ".xml")
             l.success("Files removed successfully.")
         except Exception as e:
-            l.error(f"Couldn't remove temp {self.tool_name} files.")
+            l.error(f"Couldn't remove temp {self.tool_display_name} files.")
             print(e)
 
     def __parse_temp_results_file__(self):
@@ -195,43 +196,3 @@ class TheHarvesterController(Controller):
                 return None, e
 
             return data, None
-
-    def __format_html__(self):
-        if self.last_scan_result == NO_RESULTS_FOUND:
-            return f'<p>{self.last_scan_result}</p>'
-        data = remove_empty_values(self.last_scan_result)
-
-        html_output = ""
-
-        if self.last_scan_result.get("screenshots_available", False):
-            html_output += (
-                "<p>Screenshots saved here: "
-                + os.path.abspath(SCREENSHOTS_DIRECTORY)
-                + "</p><br>"
-            )
-            self.last_scan_result.pop("screenshots_available")
-
-        html_output += """
-                        <table>
-                        """
-
-        for key in self.last_scan_result.keys():
-            html_output += f"""
-                <tr>
-                    <td><b>{key}</b></td>
-                """
-
-            items = ""
-            for i in self.last_scan_result[key]:
-                items += i
-                items += "<br>"
-
-            # remove last '<br>'
-            items = items[:-4]
-
-            html_output += f"""
-                <td>{items}</td>
-                </tr>
-            """
-        html_output += "</table>"
-        return html_output

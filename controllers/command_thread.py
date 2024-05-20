@@ -29,7 +29,7 @@ class CommandThread(threading.Thread):
         self.command = command
         self._stop_event = threading.Event()
         self.calling_controller = calling_controller
-        self.tool_name = calling_controller.tool_name
+        self.tool_name = calling_controller.tool_display_name
         self.process = None
 
     def run(self):

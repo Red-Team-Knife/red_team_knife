@@ -46,17 +46,17 @@ OS_SHELL = "os_shell"
 PWN_SHELL = "pwn_shell"
 EXECUTE_COMMAND = "execute_command"
 SQL_SHELL = "sql_shell"
-RADIO_SHELL = "radio_shell"
+RADIO_SHELLS = "radio_shell"
 
 
-OS_SHELL_MSG = 'You can try to spawn an OS Shell via sqlmap by running this command in a terminal (you have to put data in <> tags):'
-OS_SHELL_COMMAND = 'sqlmap -u {} --data {} --batch --os-shell'
-SQL_SHELL_MSG = 'You can try to spawn a SQL shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):'
-SQL_SHELL_COMMAND = 'sqlmap -u {} --data {} --batch --sql-shell'
-PWN_SHELL_MSG = 'You can try to spawn a Reverse shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):'
-PWN_SHELL_COMMAND = 'sqlmap -u {} --data {} --batch --os-pwn'
-EXECUTE_CMD_MSG = 'You can try to execute a command via sqlmap by running this command in a terminal (you have to put data in <> tags):'
-EXECUTE_CMD_COMMAND = 'sqlmap -u {} --data {} --batch --os-cmd <command>'
+OS_SHELL_MSG = "You can try to spawn an OS Shell via sqlmap by running this command in a terminal (you have to put data in <> tags):"
+OS_SHELL_COMMAND = "sqlmap -u {} --data {} --batch --os-shell"
+SQL_SHELL_MSG = "You can try to spawn a SQL shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):"
+SQL_SHELL_COMMAND = "sqlmap -u {} --data {} --batch --sql-shell"
+PWN_SHELL_MSG = "You can try to spawn a Reverse shell via sqlmap and Meterpreter by running this command in a terminal (you have to put data in <> tags):"
+PWN_SHELL_COMMAND = "sqlmap -u {} --data {} --batch --os-pwn"
+EXECUTE_CMD_MSG = "You can try to execute a command via sqlmap by running this command in a terminal (you have to put data in <> tags):"
+EXECUTE_CMD_COMMAND = "sqlmap -u {} --data {} --batch --os-cmd <command>"
 
 TEMP_FILE_NAME = "tmp/sqmap-temp"
 TOOL_DISPLAY_NAME = "Sqlmap"
@@ -65,10 +65,10 @@ RUNNING_MESSAGE = f"Running {TOOL_DISPLAY_NAME} with command: "
 
 
 scan_options = [
-    ("Spawn Os Shell", "radio", OS_SHELL, RADIO_SHELL),
-    ("Spawn Reverse Shell", "radio", PWN_SHELL, RADIO_SHELL),
-    ("Execute Command", "radio", EXECUTE_COMMAND, RADIO_SHELL),
-    ("Spawn SQL Shell", "radio", SQL_SHELL, RADIO_SHELL),
+    ("Spawn Os Shell", "radio", OS_SHELL, RADIO_SHELLS),
+    ("Spawn Reverse Shell", "radio", PWN_SHELL, RADIO_SHELLS),
+    ("Execute Command", "radio", EXECUTE_COMMAND, RADIO_SHELLS),
+    ("Spawn SQL Shell", "radio", SQL_SHELL, RADIO_SHELLS),
     ("Set Data for Requests", "text", REQUEST_DATA, "id=* / data1=*&data2=*"),
     ("Set Cookie value", "text", SET_COOKIE, "PHPSESSID=a8d127e"),
     ("Set Proxy to connect with", "text", SET_PROXY, "http://proxy.com"),
@@ -108,25 +108,46 @@ scan_options = [
 class SqlmapController(Controller):
 
     def __init__(self):
-        super().__init__(TOOL_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME, TOOL_NAME)
         self.os_shell = False
         self.shell_option = None
         self.target = None
         self.data = None
 
+    def get_results(self) -> object:
+
+        if self.last_scan_result is None:
+            l.info(f"Parsing {self.tool_display_name} temp file...")
+            self.last_scan_result, exception = self.__parse_temp_results_file__()
+            if self.last_scan_result:
+                self.last_scan_result = {"output": self.last_scan_result}
+                self.last_scan_result[OS_SHELL] = self.os_shell
+                self.last_scan_result[RADIO_SHELLS] = self.shell_option
+                self.last_scan_result[REQUEST_DATA] = self.data
+                self.last_scan_result["target"] = self.target
+                l.success("File parsed successfully.")
+            else:
+                l.error("Error parsing temp file.")
+                print(exception)
+                return None
+
+            self.__remove_temp_file__()
+
+        return self.last_scan_result
+
     def __build_command__(self, target: str, options: dict) -> list:
-        
+
         self.os_shell = False
         self.shell_option = None
         self.target = None
         self.data = None
-        
+
         temp_path = os.path.join(os.getcwd(), TEMP_FILE_NAME)
-        
+
         # Create tmp Folder
         if not os.path.exists(temp_path):
             os.makedirs(temp_path)
-        
+
         command = [
             "sqlmap",
             "-u",
@@ -138,7 +159,7 @@ class SqlmapController(Controller):
             "-v",
             "4",
         ]
-        
+
         self.target = target
 
         if options.get(REQUEST_DATA, False):
@@ -244,9 +265,9 @@ class SqlmapController(Controller):
         if options.get(TEST_FORMS, False):
             command.append("--forms")
 
-        if options.get(RADIO_SHELL, False):
+        if options.get(RADIO_SHELLS, False):
             self.os_shell = True
-            self.shell_option = options[RADIO_SHELL]
+            self.shell_option = options[RADIO_SHELLS]
 
         return command
 
@@ -265,11 +286,11 @@ class SqlmapController(Controller):
         Removes a temporary results folder
         """
         try:
-            l.info(f"Removing temp {self.tool_name} folder...")
+            l.info(f"Removing temp {self.tool_display_name} folder...")
             shutil.rmtree(self.temp_file_name)
             l.success("File removed successfully.")
         except Exception as e:
-            l.error(f"Couldn't remove temp {self.tool_name} folder.")
+            l.error(f"Couldn't remove temp {self.tool_display_name} folder.")
             print(e)
 
     def __parse_temp_results_file__(self) -> Tuple[object, Exception]:
@@ -279,7 +300,7 @@ class SqlmapController(Controller):
         for scan in os.listdir(TEMP_PATH):
             scan_path = os.path.join(TEMP_PATH, scan)
             if os.path.isfile(scan_path):
-                if scan.endswith('.csv'):
+                if scan.endswith(".csv"):
                     with open(scan_path, "r") as file:
                         csv_content = [row for row in csv.DictReader(file)]
                         json_object = {"Crawling Results": csv_content}
@@ -315,30 +336,29 @@ class SqlmapController(Controller):
 
         return json_objects, None
 
+    '''
     def __format_html__(self) -> str:
         html_output = ""
-        
+
         if self.os_shell:
             if self.shell_option == OS_SHELL:
-                html_output += f'<p>{OS_SHELL_MSG}</p>'
-                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += f"<p>{OS_SHELL_MSG}</p>"
+                html_output += f"<textarea readonly style=\"width: calc(100%); height: 45px; font-family: 'Courier New', Courier, monospace;\"> "
                 html_output += OS_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == PWN_SHELL:
-                html_output += f'<p>{PWN_SHELL_MSG}</p>'
-                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += f"<p>{PWN_SHELL_MSG}</p>"
+                html_output += f"<textarea readonly style=\"width: calc(100%); height: 45px; font-family: 'Courier New', Courier, monospace;\"> "
                 html_output += PWN_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == SQL_SHELL:
-                html_output += f'<p>{SQL_SHELL_MSG}</p>'
-                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += f"<p>{SQL_SHELL_MSG}</p>"
+                html_output += f"<textarea readonly style=\"width: calc(100%); height: 45px; font-family: 'Courier New', Courier, monospace;\"> "
                 html_output += OS_SHELL_COMMAND.format(self.target, self.data)
             elif self.shell_option == EXECUTE_COMMAND:
-                html_output += f'<p>{EXECUTE_CMD_MSG}</p>'
-                html_output += f'<textarea readonly style="width: calc(100%); height: 45px; font-family: \'Courier New\', Courier, monospace;"> '
+                html_output += f"<p>{EXECUTE_CMD_MSG}</p>"
+                html_output += f"<textarea readonly style=\"width: calc(100%); height: 45px; font-family: 'Courier New', Courier, monospace;\"> "
                 html_output += EXECUTE_CMD_COMMAND.format(self.target, self.data)
-                
+
             html_output += "</textarea><br><br>"
-            
-        
 
         for db in self.last_scan_result:
             if isinstance(db, str):
@@ -361,9 +381,7 @@ class SqlmapController(Controller):
                             )
                             html_output += "</table> <br>"
 
-
             html_output += "<br><br>"
-            
-                
 
         return html_output
+    '''

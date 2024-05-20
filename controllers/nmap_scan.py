@@ -185,7 +185,7 @@ scan_options = [
 
 class NmapController(Controller):
     def __init__(self):
-        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME)
+        super().__init__(TOOL_DISPLAY_NAME, TEMP_FILE_NAME, TOOL_NAME)
 
     def __build_command__(self, target: str, options: dict):
         command = [
@@ -466,6 +466,7 @@ class NmapController(Controller):
 
                 return json_objects, None
 
+    '''
     def __format_html__(self):
 
         html = ""
@@ -674,3 +675,4 @@ class NmapController(Controller):
             html_string += "</table><br>\n"
 
         return html_string
+    '''
