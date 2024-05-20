@@ -70,7 +70,7 @@ class WPScanBlueprint(WebTargetBlueprint):
                         html_output += f"<b>{tag}:</b><table>\n{self.__render_list_in_dictionary_as_table__(detail)}</table><br>\n"
                     elif isinstance(detail, dict):
                         html_output += f"<b>{tag}:</b><table>\n{render_dictionary_as_table(detail)}</table><br>\n"
-                    elif isinstance(detail, list):
+                    elif isinstance(detail, list) and len(detail) != 0:
                         if isinstance(detail[0], dict):
                             html_output += f"<b>{tag}: </b> <table>\n{render_list_in_dictionary_as_table(detail)}</table><br>\n"
                         elif isinstance(detail[0], str):
@@ -96,7 +96,7 @@ class WPScanBlueprint(WebTargetBlueprint):
                         scan[section][item] = move_key(
                             scan[section][item], "vulnerabilities", 1
                         )
-                        html_output += '<tr class= "vulnerable_plugin">'
+                        html_output += '<tr>'
                     else:
                         html_output += "<tr>\n"
                     for tag, detail in scan[section][item].items():
