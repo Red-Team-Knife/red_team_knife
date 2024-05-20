@@ -104,7 +104,7 @@ from views.search_exploit import SearchExploitBlueprint
 from views.sqlmap import SqlmapBlueprint
 from views.tips_page import TipsPageBlueprint
 from views.view import BaseBlueprint
-from views.headless_view import HeadlessBlueprint
+from views.headless import HeadlessBlueprint
 from views.web_target import WebTargetBlueprint
 from models.current_scan import CurrentScan
 from views.w4af_audit import W4afBlueprint
@@ -127,6 +127,7 @@ SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
 SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
 NMAP_RESULTS_TEMPLATE = "nmap/results.html"
 THE_HARVESTER_RESULTS_TEMPLATE = "the_harvester/results.html"
+WPSCAN_RESULTS_TEMPLATE = "wpscan/results.html"
 
 
 EXPLOITATION_TIPS_TEMPLATE = "exploitation/tips.html"
@@ -339,7 +340,7 @@ def register_blueprints(app):
         CONTROLLERS[WPSCAN_NAME],
         WPSCAN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
-        RESULTS_TEMPLATE,
+        WPSCAN_RESULTS_TEMPLATE,
         wpscan_scan_options,
         SECTIONS,
     )

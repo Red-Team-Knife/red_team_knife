@@ -1,4 +1,5 @@
 import json
+from controllers.exploitation_tips import EXPLOITATION_TIPS_NAME
 from views.web_target import WebTargetBlueprint
 from copy import deepcopy
 
@@ -11,6 +12,11 @@ from utils.utils import (
 
 
 class WPScanBlueprint(WebTargetBlueprint):
+    
+    def interface(self):
+        extra = {"exploitation_tips_name": EXPLOITATION_TIPS_NAME}
+        return super().interface(extra=extra)
+    
     def __format_html__(self, result) -> str:
         html_output = ""
         with open('temp_wpscan.json', 'w') as file:
@@ -40,7 +46,6 @@ class WPScanBlueprint(WebTargetBlueprint):
             if scan[section] is None or not scan[section]:
                 continue
             html_output += f"<b>{section}</b><br>"
-            print(section)
 
             # interesting_findings block
             if isinstance(scan[section], list):
@@ -151,7 +156,10 @@ class WPScanBlueprint(WebTargetBlueprint):
             html += f'<a href="{WPVULNDB + value + "/"}">{value}</a>'
         elif key == "url":
             html += f'<a href="{value}">{value}</a>'
-
+        elif key in "cve":
+            html += f'<a class= "open_modal_link" data-vuln_code="{key + "-" + value}" data-vuln_type="{key}" href= "#">{value}</a>'
+        elif key == "exploitdb":
+            html += f'<a class= "open_modal_link" data-vuln_code="{key + ":" + value}" data-vuln_type="{key}" href= "#">{value}</a>'
         else:
             return value
 
