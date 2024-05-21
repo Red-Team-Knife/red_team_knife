@@ -161,10 +161,13 @@ def move_key(dictionary:dict, key:str, pos:int) -> dict:
     Returns:
         dict: The dictionary with the key in the desired position.
     """
-    keys = list(dictionary.keys())
-    if key in keys:
-        keys.insert(pos, keys.pop(keys.index(key)))
-    return {k: dictionary[k] for k in keys}
+    if dictionary.get(key, False):
+        keys = list(dictionary.keys())
+        if key in keys:
+            keys.insert(pos, keys.pop(keys.index(key)))
+        return {k: dictionary[k] for k in keys}
+    else:
+        return dictionary
 
 
 def fill_table_column_list(row, key):

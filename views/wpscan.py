@@ -12,14 +12,14 @@ from utils.utils import (
 
 
 class WPScanBlueprint(WebTargetBlueprint):
-    
+
     def interface(self):
         extra = {"exploitation_tips_name": EXPLOITATION_TIPS_NAME}
         return super().interface(extra=extra)
-    
+
     def __format_html__(self, result) -> str:
         html_output = ""
-        with open('temp_wpscan.json', 'w') as file:
+        with open("temp_wpscan.json", "w") as file:
             json.dump(result, file)
         scan: dict = deepcopy(result)
 
@@ -98,10 +98,7 @@ class WPScanBlueprint(WebTargetBlueprint):
                         scan[section][item].get("vulnerabilities", False)
                         and len(scan[section][item].get("vulnerabilities", False)) != 0
                     ):
-                        scan[section][item] = move_key(
-                            scan[section][item], "vulnerabilities", 1
-                        )
-                        html_output += '<tr>'
+                        html_output += '<tr class= "vulnerable_plugin">'
                     else:
                         html_output += "<tr>\n"
                     for tag, detail in scan[section][item].items():
@@ -246,5 +243,3 @@ class WPScanBlueprint(WebTargetBlueprint):
             html += "</tr>\n"
 
         return html
-
-    
