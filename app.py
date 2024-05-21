@@ -121,19 +121,19 @@ TEMP_FOLDER = "tmp"
 INTERFACE_TEMPLATE = "interface_scan_target.html"
 RESULTS_TEMPLATE = "results_base.html"
 
-NMAP_VULN_RESULTS_TEMPLATE = "nmap_vuln/results.html"
-W4AF_RESULTS_TEMPLATE = "w4af_audit/results.html"
-SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer/interface.html"
-SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer/results.html"
-NMAP_RESULTS_TEMPLATE = "nmap/results.html"
-THE_HARVESTER_RESULTS_TEMPLATE = "the_harvester/results.html"
-WPSCAN_RESULTS_TEMPLATE = "wpscan/results.html"
+NMAP_VULN_RESULTS_TEMPLATE = "nmap_vuln_results.html"
+W4AF_RESULTS_TEMPLATE = "w4af_audit_results.html"
+SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer_interface.html"
+SMTP_EMAIL_SPOOFER_RESULTS_TEMPLATE = "smtp_email_spoofer_results.html"
+NMAP_SCAN_RESULTS_TEMPLATE = "nmap_scan_results.html"
+THE_HARVESTER_RESULTS_TEMPLATE = "the_harvester_results.html"
+WPSCAN_RESULTS_TEMPLATE = "wpscan_results.html"
 
 
-EXPLOITATION_TIPS_TEMPLATE = "exploitation/tips.html"
-INSTALLATION_TIPS_TEMPLATE = "installation/tips.html"
-COMMAND_AND_CONTROL_TIPS_TEMPLATE = "command_and_control/tips.html"
-ACTION_TIPS_TEMPLATE = "action/tips.html"
+EXPLOITATION_TIPS_TEMPLATE = "exploitation_tips.html"
+INSTALLATION_TIPS_TEMPLATE = "installation_tips.html"
+COMMAND_AND_CONTROL_TIPS_TEMPLATE = "command_and_control_tips.html"
+ACTION_TIPS_TEMPLATE = "action_tips.html"
 
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
@@ -230,7 +230,7 @@ def register_blueprints(app):
         CONTROLLERS[NMAP_SCAN_NAME],
         NMAP_SCAN_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
-        NMAP_RESULTS_TEMPLATE,
+        NMAP_SCAN_RESULTS_TEMPLATE,
         nmap_scan_options,
         SECTIONS,
     )
