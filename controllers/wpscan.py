@@ -283,6 +283,4 @@ class WPscanController(Controller):
                 data.pop("start_memory")
             except Exception as e:
                 return None, e
-        with open("test.json", "w") as file:
-            print(json.dumps(data), file=file)
         return data, None
