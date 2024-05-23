@@ -67,7 +67,7 @@ scan_options = [
     ("Set Smart Extension", "checkbox", THOROUGH, ""),
     ("Proxy", "text", PROXY, "http(s)://host:port"),
     ("Replay Proxy", "text", REPLAY_PROXY, "http(s)://host:port"),
-    ("Replay Code", "number", REPLAY_CODE, "301 401 501 (space separated values)"),
+    ("Replay Code", "text", REPLAY_CODE, "301 401 501 (space separated values)"),
     ("User Agent", "text", USER_AGENT, "feroxbuster/2.10.1"),
     ("Set Random User Agent", "checkbox", RANDOM_USER_AGENT, ""),
     ("Extensions", "text", EXTENSIONS, "@ext.txt"),
@@ -82,8 +82,8 @@ scan_options = [
     ("Filter Regexes", "text", FILTER_REGEXES, "'^ignore me$'"),
     ("Filter Word Number", "number", FILTER_WORD_NUMBERS, "312"),
     ("Filter Line Number", "number", FILTER_LINE_NUMBERS, "20"),
-    ("Filter Out Status Codes", "number", FILTER_STATUS_CODES, "404"),
-    ("Filter In Status Codes", "number", ALLOW_STATUS_CODES, "All Included"),
+    ("Filter Out Status Codes", "text", FILTER_STATUS_CODES, "404"),
+    ("Filter In Status Codes", "text", ALLOW_STATUS_CODES, "All Included"),
     ("Request Timeout", "number", REQUEST_TIMEOUT, "7"),
     ("Allow Automatic Redirect", "checkbox", AUTOMATIC_REDIRECT, ""),
     (
@@ -215,11 +215,11 @@ class FeroxbusterController(Controller):
                 command.append("-N")
                 command.append(i)
         if options.get(FILTER_STATUS_CODES, False):
-            for i in options[FILTER_STATUS_CODES]:
+            for i in options[FILTER_STATUS_CODES].split(' '):
                 command.append("-C")
                 command.append(i)
         if options.get(ALLOW_STATUS_CODES, False):
-            for i in options[ALLOW_STATUS_CODES]:
+            for i in options[ALLOW_STATUS_CODES].split(' '):
                 command.append("-s")
                 command.append(i)
 
