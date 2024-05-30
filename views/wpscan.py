@@ -150,9 +150,9 @@ class WPScanBlueprint(WebTargetBlueprint):
 
         html = ""
         if key == "wpvulndb":
-            html += f'<a href="{WPVULNDB + value + "/"}">{value}</a>'
+            html += f'<a href="{WPVULNDB + value + "/"}" target="_blank">{value}</a>'
         elif key == "url":
-            html += f'<a href="{value}">{value}</a>'
+            html += f'<a href="{value}" target="_blank>{value}</a>'
         elif key in "cve":
             html += f'<a class= "open_modal_link" data-vuln_code="{key + "-" + value}" data-vuln_type="{key}" href= "#">{value}</a>'
         elif key == "exploitdb":
