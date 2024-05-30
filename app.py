@@ -101,6 +101,7 @@ from views.domain_name_target import DomainNameTargetBlueprint
 from views.feroxbuster import FeroxbusterBlueprint
 from views.nmap_vuln import NmapVulnBlueprint
 from views.search_exploit import SearchExploitBlueprint
+from views.smtp_email_spoofer import SmtpEmailSpooferBlueprint
 from views.sqlmap import SqlmapBlueprint
 from views.tips_page import TipsPageBlueprint
 from views.view import BaseBlueprint
@@ -301,7 +302,7 @@ def register_blueprints(app):
         SECTIONS,
     )
 
-    smtp_email_spoofer_blueprint = WebTargetBlueprint(
+    smtp_email_spoofer_blueprint = SmtpEmailSpooferBlueprint(
         SMTP_EMAIL_SPOOFER_NAME,
         __name__,
         CONTROLLERS[SMTP_EMAIL_SPOOFER_NAME],

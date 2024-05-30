@@ -19,9 +19,10 @@ from controllers.commix import (
     TOOL_NAME as COMMIX_NAME,
     TOOL_DISPLAY_NAME as COMMIX_DISPLAY_NAME,
 )
+from views.web_target import WebTargetBlueprint
 
 
-class W4afBlueprint(BaseBlueprint):
+class W4afBlueprint(WebTargetBlueprint):
     def __init__(
         self,
         name,
