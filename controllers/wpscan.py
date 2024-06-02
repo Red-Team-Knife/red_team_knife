@@ -195,34 +195,36 @@ class WPscanController(Controller):
             command.extend(["--wp-plugins-dir", options[SET_WP_PLUGINS_DIR]])
         if options.get(SET_ENUMERATION, False):
             command.append("--enumerate")
-            en = ""
+            en = []
             if options.get(EN_VULN_PLUGINS, False):
-                en += "vp"
+                en.append("vp")
             if options.get(EN_ALL_PLUGINS, False):
-                en += "ap"
+                en.append("ap")
             if options.get(EN_POPULAR_PLUGINS, False):
-                en += ",p"
+                en.append("p")
             if options.get(EN_VULN_THEMES, False):
-                en += ",vt"
+                en.append("vt")
             if options.get(EN_ALL_THEMES, False):
-                en += ",at"
+                en.append("at")
             if options.get(EN_POPULAR_THEMES, False):
-                en += ",t"
+                en.append("t")
             if options.get(EN_TIMITHUBMS, False):
-                en += ",tt"
+                en.append("tt")
             if options.get(EN_CONFIG_BACKUPS, False):
-                en += ",cb"
+                en.append("cb")
             if options.get(EN_DB_EXPORTS, False):
-                en += ",dbe"
+                en.append("dbe")
             if options.get(EN_UIDS_RANGE, False):
-                en += ",u"
+                u = "u"
                 if options.get(UIDS_RANGE, False):
-                    en += options[UIDS_RANGE]
+                    u += options[UIDS_RANGE]
+                    en.append(u)
             if options.get(EN_MEDIA_IDS_RANGE, False):
-                en += ",m"
+                m = "m"
                 if options.get(MEDIA_IDS_RANGE, False):
-                    en += options[MEDIA_IDS_RANGE]
-            command.append(en)
+                    m += options[MEDIA_IDS_RANGE]
+                    en.append(m)
+            command.append(",".join(map(str, en)))
         if options.get(EXCLUDE_REGEX, False):
             command.extend(["--exclude-content-based", options[EXCLUDE_REGEX]])
         if options.get(PLUGIN_DETECTION_MODE, False):

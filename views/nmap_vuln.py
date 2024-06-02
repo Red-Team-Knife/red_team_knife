@@ -63,12 +63,12 @@ class NmapVulnBlueprint(BaseBlueprint):
                     for element in script_table:
                         if element.get("table", False):
                             filtered_list.append(element)
+                            
+                    if len(filtered_list) == 0:
+                        break
                     html_string += "<b>Vulns:</b>"
                     html_string += '<table class="vuln_table">'
                     html_string += "<tr>"
-
-                    if not isinstance(filtered_list, list):
-                        break
                     cve_table = filtered_list[0]["table"]
                     cve_table = cve_table.get("table")
 
