@@ -4,8 +4,9 @@ from typing import Tuple
 from loguru import logger as l
 from models.current_scan import CurrentScan
 from models.scan import Scan
-from utils.utils import build_command_string
+from utils.utils import build_command_string, create_pdf_from_html
 
+REPORTS_DIR = "reports/"
 
 class Controller:
     """
@@ -114,6 +115,15 @@ class Controller:
                 return e
         l.warning(f"No scan was started!")
         return False
+
+    def save_report(self, html:str):
+        
+        report_path = os.path.join(os.getcwd(), REPORTS_DIR)
+        if not os.path.exists(report_path):
+            os.makedirs(report_path)
+        
+        if html != "":
+            return create_pdf_from_html(["styles.css", "w3.css"], html, REPORTS_DIR, self.tool_name)
 
     def restore_scan(self):
         current_scan = CurrentScan.scan

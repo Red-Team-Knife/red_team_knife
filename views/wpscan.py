@@ -19,8 +19,6 @@ class WPScanBlueprint(WebTargetBlueprint):
 
     def __format_html__(self, result) -> str:
         html_output = ""
-        with open("temp_wpscan.json", "w") as file:
-            json.dump(result, file)
         scan: dict = deepcopy(result)
 
         split_list_1 = ["main_theme", "version"]
@@ -142,6 +140,7 @@ class WPScanBlueprint(WebTargetBlueprint):
                 html_output += "</table><br><br>\n"
             else:
                 html_output += f"<b>{section}</b><br>"
+        
 
         return html_output
 

@@ -18,6 +18,12 @@
         </form>
     </div>
 
+    <div id="save_report_section" style="display: flex; align-items: center;">
+        <div id="save_report_message_section">
+            <button id="save_report" style="padding: 10px;">Save Report </button>
+        </div>
+    </div>
+
     {%block additional_buttons%} {%endblock%}
 </div>
 
@@ -55,6 +61,8 @@
         var saveResultsDiv = $('#save_results_section');
         var buttonsDiv = $('#buttons_section')
         var saveResultsMessageDiv = $('#save_results_message_section');
+        var saveReportBtn = $('#save_report')
+        var saveReportMesssageDiv = $('#save_report_message_section')
 
         var pastScanAvailable = "{{ past_scan_available }}";
 
@@ -127,6 +135,21 @@
                     alert('Error stopping scan:', error);
                 }
             });
+        });
+
+        saveReportBtn.on('click', function() {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for(current_section + '.save_report') }}",
+                data: {},
+                success: function(response) {
+                    saveReportMesssageDiv.html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error saving report:', error);
+                    alert('Error saving report:', error)
+                }
+            })
         });
 
 
