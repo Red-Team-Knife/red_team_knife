@@ -282,6 +282,12 @@ class BaseBlueprint(Blueprint):
             return "<p>Something went wrong. Check terminal for more information.</p>"
 
     def save_report(self):
+        """
+        Save the scan result as a PDF file.
+
+        Returns:
+            str: A message indicating the status of the file creation.
+        """
         debug_route(request)
         l.info(f"Generating {self.tool_name} report...")
         
@@ -331,4 +337,13 @@ class BaseBlueprint(Blueprint):
         pass
     
     def __format_html_for_report__(self, results) -> str:
+        """
+        Generate the HTML string for the PDF report.
+
+        Args:
+            results: object containing the results.
+
+        Returns:
+            str: object containing the results.
+        """
         return self.__format_html__(results)

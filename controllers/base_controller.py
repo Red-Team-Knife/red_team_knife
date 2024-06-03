@@ -8,6 +8,7 @@ from utils.utils import build_command_string, create_pdf_from_html
 
 REPORTS_DIR = "reports/"
 
+
 class Controller:
     """
     Base class representing a controller that encapsulates a tool.
@@ -116,14 +117,25 @@ class Controller:
         l.warning(f"No scan was started!")
         return False
 
-    def save_report(self, html:str):
-        
+    def save_report(self, html: str):
+        """
+        Generate a PDF file based on the rendered HTML.
+
+        Args:
+            html (str): The HTML string.
+
+        Returns:
+            Exception | True : Returns a True value representing the outcome of file creation or the Exception raised.
+        """
+
         report_path = os.path.join(os.getcwd(), REPORTS_DIR)
         if not os.path.exists(report_path):
             os.makedirs(report_path)
-        
+
         if html != "":
-            return create_pdf_from_html(["styles.css", "w3.css"], html, REPORTS_DIR, self.tool_name)
+            return create_pdf_from_html(
+                ["styles.css", "w3.css"], html, REPORTS_DIR, self.tool_name
+            )
 
     def restore_scan(self):
         current_scan = CurrentScan.scan
@@ -194,4 +206,3 @@ class Controller:
                                     If results are not present, the exception is considered.
         """
         pass
-

@@ -251,8 +251,19 @@ def build_command_string(command):
         command_string += " "
     return command_string
 
-
 def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:str):
+    """
+        Create a PDF File based on an HTML string.
+
+    Args:
+        css_files (list): List of CSS files to use in rendering.
+        content (str): The HTML string.
+        save_path (str): The path to save the PDF.
+        tool_name (str): the name of the tool that requested the generation.
+
+    Returns:
+        Exception | True : Returns a True value representing the outcome of file creation or the Exception raised.
+    """
     
     
     stylesheets = []
