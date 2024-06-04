@@ -7,8 +7,11 @@ from models.current_scan import CurrentScan
 from controllers.base_controller import Controller
 from loguru import logger as l
 
+FORMAT_FOR_DISPLAY_RESULT = "format_for_display_result"
+FORMAT_FOR_REPORT = "format_for_report"
 
 class BaseBlueprint(Blueprint):
+
     def __init__(
         self,
         name,
@@ -34,6 +37,7 @@ class BaseBlueprint(Blueprint):
         self.route("/save_results", methods=["POST"])(self.save_results)
         self.route("/scan_in_progress", methods=["GET"])(self.is_scan_in_progress)
         self.route("/stop_scan", methods=["GET"])(self.stop_scan)
+        self.route("/save_report", methods=["POST"])(self.save_report)
 
     def interface(self, extra: dict = None):
         """
@@ -87,7 +91,7 @@ class BaseBlueprint(Blueprint):
                 sections=self.sections,
                 past_scan_available=True,
                 save_disabled=no_scan_started,
-                scan_result=self.__format_result__(),
+                scan_result=self.__format_result__(FORMAT_FOR_DISPLAY_RESULT),
                 current_section=self.name,
                 tool=self.tool_name,
                 extra=extra,
@@ -166,7 +170,7 @@ class BaseBlueprint(Blueprint):
                     sections=self.sections,
                     past_scan_available=True,
                     save_disabled=True,
-                    scan_result=self.__format_result__(),
+                    scan_result=self.__format_result__(FORMAT_FOR_DISPLAY_RESULT),
                     current_section=self.name,
                     tool=self.tool_name,
                     extra=extra,
@@ -234,7 +238,7 @@ class BaseBlueprint(Blueprint):
         """
         debug_route(request)
 
-        return jsonify(self.__format_result__())
+        return jsonify(self.__format_result__(FORMAT_FOR_DISPLAY_RESULT))
 
     def save_results(self):
         """
@@ -277,17 +281,45 @@ class BaseBlueprint(Blueprint):
             print(e)
             return "<p>Something went wrong. Check terminal for more information.</p>"
 
-    def __format_result__(self):
+    def save_report(self):
+        """
+        Save the scan result as a PDF file.
+
+        Returns:
+            str: A message indicating the status of the file creation.
+        """
+        debug_route(request)
+        l.info(f"Generating {self.tool_name} report...")
+        
+        html = self.__format_result__(FORMAT_FOR_REPORT)
+        
+        if html != "<p>An error occurred during results retrieval. Check terminal for more information.</p>":      
+            is_report_saved = self.controller.save_report(html)
+            
+            if isinstance(is_report_saved, Exception):
+                l.error(f"{self.tool_name} failed to generate report!")
+                return "<p>An error occured during the operation, check terminal for more information.</p>"
+            elif is_report_saved:
+                l.success("Report generated successfully")
+                return "<p> Report successfully saved. </p>"
+        else:
+            return html
+
+    def __format_result__(self, option:str):
         """
         Formats the result in HTML.
 
         Returns:
             str: HTML-formatted results.
         """
+        self.controller.restore_scan()
         results = self.controller.get_results()
         if results:
             l.info(f"Generating HTML for {self.tool_name} results...")
-            html = self.__format_html__(results)
+            if option == FORMAT_FOR_REPORT:
+                html = self.__format_html_for_report__(results)
+            elif option == FORMAT_FOR_DISPLAY_RESULT:
+                html = self.__format_html__(results)
             l.success("HTML generated successfully.")
             return html
         else:
@@ -304,3 +336,15 @@ class BaseBlueprint(Blueprint):
             str: HTML-formatted results.
         """
         pass
+    
+    def __format_html_for_report__(self, result) -> str:
+        """
+        Generate the HTML string for the PDF report.
+
+        Args:
+            results: object containing the results.
+
+        Returns:
+            str: object containing the results.
+        """
+        return self.__format_html__(result)

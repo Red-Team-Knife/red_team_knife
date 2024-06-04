@@ -77,6 +77,10 @@ table.vuln_table tr.exploit_less_details {
     cursor: pointer;
 }
 
+#resuts {
+    overflow-x: auto;
+    white-space: nowrap;
+}
 
 .exploit_textarea {
     font-family: 'Courier New', Courier, monospace;
@@ -88,6 +92,16 @@ table.vuln_table tr.exploit_less_details {
     border-radius: 5px;
     resize: none;
     /* Allow vertical resizing */
+}
+
+.watermark {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.3;
+    z-index: 10;
+    pointer-events: none;
 }
 
 
@@ -139,9 +153,7 @@ th {
     text-overflow: ellipsis;
     white-space: nowrap;
     width: calc(100% - 22px);
-    /* considera il padding e il bordo */
     margin: 0 10px;
-    /* margine per separare gli elementi */
 }
 
 .past_scan {

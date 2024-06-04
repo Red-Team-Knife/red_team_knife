@@ -1,5 +1,6 @@
 from flask import Request
 from loguru import logger as l
+from weasyprint import HTML, CSS
 
 
 def debug_route(request: Request):
@@ -249,3 +250,74 @@ def build_command_string(command):
         command_string += i
         command_string += " "
     return command_string
+
+def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:str):
+    """
+        Create a PDF File based on an HTML string.
+
+    Args:
+        css_files (list): List of CSS files to use in rendering.
+        content (str): The HTML string.
+        save_path (str): The path to save the PDF.
+        tool_name (str): the name of the tool that requested the generation.
+
+    Returns:
+        Exception | True : Returns a True value representing the outcome of file creation or the Exception raised.
+    """
+    stylesheets = []
+    html = f"""
+    <html>
+        <head>
+        <title>{tool_name} report</title>
+    """
+    
+    for file in css_files:
+        html += f"<link rel= 'stylesheet' type= 'text/css' href='{file}'>"
+        stylesheets.append(CSS(filename='static/' + file))
+        
+    html += """
+            <style>
+                @page {
+                    size: A4 landscape;
+                    margin: 10px;
+                }
+
+                #results {
+                    overflow-x: auto;
+                    white-space: nowrap;
+                }
+
+                table {
+                    width: 15%;
+                    font-size: 9px;
+                    table-layout: auto;
+                }
+
+                th, td {
+                    padding: 5px;
+                }
+                p {
+                    font-size:14px;
+                }
+                b {
+                    font-size:16px;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>
+            \{\}
+        </body>
+    </html>
+    """
+    
+    html_content = HTML(string=html.replace("\{\}", content))
+    try:
+        file_path =save_path + f"{tool_name}_report.pdf"
+        with open(file_path, "w") as file:
+            print("", file=file)
+        html_content.write_pdf(file_path, stylesheets=stylesheets)
+        return True
+    except Exception as e:
+        return e
+    

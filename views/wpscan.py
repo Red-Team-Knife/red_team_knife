@@ -19,8 +19,6 @@ class WPScanBlueprint(WebTargetBlueprint):
 
     def __format_html__(self, result) -> str:
         html_output = ""
-        with open("temp_wpscan.json", "w") as file:
-            json.dump(result, file)
         scan: dict = deepcopy(result)
 
         split_list_1 = ["main_theme", "version"]
@@ -127,7 +125,7 @@ class WPScanBlueprint(WebTargetBlueprint):
                 html_output += "<table>"
                 html_output += "<tr>\n"
                 first_item = next(iter(scan[section].keys()))
-                html_output += "<th>media_id</th>"
+                html_output += f"<th>{section}_id</th>"
                 for header in scan[section][first_item].keys():
                     html_output += f"<th>{header}</th>\n"
                 html_output += "</tr>\n"
@@ -142,6 +140,7 @@ class WPScanBlueprint(WebTargetBlueprint):
                 html_output += "</table><br><br>\n"
             else:
                 html_output += f"<b>{section}</b><br>"
+        
 
         return html_output
 
@@ -243,3 +242,137 @@ class WPScanBlueprint(WebTargetBlueprint):
             html += "</tr>\n"
 
         return html
+
+    def __format_html_for_report__(self, result) -> str:
+        html_output = ''
+        
+        scan:dict = deepcopy(result)
+        split_list_1 = ["main_theme", "version"]
+        split_list_2 = ["plugins", "themes"]
+        split_list_3 = ["medias", "users"]
+        
+        html_output += "<b>General Infos</b><br>\n"
+        html_output += f"<p><b>Target url:</b> {scan['target_url']}</p>\n"
+        scan.pop("target_url")
+        html_output += f"<p><b>Target ip:</b> {scan['target_ip']}</p>\n"
+        scan.pop("target_ip")
+        html_output += f"<p><b>Effective url:</b> {scan['effective_url']}</p>\n"
+        scan.pop("effective_url")
+        
+        
+        for section in scan:
+            if scan[section] is None or not scan[section]:
+                continue
+            if isinstance(scan[section], list):
+                html_output += f"<b>{section}</b><br>"
+                for element in scan[section]:
+                    element.pop("type")
+                    element.pop("found_by")
+                    element.pop("confidence")
+                    element.pop("confirmed_by")
+                                        
+                html_output += "<table>\n"
+                html_output += "<tr>\n"
+                for header in scan[section][0].keys():
+                    html_output += f"<th>{header}</th>\n"
+                html_output += "</tr>\n"
+                for row in scan[section]:
+                    html_output += "<tr>\n"
+                    for column in row:
+                        html_output += "<td>\n"
+                        if isinstance(row[column], dict):
+                            html_output += f"<table>\n{render_dictionary_as_table(row[column])}</table>\n"
+                        elif isinstance(row[column], list):
+                            html_output += f"<ul>\n{render_list_as_bullet_list(row[column])}</ul>\n"
+                        else:
+                            html_output += f"{row[column]}\n"
+                        html_output += "</td>\n"
+                    html_output += "</tr>\n"
+                html_output += "</table><br><br>\n"
+            elif section in split_list_1:
+                if len(scan[section].get("vulnerabilities")) == 0:
+                    continue
+                html_output += f"<b>{section}</b><br>"
+                for tag, detail in scan[section].items():
+                    if tag == "vulnerabilities":
+                        html_output += f"<b>{tag}:</b><table>\n{self.__render_list_in_dictionary_as_table__(detail)}</table><br>\n"
+                    elif isinstance(detail, dict):
+                        html_output += f"<b>{tag}:</b><table>\n{render_dictionary_as_table(detail)}</table><br>\n"
+                    elif isinstance(detail, list) and len(detail) != 0:
+                        if isinstance(detail[0], dict):
+                            html_output += f"<b>{tag}: </b> <table>\n{render_list_in_dictionary_as_table(detail)}</table><br>\n"
+                        elif isinstance(detail[0], str):
+                            html_output += f"<b>{tag}:</b><ul>\n{render_list_as_bullet_list(detail)}</ul>\n"
+                            html_output += "<br>\n"
+                        else:
+                            html_output += f"<p><b>{tag}:</b> {detail}</p>\n"
+                    else:
+                        html_output += f"<p><b>{tag}: </b>{detail}</p>"
+            elif section in split_list_2:
+                if section == "plugins":
+                    for element in scan[section]:
+                        scan[section][element].pop("latest_version")
+                        scan[section][element].pop("last_updated")
+                        scan[section][element].pop("outdated")
+                        scan[section][element].pop("readme_url")
+                        scan[section][element].pop("version")
+                        scan[section][element].pop("location")
+                        scan[section][element].pop("interesting_entries")
+                        
+                html_output += f"<b>{section}</b><br>"
+                html_output += "<table>\n"
+                html_output += "<tr>\n"
+                first_item = next(iter(scan[section].keys()))
+                for header in scan[section][first_item].keys():
+                    html_output += f"<th>{header}</th>\n"
+                html_output += "</tr>\n"
+                for item in scan[section]:
+                    if (
+                        scan[section][item].get("vulnerabilities", False)
+                        and len(scan[section][item].get("vulnerabilities", False)) != 0
+                    ):
+                        html_output += '<tr class= "vulnerable_plugin">'
+                    else:
+                        html_output += "<tr>\n"
+                    for tag, detail in scan[section][item].items():
+                        html_output += "<td>\n"
+                        if isinstance(detail, dict):
+                            html_output += "<table>\n"
+                            html_output += render_dictionary_as_table(detail)
+                            html_output += "</table>\n"
+                        elif isinstance(detail, list):
+                            if tag == "vulnerabilities":
+                                if len(detail) == 0:
+                                    html_output += "No Vulnerability Found\n"
+                                else:
+                                    html_output += f"<table>\n{self.__render_list_in_dictionary_as_table__(detail)}</table>\n"
+                            elif len(detail) != 0 and isinstance(detail[0], str):
+                                html_output += (
+                                    f"<ul>{render_list_as_bullet_list(detail)}</ul>"
+                                )
+                        else:
+                            html_output += f"{detail}\n"
+                        html_output += "</td>\n"
+                    html_output += "</tr>\n"
+
+                html_output += "</table><br><br>\n"
+            elif section in split_list_3:
+                html_output += f"<b>{section}</b><br>"
+                html_output += "<table>"
+                html_output += "<tr>\n"
+                first_item = next(iter(scan[section].keys()))
+                html_output += f"<th>{section}_id</th>"
+                for header in scan[section][first_item].keys():
+                    html_output += f"<th>{header}</th>\n"
+                html_output += "</tr>\n"
+
+                for item in scan[section]:
+                    html_output += "<tr>\n"
+                    html_output += f"<td>{item}</td>"
+                    for tag, detail in scan[section][item].items():
+                        html_output += f"<td>{detail}</td>\n"
+                    html_output += "</tr>\n"
+
+                html_output += "</table><br><br>\n"
+
+        return html_output

@@ -6,6 +6,7 @@ tools/
 reports/
 install_script
 red-team-knife/
+reports/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
