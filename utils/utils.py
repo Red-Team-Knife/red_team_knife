@@ -300,7 +300,7 @@ def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:s
                     font-size:14px;
                 }
                 b {
-                    font-size:16px;
+                    font-size:14px;
                 }
             </style>
         </head>
