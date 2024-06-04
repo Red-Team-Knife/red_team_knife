@@ -29,7 +29,7 @@ class FeroxbusterBlueprint(WebTargetBlueprint):
         for key in list(sorted.keys()):
             html_output += f"""
                 <tr>
-                    <td style="font-size: 24px;"><b>{key}</b></td>
+                    <td style="font-size: 24px;"><b class='table_bold'>{key}</b></td>
                 </tr>
                 """
 

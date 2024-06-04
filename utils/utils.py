@@ -216,7 +216,7 @@ def fill_table_column_dict(row, key):
     html = ""
 
     for subkey in row[key]:
-        html += f'<b>{subkey.replace("@", "")}: </b>'
+        html += f'<b class="table_bold">{subkey.replace("@", "")}: </b>'
         html += f"{row[key][subkey]} <br>"
     return html
 
@@ -301,6 +301,9 @@ def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:s
                 }
                 b {
                     font-size:14px;
+                }
+                b.table_bold {
+                    font-size:9px
                 }
             </style>
         </head>

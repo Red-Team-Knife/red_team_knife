@@ -4,7 +4,7 @@ from flask import render_template, request, url_for
 from controllers.w4af_audit import BASE_URL, TMP_FOLDER, W4afAuditController
 from models.current_scan import CurrentScan
 from utils.utils import debug_route, render_dictionary_as_table
-from views.view import BaseBlueprint
+from views.view import BaseBlueprint, FORMAT_FOR_DISPLAY_RESULT, FORMAT_FOR_REPORT
 from loguru import logger as l
 from controllers.dig import (
     TOOL_NAME as DIG_NAME,
@@ -72,7 +72,7 @@ class W4afBlueprint(WebTargetBlueprint):
                 sections=self.sections,
                 past_scan_available=True,
                 save_disabled=no_scan_started,
-                scan_result=self.__format_result__(),
+                scan_result=self.__format_result__(FORMAT_FOR_DISPLAY_RESULT),
                 current_section=self.name,
                 tool=self.tool_name,
                 stopped=True,
@@ -101,7 +101,7 @@ class W4afBlueprint(WebTargetBlueprint):
                     sections=self.sections,
                     past_scan_available=True,
                     save_disabled=True,
-                    scan_result=self.__format_result__(),
+                    scan_result=self.__format_result__(FORMAT_FOR_DISPLAY_RESULT),
                     current_section=self.name,
                     tool=self.tool_name,
                     stopped=True,

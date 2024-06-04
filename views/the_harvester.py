@@ -46,7 +46,7 @@ class TheHarvesterBlueprint(BaseBlueprint):
         for key in result.keys():
             html_output += f"""
                 <tr>
-                    <td><b>{key}</b></td>
+                    <td><b class='table_bold'>{key}</b></td>
                 """
 
             items = ""

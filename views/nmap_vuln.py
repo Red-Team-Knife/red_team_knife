@@ -21,7 +21,7 @@ class NmapVulnBlueprint(BaseBlueprint):
         html_string = ""
         # build port details table
         for port_table in last_scan_result:
-            html_string += "<b>Port:</b>"
+            html_string += "<b class='table_bold'>Port:</b>"
             html_string += "<table>"
             html_string += "<tr>"
 
@@ -42,7 +42,7 @@ class NmapVulnBlueprint(BaseBlueprint):
                     html_string += "<td>"
                     # fill field with subdictionary values
                     for subkey in port_table[row]:
-                        html_string += f'<b>{subkey.replace("@", "")}: </b>'
+                        html_string += f'<b class="table_bold">{subkey.replace("@", "")}: </b>'
 
                         if type(port_table[row][subkey]) is list:
                             html_string += f"{ ', '.join(port_table[row][subkey])} <br>"
@@ -73,7 +73,7 @@ class NmapVulnBlueprint(BaseBlueprint):
                     cve_table = cve_table.get("table")
 
                 elif not script_table.get("table"):
-                    html_string += "<b>No Vulns Found</b><br><br>"
+                    html_string += "<b class='table_bold'>No Vulns Found</b><br><br>"
                     break
 
                 else:
