@@ -297,7 +297,10 @@ def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:s
                     padding: 5px;
                 }
                 p {
-                    font-size:10px;
+                    font-size:14px;
+                }
+                b {
+                    font-size:16px;
                 }
             </style>
         </head>
