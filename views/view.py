@@ -312,6 +312,7 @@ class BaseBlueprint(Blueprint):
         Returns:
             str: HTML-formatted results.
         """
+        self.controller.restore_scan()
         results = self.controller.get_results()
         if results:
             l.info(f"Generating HTML for {self.tool_name} results...")
@@ -336,7 +337,7 @@ class BaseBlueprint(Blueprint):
         """
         pass
     
-    def __format_html_for_report__(self, results) -> str:
+    def __format_html_for_report__(self, result) -> str:
         """
         Generate the HTML string for the PDF report.
 
@@ -346,4 +347,4 @@ class BaseBlueprint(Blueprint):
         Returns:
             str: object containing the results.
         """
-        return self.__format_html__(results)
+        return self.__format_html__(result)

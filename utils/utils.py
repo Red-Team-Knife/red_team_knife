@@ -264,8 +264,6 @@ def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:s
     Returns:
         Exception | True : Returns a True value representing the outcome of file creation or the Exception raised.
     """
-    
-    
     stylesheets = []
     html = f"""
     <html>
@@ -281,7 +279,7 @@ def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:s
             <style>
                 @page {
                     size: A4 landscape;
-                    margin: 20mm;
+                    margin: 10px;
                 }
 
                 #results {
@@ -291,12 +289,15 @@ def create_pdf_from_html(css_files:list, content:str, save_path:str, tool_name:s
 
                 table {
                     width: 15%;
-                    font-size: 10px;
+                    font-size: 9px;
                     table-layout: auto;
                 }
 
                 th, td {
                     padding: 5px;
+                }
+                p {
+                    font-size:10px;
                 }
             </style>
         </head>
