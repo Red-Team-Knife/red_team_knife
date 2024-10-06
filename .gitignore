@@ -8,6 +8,7 @@ install_script
 red-team-knife/
 reports/
 
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -172,6 +173,7 @@ cython_debug/
 smtp-email-spoofer-py/
 install-script
 
+.vscode/
 
 # Conventions
 standard.txt

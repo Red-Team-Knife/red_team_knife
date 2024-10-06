@@ -312,7 +312,6 @@ class BaseBlueprint(Blueprint):
         Returns:
             str: HTML-formatted results.
         """
-        self.controller.restore_scan()
         results = self.controller.get_results()
         if results:
             l.info(f"Generating HTML for {self.tool_name} results...")
