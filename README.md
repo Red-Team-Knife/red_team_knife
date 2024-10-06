@@ -22,13 +22,20 @@ Links to our forks are:
 ## Installation
 To install Red Team Knife, follow these steps:
 
-- Clone the repository.
 ```
+git clone https://github.com/Davide1102/red_team_knife.git
+cd red_team_knife
 sudo su
 chmod +x setup.sh
 ./setup.sh
 ```
-Start the application by running ```python app.py``` and connect to ```localhost:5000``` in your web browser.
+## Starting Application
+```
+cd ./red_team_knife
+source venv/bin/activate
+python app.py
+```
+You can connect to the application searching ```localhost:5000``` in your web browser.
 If the server continues to run after closing the terminal you can try to run ```python kill_server.py```.
 
 ## Authors
