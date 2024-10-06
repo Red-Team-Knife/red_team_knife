@@ -439,18 +439,21 @@ def start_w4af_server_api():
         "--i-am-a-developer",
         "--no-ssl",
         f"{W4AF_ADDRESS}:{W4AF_PORT}",
+        
     ]
 
     # Define the directory to change to
 
     # Start the subprocess
-    subprocess.Popen(
+    process = subprocess.Popen(
         W4AF_COMMAND,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
         cwd=W4AF_DIRECTORY,
     )
+    
+    
 
 
 def check_tools_exist():
@@ -563,4 +566,4 @@ if __name__ == "__main__":
     print(colorama.Style.RESET_ALL)
     setup_executed = True
 
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=True)
