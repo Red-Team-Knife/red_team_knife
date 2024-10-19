@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sudo apt update
-sudo apt install nmap feroxbuster theharvester git python3-pip libicu-dev libxml2 python3-icu pkg-config pipenv python3.12-venv npm -y
+sudo apt install nmap feroxbuster theharvester commix sqlmap wpscan git python3-pip libicu-dev libxml2 python3-icu pkg-config pipenv python3.12-venv npm -y
 
 git clone https://github.com/vulnersCom/nmap-vulners.git
 sudo mv nmap-vulners /usr/share/nmap/scripts/nmap-vulners
