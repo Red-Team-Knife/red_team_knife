@@ -13,6 +13,9 @@ class NmapVulnBlueprint(BaseBlueprint):
 
     def __format_html__(self, results):
 
+        if not results:
+            return "<b> No result found</b>"
+            
         last_scan_result = copy.deepcopy(results)
 
         if isinstance(last_scan_result, dict):
