@@ -59,7 +59,11 @@ class NmapVulnController(Controller):
                 json_string = json.dumps(xml_dict)
 
                 json_objects = json.loads(json_string)
-                json_objects = json_objects["nmaprun"]["host"]["ports"]["port"]
+                if (json_objects["nmaprun"]["host"]["ports"].get("port")):
+                    json_objects = json_objects["nmaprun"]["host"]["ports"]["port"]
+                else:
+                    json_objects = {}
+                
             except Exception as e:
                 return None, e
         return json_objects, None
