@@ -41,3 +41,7 @@ If the server continues to run after closing the terminal you can try to run ```
 ## Authors
 - [Adriano Gentile](https://github.com/manfredigianni)
 - [Davide Pio Posa](https://github.com/Davide1102)
+
+## Produced By
+- Software Engineering Laboratory, SERLAB(https://serlab.di.uniba.it/)
+- Software Engineering & Practices, SER&P(https://serandp.com/it/)
