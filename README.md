@@ -39,7 +39,7 @@ You can connect to the application searching ```localhost:5000``` in your web br
 If the server continues to run after closing the terminal you can try to run ```python kill_server.py```.
 
 ## Authors
-- [Adriano Gentile](https://github.com/manfredigianni)
+- [Adriano Gentile](https://github.com/adrianogentile)
 - [Davide Pio Posa](https://github.com/Davide1102)
 
 ## Produced By
