@@ -11,7 +11,7 @@ sudo mv nmap-vulners /usr/share/nmap/scripts/nmap-vulners
 mkdir tools
 cd tools
 
-git clone https://github.com/manfredigianni/smtp-email-spoofer-py.git
+git clone https://github.com/Red-Team-Knife/smtp-email-spoofer-py.git
 
 git clone https://github.com/w4af/w4af.git
 
