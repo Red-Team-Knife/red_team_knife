@@ -73,21 +73,24 @@ class Controller:
         """
         Returns scan results. the method checks if results need to be parsed from file,
         otherwise returns cached results.
-
-        Returns:
-            object: scan results.
         """
         if self.last_scan_result is None:
             l.info(f"Parsing {self.tool_display_name} temp file...")
-            self.last_scan_result, exception = self.__parse_temp_results_file__()
-            if self.last_scan_result:
-                l.success("File parsed successfully.")
+            
+            # Attempt parsing from the temporary file
+            parsed_data, exception = self.__parse_temp_results_file__()
+            
+            # Change here: verify that parsed_data is not None 
+            # (an empty string is still a valid result to avoid errors)
+            if parsed_data is not None:
+                self.last_scan_result = parsed_data
+                l.success(f"{self.tool_display_name} file parsed successfully.")
+                l.debug(f"Content loaded (first 100 char): {str(parsed_data)[:100]}")
             else:
-                l.error("Error parsing temp file.")
-                print(exception)
+                l.error(f"Error parsing {self.tool_display_name} temp file.")
+                if exception:
+                    l.error(f"Exception details: {exception}")
                 return None
-
-            self.__remove_temp_file__()
 
         return self.last_scan_result
 
@@ -202,7 +205,7 @@ class Controller:
 
         Returns:
             Tuple[object, Exception]: A tuple containing the results and an exception.
-                                    If results are present, the exception is ignored.
-                                    If results are not present, the exception is considered.
+                                      If results are present, the exception is ignored.
+                                      If results are not present, the exception is considered.
         """
         pass

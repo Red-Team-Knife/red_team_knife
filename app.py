@@ -1,4 +1,5 @@
 from datetime import time
+from controllers.blue_controller import BlueController
 import datetime
 import shutil
 import subprocess
@@ -9,7 +10,7 @@ from controllers.dig import (
     DigController,
     scan_options as dig_scan_options,
     TOOL_NAME as DIG_NAME,
-    TOOL_DISPLAY_NAME as DIG_DISPLY_NAME,
+    TOOL_DISPLAY_NAME as DIG_DISPLAY_NAME,
 )
 from controllers.nmap_scan import (
     NmapController,
@@ -87,6 +88,22 @@ from controllers.wpscan import (
     TOOL_DISPLAY_NAME as WPSCAN_DISPLAY_NAME,
     TOOL_NAME as WPSCAN_NAME,
 )
+
+from controllers.nikto import (
+    NiktoController,
+    scan_options as nikto_scan_options,
+    TOOL_NAME as NIKTO_NAME,
+    TOOL_DISPLAY_NAME as NIKTO_DISPLAY_NAME,
+)
+
+from controllers.dirsearch import (
+    DirsearchController,
+    scan_options as dirsearch_scan_options,
+    TOOL_DISPLAY_NAME as DIRSEARCH_DISPLAY_NAME,
+    TOOL_NAME as DIRSEARCH_NAME,
+)
+
+
 from models.scan import Scan
 from utils import *
 import os
@@ -95,6 +112,7 @@ from utils.utils import (
     render_scan_dictionary,
     debug_route,
 )
+
 from views.commix import CommixBlueprint
 from views.dig import DigBlueprint
 from views.domain_name_target import DomainNameTargetBlueprint
@@ -114,14 +132,17 @@ from views.the_harvester import TheHarvesterBlueprint
 import logging
 from loguru import logger as l
 from views.wpscan import WPScanBlueprint
+from views.nikto import NiktoBlueprint
 
+# Configuration and Paths
 SCANS_PATH = None
 SCANS_FOLDER = "scans"
 TEMP_FOLDER = "tmp"
 
+# UI Templates
 INTERFACE_TEMPLATE = "interface_scan_target.html"
 RESULTS_TEMPLATE = "results_base.html"
-
+DIRSEARCH_RESULTS_TEMPLATE = "results_base.html"
 NMAP_VULN_RESULTS_TEMPLATE = "nmap_vuln_results.html"
 W4AF_RESULTS_TEMPLATE = "w4af_audit_results.html"
 SMTP_EMAIL_SPOOFER_INTERFACE_TEMPLATE = "smtp_email_spoofer_interface.html"
@@ -130,12 +151,13 @@ NMAP_SCAN_RESULTS_TEMPLATE = "nmap_scan_results.html"
 THE_HARVESTER_RESULTS_TEMPLATE = "the_harvester_results.html"
 WPSCAN_RESULTS_TEMPLATE = "wpscan_results.html"
 
-
+# Tips Templates
 EXPLOITATION_TIPS_TEMPLATE = "exploitation_tips.html"
 INSTALLATION_TIPS_TEMPLATE = "installation_tips.html"
 COMMAND_AND_CONTROL_TIPS_TEMPLATE = "command_and_control_tips.html"
 ACTION_TIPS_TEMPLATE = "action_tips.html"
 
+# Network Configuration
 W4AF_ADDRESS = "localhost"
 W4AF_PORT = 5001
 
@@ -147,19 +169,19 @@ __________           .___
  |____|_  /\___  >____ |         
         \/     \/     \/         
 ___________                      
-\__    ___/___ _____    _____    
-  |    |_/ __ \\__  \  /     \   
-  |    |\  ___/ / __ \|  Y Y  \  
-  |____| \___  >____  /__|_|  /  
+\__    ___/___ _____     _____   
+  |    |_/ __ \\__  \   /     \  
+  |    |\  ___/ / __ \|  Y Y  \ 
+  |____| \___  >____  /__|_|  / 
              \/     \/      \/   
- ____  __.      .__  _____       
+ ____  __.     .__  _____        
 |    |/ _| ____ |__|/ ____\____  
 |      <  /    \|  \   __\/ __ \ 
 |    |  \|   |  \  ||  | \  ___/ 
 |____|__ \___|  /__||__|  \___  >
         \/    \/              \/ 
 
-  %%########################%%  
+  %%########################%%   
  ############################## 
 %###:++++++++++++++++++++++:###%
 %###:######################:###%
@@ -175,17 +197,21 @@ ___________
 %######:+##############-=######%
 %#######+:*##########-:########%
 %##########*-::::::=###########%
-  %%########################%%  
+  %%########################%%   
 
         """
+
 BLUEPRINTS = []
 
+# Sidebar Navigation Sections
 SECTIONS = {
     "Reconnaissance": [
         (NMAP_SCAN_DISPLAY_NAME, NMAP_SCAN_NAME),
-        (DIG_DISPLY_NAME, DIG_NAME),
+        (DIG_DISPLAY_NAME, DIG_NAME),
         (THE_HARVESTER_DISPLAY_NAME, THE_HARVESTER_NAME),
         (FEROXBUSTER_DISPLAY_NAME, FEROXBUSTER_NAME),
+        (NIKTO_DISPLAY_NAME, NIKTO_NAME),
+        (DIRSEARCH_DISPLAY_NAME, DIRSEARCH_NAME),
     ],
     "Weaponization": [
         (W4AF_AUDIT_DISPLAY_NAME, W4AF_AUDIT_NAME),
@@ -217,7 +243,12 @@ CONTROLLERS = {
     SQLMAP_NAME: SqlmapController(),
     COMMIX_NAME: CommixController(),
     WPSCAN_NAME: WPscanController(),
+    NIKTO_NAME: NiktoController(),
+    DIRSEARCH_NAME: DirsearchController(),
 }
+
+# Blue Team engine initialization with MITRE ATT&CK dataset
+blue_engine = BlueController(json_path="data/mitre/enterprise-attack.json")
 
 app = Flask("red_team_knife", static_url_path="/static")
 
@@ -251,7 +282,7 @@ def register_blueprints(app):
         DIG_NAME,
         __name__,
         CONTROLLERS[DIG_NAME],
-        DIG_DISPLY_NAME,
+        DIG_DISPLAY_NAME,
         INTERFACE_TEMPLATE,
         RESULTS_TEMPLATE,
         dig_scan_options,
@@ -345,6 +376,17 @@ def register_blueprints(app):
         wpscan_scan_options,
         SECTIONS,
     )
+    
+    nikto_blueprint = NiktoBlueprint(
+        NIKTO_NAME,
+        __name__,
+        CONTROLLERS[NIKTO_NAME],
+        NIKTO_DISPLAY_NAME,
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        nikto_scan_options,
+        SECTIONS,
+    )
 
     exploitation_tips_blueprint = TipsPageBlueprint(
         EXPLOITATION_TIPS_NAME,
@@ -381,6 +423,17 @@ def register_blueprints(app):
         ACTION_TIPS_DISPLAY_NAME,
         None,
     )
+    
+    dirsearch_blueprint = WebTargetBlueprint(
+        DIRSEARCH_NAME,
+        __name__,
+        CONTROLLERS[DIRSEARCH_NAME],
+        DIRSEARCH_DISPLAY_NAME,
+        INTERFACE_TEMPLATE,
+        RESULTS_TEMPLATE,
+        dirsearch_scan_options,
+        SECTIONS,
+    )
 
     global BLUEPRINTS
 
@@ -400,6 +453,8 @@ def register_blueprints(app):
         command_and_control_tips_blueprint,
         action_tips_blueprint,
         wpscan_blueprint,
+        nikto_blueprint,
+        dirsearch_blueprint,
     ]
 
     for blueprint in BLUEPRINTS:
@@ -407,31 +462,26 @@ def register_blueprints(app):
 
 
 def create_folders():
-    l.info("Creating folders...")
+    l.info("Creating application folders...")
 
     global SCANS_PATH
 
     SCANS_PATH = os.path.abspath(SCANS_FOLDER)
     if not os.path.exists(SCANS_PATH):
         os.makedirs(SCANS_FOLDER)
-        os.path.abspath(SCANS_PATH)
 
     TEMP_PATH = os.path.abspath(TEMP_FOLDER)
     if not os.path.exists(TEMP_PATH):
         os.makedirs(TEMP_FOLDER)
-        os.path.abspath(TEMP_PATH)
-    else:
-        shutil.rmtree(TEMP_FOLDER)
-        os.makedirs(TEMP_FOLDER)
 
+    # Setting permissions
     os.chmod(SCANS_FOLDER, 0o777)
     os.chmod(TEMP_FOLDER, 0o777)
 
 
 def start_w4af_server_api():
     l.info(f"Starting w4af server on {W4AF_ADDRESS}:{W4AF_PORT}...")
-    # Start w4af api server
-
+    # Command to start w4af api server
     W4AF_COMMAND = [
         "pipenv",
         "run",
@@ -439,12 +489,9 @@ def start_w4af_server_api():
         "--i-am-a-developer",
         "--no-ssl",
         f"{W4AF_ADDRESS}:{W4AF_PORT}",
-        
     ]
 
-    # Define the directory to change to
-
-    # Start the subprocess
+    # Start the subprocess in the specified directory
     process = subprocess.Popen(
         W4AF_COMMAND,
         stdout=subprocess.PIPE,
@@ -452,21 +499,18 @@ def start_w4af_server_api():
         text=True,
         cwd=W4AF_DIRECTORY,
     )
-    
-    
 
 
 def check_tools_exist():
     """
-    Check if "w4af" and "smtp-email-spoofer-py" exist in the tools folder.
+    Check if required tools exist in the tools folder.
 
     Returns:
-        bool: True if both tools exist, False otherwise.
+        bool: True if tools exist, False otherwise.
     """
     l.info("Checking tools installation...")
     tools_folder = "tools"
 
-    # Check if both tools exist
     w4af_exists = os.path.exists(os.path.join(tools_folder, "w4af"))
     smtp_email_spoofer_py_exists = os.path.exists(
         os.path.join(tools_folder, "smtp-email-spoofer-py")
@@ -492,10 +536,10 @@ def index():
 
     # List all saved scans
     scan_list = {}
-
-    for scan_name in os.listdir(SCANS_PATH):
-        scan = Scan(file_source=SCANS_PATH + "/" + scan_name)
-        scan_list[scan_name] = scan.name
+    if os.path.exists(SCANS_PATH):
+        for scan_name in os.listdir(SCANS_PATH):
+            scan = Scan(file_source=SCANS_PATH + "/" + scan_name)
+            scan_list[scan_name] = scan.name
 
     return render_template("index.html", sections=SECTIONS, scan_list=scan_list)
 
@@ -535,28 +579,65 @@ def temp_file(filename):
 
     filepath = os.path.join(TEMP_FOLDER, filename)
 
-    # Check if the file exists
     if os.path.isfile(filepath):
-        # Serve the file
         return send_from_directory(TEMP_FOLDER, filename)
     else:
-        # File not found
         return "File not found", 404
 
 
-# Disable Flask's built-in logging
+# Disable Flask's built-in werkzeug logging for cleaner terminal output
 log = logging.getLogger("werkzeug")
 log.disabled = True
+
+@app.route("/blue_team")
+def blue_team_dashboard():
+    debug_route(request)
+    
+    defense_data = []
+    # Capture 'tool' parameter from URL (e.g., /blue_team?tool=nikto)
+    specific_tool = request.args.get("tool") 
+    
+    if CurrentScan.scan is not None:
+        scan_data = CurrentScan.scan.data_storage.data
+        
+        # Routing logic: Global view vs Tool-specific contextual view
+        if specific_tool:
+            # User clicked from a specific tool result page
+            if specific_tool in scan_data:
+                executed_tools = [specific_tool]
+            else:
+                # Tool data not saved yet!
+                executed_tools = [] 
+        else:
+            # User clicked from sidebar (view full history)
+            executed_tools = scan_data.keys()
+        
+        for tool in executed_tools:
+            # Skip metadata keys
+            if tool in ["host", "protocol", "resource", "name", "creation_date", "creation_time"]:
+                continue
+                
+            scan_results = str(scan_data.get(tool, ""))
+            data = blue_engine.get_mitigations_for_tool(tool, scan_results)
+            if data:
+                defense_data.append(data)
+                
+    return render_template(
+        "blue_team.html", 
+        sections=SECTIONS, 
+        defense_data=defense_data
+    )
 
 if __name__ == "__main__":
     l.remove()
     l.add(sys.stdout, level="INFO")
 
-    l.info("Executing setup...")
+    l.info("Executing initial setup...")
     if not check_tools_exist():
         l.critical("Tools not installed properly!")
-        l.critical("Clone w4af and smtp-email-spoofer-py inside the tools folder.")
+        l.critical("Please clone w4af and smtp-email-spoofer-py inside the tools folder.")
         sys.exit()
+
     start_w4af_server_api()
     create_folders()
     register_blueprints(app)
@@ -564,6 +645,6 @@ if __name__ == "__main__":
     print(colorama.Fore.RED)
     print(BANNER)
     print(colorama.Style.RESET_ALL)
-    setup_executed = True
 
+    # Start Flask Server
     app.run(host="0.0.0.0")

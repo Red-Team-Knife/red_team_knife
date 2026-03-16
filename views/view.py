@@ -305,36 +305,54 @@ class BaseBlueprint(Blueprint):
         else:
             return html
 
-    def __format_result__(self, option:str):
-        """
-        Formats the result in HTML.
-
-        Returns:
-            str: HTML-formatted results.
-        """
+    def __format_result__(self, option: str):
         results = self.controller.get_results()
-        if results:
+
+        if results is not None:
             l.info(f"Generating HTML for {self.tool_name} results...")
             if option == FORMAT_FOR_REPORT:
-                html = self.__format_html_for_report__(results)
+                html_out = self.__format_html_for_report__(results)
             elif option == FORMAT_FOR_DISPLAY_RESULT:
-                html = self.__format_html__(results)
+                html_out = self.__format_html__(results)
+            
+            # SAFEGUARD: If for some reason html_out is None, return a string
+            if html_out is None:
+                l.error("WARNING: __format_html__ returned None!")
+                return "<p>Error rendering data.</p>"
+                
             l.success("HTML generated successfully.")
-            return html
+            return html_out
         else:
-            return "<p>An error occurred during results retrieval. Check terminal for more information.</p>"
+            return "<p>No results available.</p>"
 
     def __format_html__(self, results) -> str:
         """
         Formats results into HTML form.
-
-        Args:
-            results: object containing the results.
-
-        Returns:
-            str: HTML-formatted results.
         """
-        pass
+        # If the tool is Dirsearch, use the parser for report.txt
+        if self.tool_name == "dirsearch":
+            if not results or results == "None":
+                return "<p>No results received.</p>"
+
+            html_table = "<table class='w3-table-all w3-hoverable w3-card-4'>"
+            html_table += "<thead><tr class='w3-red'><th>Status</th><th>Size</th><th>URL</th></tr></thead><tbody>"
+            
+            lines = str(results).split('\n')
+            for line in lines:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                parts = line.split()
+                if len(parts) >= 3:
+                    status, size, url = parts[0], parts[1], parts[2]
+                    color = "green" if status == "200" else "orange" if status.startswith("3") else "red"
+                    html_table += f"<tr><td><b style='color:{color}'>{status}</b></td><td>{size}</td><td><code style='word-break:break-all;'>{url}</code></td></tr>"
+            
+            html_table += "</tbody></table>"
+            return html_table
+        
+        # For other tools, the standard behavior (to be overridden in respective blueprints)
+        return f"<pre>{html.escape(str(results))}</pre>"
     
     def __format_html_for_report__(self, result) -> str:
         """

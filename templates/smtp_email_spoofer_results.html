@@ -5,14 +5,18 @@
 {%block content%}
 
 <h1>{%block header %}{{tool}} Operation Status {% endblock %}</h1>
-<div id="new_scan_section" style="display: none;">
-    <form method="post">
+<div id="new_scan_section" style="display: none; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <form method="post" style="margin: 0;">
         <input type="hidden" name="new_scan_requested" value="True">
         <button type="submit">Send another email</button>
     </form>
+    
+    <a href="/blue_team?tool={{ current_section }}" class="w3-button w3-indigo w3-hover-blue w3-round w3-small" style="padding: 10px 15px; font-weight: bold; margin-left: 10px; text-decoration: none;">
+    🛡️ MITRE ATT&CK Analysis
+    </a>
 </div>
 
-<div id="results">
+<div id="results" style="margin-top: 20px;">
     {% if past_scan_available %}
     {{ scan_result | safe }}
     {% else %}
@@ -28,7 +32,7 @@
 </div>
 
 <script>
-
+// ... (The rest of the script remains exactly the same) ...
     $(document).ready(function () {
         var target = "{{ target }}";
         var options = "{{ options }}";
@@ -67,7 +71,7 @@
                 url: "{{ url_for(current_section + '.results') }}",
                 success: function (data) {
                     resultsDiv.html(data);
-                    newScanDiv.show()
+                    newScanDiv.css('display', 'flex'); // Modificato per supportare il layout flex
                     abortBtn.hide();
                 },
             });
@@ -88,10 +92,8 @@
             });
         });
 
-
-
         if (pastScanAvailable === "True") {
-            saveResultsDiv.show()
+            newScanDiv.css('display', 'flex'); // Modificato per supportare il layout flex
             afterResultsScript()
         } else {
             abortBtn.show()
@@ -99,8 +101,5 @@
         }
 
     });
-
 </script>
-
-
 {%endblock%}

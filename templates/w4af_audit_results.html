@@ -2,18 +2,15 @@
 
 {% block title %}{{tool}}{% endblock %}
 
-
 {%block content%}
 
 <h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
 
-
-<div id="buttons_section" style="display: flex; justify-content: space-between; align-items: center;">
+<div id="buttons_section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
     <div id="save_results_section" style="display: flex; align-items: center;">
 
         <div class="tooltip" id="save_results_message_section">
-            <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save
-                Results</button>
+            <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save Results</button>
             <span class="tooltiptext" id="tooltipText">Stop the scan to save results</span>
         </div>
 
@@ -31,22 +28,22 @@
 
     </div>
 
-    <button onclick="openInfoModal()">Exploitation Tips</button>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <button onclick="openInfoModal()" style="padding: 10px;">Exploitation Tips</button>
+        <a href="/blue_team?tool={{ current_section }}" class="w3-button w3-indigo w3-hover-blue w3-round w3-small" style="padding: 10px 15px; font-weight: bold; margin-left: 10px; text-decoration: none;">
+        🛡️ MITRE ATT&CK Analysis
+        </a>
+    </div>
 </div>
 
-<div id="status" style="padding: 10px; display: none;">
-</div>
-
+<div id="status" style="padding: 10px; display: none;"></div>
 <div id="info" style="padding: 10px;"></div>
-
-<div id="results" style="padding: 10px;">
-</div>
+<div id="results" style="padding: 10px;"></div>
 
 <div class="status_modal">
     <div class="status_modal_content">
         <div id="modal_body" style='padding: 10px; overflow: auto'></div>
         <span class="status_modal_close">&times;</span>
-
     </div>
 </div>
 
@@ -68,8 +65,7 @@
 </div>
 
 <script>
-
-
+// ... (Your script logic remains here) ...
     var modal = $('.modal');
 
     $('.close').on('click', function () {
@@ -229,8 +225,5 @@
             checkScanStatus();
         }
     });
-
 </script>
-
-
 {%endblock%}
