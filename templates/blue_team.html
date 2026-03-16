@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Blue Team Dashboard{% endblock %}
+
+{% block content %}
+<div class="w3-container w3-padding-32">
+    <h1 class="w3-text-red"><b>🛡️ Blue Team Analysis</b></h1>
+    <p>Based on the <b>MITRE ATT&CK®</b> framework</p>
+    <hr style="width:50px;border:5px solid red" class="w3-round">
+
+    {% if not defense_data %}
+    <div class="w3-panel w3-light-grey w3-padding-16 w3-leftbar w3-border-red">
+        <p><i>No scan detected. Run a Red Team tool to view defensive countermeasures.</i></p>
+    </div>
+    {% else %}
+        {% for item in defense_data %}
+        <div class="w3-card-4 w3-margin-bottom">
+            <header class="w3-container w3-red">
+                <h3>Technique: {{ item.name }} ({{ item.technique_id }})</h3>
+                <h5 style="margin-top: 0; padding-bottom: 10px;">
+                  Tool Detected: <b>{{ item.tool_name }}</b>
+                </h5>
+            </header>
+
+            <div class="w3-container w3-white w3-padding-16">
+                <p><b>MITRE Description:</b></p>
+                <p class="w3-small" style="text-align: justify;">{{ item.description }}</p>
+                
+                <h4 class="w3-text-blue"><b>🛡️ Mitigation Strategies:</b></h4>
+                <ul class="w3-ul w3-border">
+                    {% for mit in item.mitigations %}
+                    <li>
+                        <span class="w3-tag w3-blue w3-round">Guidance</span>
+                        <p><b>{{ mit.name }}:</b> {{ mit.description }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

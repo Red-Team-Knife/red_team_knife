@@ -5,29 +5,37 @@
 {%block content%}
 
 <h1>{%block header %}{{tool}} Scan Results {% endblock %}</h1>
-<div id="buttons_section" style="display: flex; justify-content: space-between; align-items: center;">
-    <div id="save_results_section" style="display: flex; align-items: center;">
-        <div id="save_results_message_section">
-            <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save
-                Results</button>
+<div id="buttons_section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div id="save_results_section" style="display: flex; align-items: center;">
+            <div id="save_results_message_section">
+                <button id="save_results" style="padding: 10px;" {% if save_disabled %}disabled{% endif %}>Save Results</button>
+            </div>
+            
+            <form method="post" style="padding: 10px; margin: 0;">
+                <input type="hidden" name="new_scan_requested" value="True">
+                <button type="submit">New Scan</button>
+            </form>
         </div>
 
-        <form method="post" style="padding: 10px;">
-            <input type="hidden" name="new_scan_requested" value="True">
-            <button type="submit">New Scan</button>
-        </form>
+        <div id="save_report_section" style="display: flex; align-items: center;">
+            <div id="save_report_message_section">
+                <button id="save_report" style="padding: 10px;">Save Report</button>
+            </div>
+        </div>
     </div>
 
-    <div id="save_report_section" style="display: flex; align-items: center;">
-        <div id="save_report_message_section">
-            <button id="save_report" style="padding: 10px;">Save Report </button>
-        </div>
+    <div>
+        <a href="/blue_team?tool={{ current_section }}" class="w3-button w3-indigo w3-hover-blue w3-round w3-small" style="padding: 10px 15px; font-weight: bold; margin-left: 10px; text-decoration: none;">
+        🛡️ MITRE ATT&CK Analysis
+        </a>
     </div>
 
     {%block additional_buttons%} {%endblock%}
 </div>
 
-<div id="results">
+<div id="results" style="margin-top: 20px;">
     {% if past_scan_available %}
     {{ scan_result | safe }}
     {% else %}
