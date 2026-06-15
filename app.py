@@ -647,4 +647,4 @@ if __name__ == "__main__":
     print(colorama.Style.RESET_ALL)
 
     # Start Flask Server
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=True)
